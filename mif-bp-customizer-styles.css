@@ -1,0 +1,11 @@
+/* Убираем уменьшение элементов активности для mini-сообщений */
+
+.activity-list li.mini {
+    font-size: inherit!important;
+}
+
+.activity-list li.mini .activity-avatar img.FB_profile_pic, #buddypress .activity-list li.mini .activity-avatar img.avatar {
+     height: inherit!important; 
+     margin-left: inherit!important;
+     width: inherit!important;
+}
