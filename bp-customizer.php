@@ -39,7 +39,7 @@ function mif_bp_profile_as_homepage()
 {
 	global $bp;
 
-    if ( is_user_logged_in() && bp_is_front_page() ) {
+    if ( is_user_logged_in() && is_front_page() ) {
         wp_redirect( $bp->loggedin_user->domain );
     }
 
