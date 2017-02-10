@@ -14,6 +14,46 @@
 
 defined( 'ABSPATH' ) || exit;
 
+include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
+
+
+
+
+
+// 
+// Настройка опций
+// 
+// 
+
+function mif_bpc_options( $key )
+{
+    switch ( $key ) {
+        case 'mif_bpc_profile_as_homepage':
+            $ret = true;
+            break;
+        default:
+            $ret = false;
+            break;
+    }
+
+    return $ret;
+}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 // Подключаем свой файл CSS
 //
@@ -28,32 +68,34 @@ function mif_bp_customizer_styles()
 }
 
 
+
+
 //
-// Настройка профиля как домашней страницы
-//
+// Удаляем лишние вкладки профиля (сайты, уведомления)
+// Корректируем названия некоторых вкладок
 //
 
-add_action( 'wp', 'mif_bp_profile_as_homepage' );
+// add_action( 'bp_init', 'mif_bp_nav_customize' );
 
-function mif_bp_profile_as_homepage()
+function mif_bp_nav_customize()
 {
-	global $bp;
-
-    if ( is_user_logged_in() && is_front_page() ) {
-        wp_redirect( $bp->loggedin_user->domain );
-    }
-
+	bp_core_remove_nav_item( 'blogs' );
 }
 
-add_action( 'wp_logout', 'mif_logout_redirection' );
+add_filter( 'bp_get_options_nav_change-avatar', 'mif_bp_nav_change_avatar_customize', 10, 3 );
 
-function mif_logout_redirection()
+function mif_bp_nav_change_avatar_customize( $link, $subnav_item, $selected_item )
 {
-	global $bp;
-	$redirect = $bp->root_domain;
-	wp_logout_url( $redirect );	
+	$txt = __( 'Аватар', 'mif-bp-customizer' );
+	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
 }
 
+add_filter( 'bp_get_options_nav_change-cover-image', 'mif_bp_nav_change_cover_image_customize', 10, 3 );
 
+function mif_bp_nav_change_cover_image_customize( $link, $subnav_item, $selected_item )
+{
+	$txt = __( 'Обложка', 'mif-bp-customizer' );
+	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
+}
 
 ?>

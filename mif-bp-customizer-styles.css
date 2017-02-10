@@ -11,7 +11,7 @@
      width: inherit!important;
 }
 
-#buddypress div#message {
+#buddypress div#message, #buddypress div.message, .bp-cover-image-status, .bp-avatar-status {
     margin: 1em 0;
     padding: 2em;
     text-decoration: none;
@@ -19,9 +19,10 @@
     border: 0;
     border-left: 0;
     color: inherit;
+    border-left: 4px solid #74C046;
 }
 
-#buddypress div#message p, #buddypress div#message.error p {
+#buddypress div#message p, #buddypress div.message p, #buddypress div#message.error p {
     margin: 0;
     margin-bottom: 1.5em;
     padding: 0;
@@ -32,18 +33,39 @@
     color: inherit;
 }
 
-#buddypress div#message p:last-child {
+#buddypress div#message p:last-child, #buddypress div.message p:last-child {
     margin-bottom: 0;
 }
 
-#buddypress div#message.info {
+#buddypress div#message.info, #buddypress div.message.info, .bp-cover-image-status, .bp-avatar-status {
     border-left: 4px solid #74C046;
 }
 
-#buddypress div#message.warning {
+.bp-cover-image-status p.warning, .bp-avatar-status p.warning, .bp-template-notice p {
+    margin: 0!important;
+    /*margin-bottom: 1.5em!important;*/
+    padding: 0!important;
+    text-decoration: none!important;
+    background-color: #efefef!important;
+    border: 0!important;
+    border-left: 0!important;
+    color: inherit!important;
+}
+
+#buddypress div#message.warning, #buddypress div.message.warning {
     border-left: 4px solid #F48625;
 }
 
-#buddypress div#message.error {
+#buddypress div#message.error, #buddypress div.message.error {
     border-left: 4px solid #EE1C25;
 }
+
+#drag-drop-area {
+    border: 3px dashed #eaeaea;
+}
+
+
+#buddypress table.forum tr.alt td, #buddypress table.messages-notices tr.alt td, #buddypress table.notifications tr.alt td, #buddypress table.notifications-settings tr.alt td, #buddypress table.profile-fields tr.alt td, #buddypress table.profile-settings tr.alt td, #buddypress table.wp-profile-fields tr.alt td {
+       color: inherit;
+}
+
