@@ -1,4 +1,40 @@
 
+
+
+
+
+
+
+/* Настройка страницы настройки */
+
+
+.settings_page_mif-bp-customizer table td.one {
+    width: 20%;
+}
+
+.settings_page_mif-bp-customizer table td, .settings_page_mif-bp-customizer table th {
+    vertical-align: top;
+    padding: 8px 8px 24px 0px;
+}
+
+.settings_page_mif-bp-customizer table td label {
+    vertical-align: top;
+}
+
+.settings_page_mif-bp-customizer table td h2 {
+    margin-bottom: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
 /* Убираем уменьшение элементов активности для mini-сообщений */
 
 .activity-list li.mini {

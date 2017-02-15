@@ -4,8 +4,7 @@
  * Plugin URI:  https://github.com/alexey-sergeev/mif-bp-customizer
  * Author:      Alexey Sergeev
  * Author URI:  https://github.com/alexey-sergeev
- * License:     GPLv2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * License:     MIT License
  * Description: Плагин BuddyPress для тонкой настройки социальной сети.
  * Version:     0.0.1
  * Text Domain: mif-bp-customizer
@@ -15,31 +14,41 @@
 defined( 'ABSPATH' ) || exit;
 
 include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
-
+include_once dirname( __FILE__ ) . '/inc/admin-settings-page.php';
 
 
 
 
 // 
-// Настройка опций
+// Проверка опций
 // 
 // 
 
 function mif_bpc_options( $key )
 {
-    switch ( $key ) {
-        case 'mif_bpc_profile_as_homepage':
-            $ret = true;
-            break;
-        default:
-            $ret = false;
-            break;
-    }
+    $ret = false;
+    $args = get_mif_bpc_options();
+
+    if ( isset( $args[$key] ) ) $ret = $args[$key];
 
     return $ret;
 }  
 
+// 
+// Получить опции
+// 
+// 
 
+function get_mif_bpc_options()
+{
+    $default = array(
+                'profile-as-homepage' => true,
+            );
+
+    foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );
+
+    return $args;
+}
 
 
 
