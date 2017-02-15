@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
 include_once dirname( __FILE__ ) . '/inc/admin-settings-page.php';
+include_once dirname( __FILE__ ) . '/inc/custom-background.php';
 
 
 
@@ -43,6 +44,7 @@ function get_mif_bpc_options()
 {
     $default = array(
                 'profile-as-homepage' => true,
+                'custom-background' => true,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );
