@@ -8,6 +8,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
+//
+// Описание инструмента настройки для группы. 
+// Использует методы общего класса mif_bpc_custom_background
+//
+
+if ( mif_bpc_options( 'custom-background' ) ) 
+    add_action( 'bp_init', 'mif_bpc_custom_background_groups_init' );
 
 function mif_bpc_custom_background_groups_init() {
 
@@ -48,8 +55,15 @@ function mif_bpc_custom_background_groups_init() {
     bp_register_group_extension( 'mif_bpc_custom_background_groups' );
 }
 
-add_action( 'bp_init', 'mif_bpc_custom_background_groups_init' );
 
+
+//
+// Общий класс для настройки фона для профиля пользователя и группы
+//
+//
+
+if ( mif_bpc_options( 'custom-background' ) ) 
+    new mif_bpc_custom_background();
 
 class mif_bpc_custom_background {
   
@@ -60,12 +74,6 @@ class mif_bpc_custom_background {
         add_action( 'bp_setup_nav', array( $this, 'setup_nav' ) );
         add_action( 'bp_init', array( $this, 'settings_save' ) );
         
-        // add_action( 'bp_xprofile_setup_nav', array( $this, 'setup_nav' ) );
-        // do_action( 'groups_setup_nav', array( $this, 'setup_nav' ) );
-
-        // add_action('wp_print_scripts',array(&$this,'inject_js'));
-        // add_action('wp_ajax_bppg_delete_bg',array(&$this,'ajax_delete_current_bg'));
-
     }
 
 
@@ -100,49 +108,23 @@ class mif_bpc_custom_background {
     public function change_custom_background()
     {
         global $bp;
-        // if( ! empty($_POST['bpprofbg_save_submit'])){
-        //             if(!wp_verify_nonce($_POST['_wpnonce'],"bp_upload_profile_bg"))
-        //                     die(__('Security check failed','bppbg'));
-        //             //handle the upload
-        //         if( $this->handle_upload())
-        //             bp_core_add_message(__('Background uploaded successfully!','bppg'));
-        
-        // $this->handle_upload();
-        // $this->handle_delete();
-                
-        // }
-        //hook the content
         add_action( 'bp_template_title', array( $this,'settings_title' ) );
         add_action( 'bp_template_content', array( $this, 'settings_screen' ) );
         bp_core_load_template( apply_filters( 'bp_core_template_plugin', 'members/single/plugins' ) );
     }
 
 
- 
-    // private function handle_delete() 
-    // {
-    //     if ( empty( $_POST['custom_background_delete_submit'] ) ) return false;
-    //     if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-delete' ) ) {
-    //         bp_core_add_message( sprintf( __( 'Ошибка авторизации', 'mif-bp-customizer' ) ), 'error' );
-    //         return false;
-    //     }
-
-    //     if ( $this->delete_custom_background() ) bp_core_add_message( sprintf( __( 'Изображение успешно удалено', 'buddypress' ) ) );
-    // }
-
     public function settings_title()
     {
         echo __( 'Фоновое изображение', 'mif-bp-customizer' );
     }
 
+
     public function settings_screen()
     {
 
-        // $this->settings_save();
-
         $out = '';
 
-        // $out .= '<form method="post" enctype="multipart/form-data">';
         $out .= '<form name="users-settings-form" id="users-settings-form" class="standard-form" method="post" enctype="multipart/form-data" role="main">';
 
         $out .= self::admin_page();
@@ -155,19 +137,22 @@ class mif_bpc_custom_background {
 
     }
 
+
     public function settings_save()
     {
 
+        if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-submit' ) ) return;
         if ( ! $_POST['save'] && ! $_POST['delete'] ) return;
 
-        if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-submit' ) ) {
-            bp_core_add_message( sprintf( __( 'Ошибка авторизации', 'mif-bp-customizer' ) ), 'error' );
-            return false;
-        }
+        // if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-submit' ) ) {
+        //     bp_core_add_message( sprintf( __( 'Ошибка авторизации', 'mif-bp-customizer' ) ), 'error' );
+        //     return false;
+        // }
 
         self::submit_handler();
 
     }
+
 
     public function add_css()
     {
@@ -250,7 +235,7 @@ class mif_bpc_custom_background {
         if ( $_POST['delete'] ) {
 
             $image_url = self::get_image();
-            if ( $image_url ) bp_core_add_message( sprintf( __( 'Изображение удалено', 'mif-bp-customizer' ) ) );
+            if ( $image_url ) bp_core_add_message( __( 'Изображение удалено', 'mif-bp-customizer' ) );
 
             self::delete_custom_background();
 
@@ -266,7 +251,7 @@ class mif_bpc_custom_background {
         $file=$_FILES;
 
         if ( $file['error'] ) {
-            bp_core_add_message( sprintf( __( 'Ошибка загрузки файла', 'mif-bp-customizer' ) ), 'error' );
+            bp_core_add_message( __( 'Ошибка загрузки файла', 'mif-bp-customizer' ), 'error' );
             return false;
         }
 
@@ -285,8 +270,6 @@ class mif_bpc_custom_background {
             return false;
         }
 
-
-        // $uploaded_file = wp_handle_upload( $file['file'], array( 'action'=> 'mif_bpc_upload_custom_background' ) );
         $uploaded_file = wp_handle_upload( $file['file'], array( 'test_form' => false ) );
 
         if ( ! empty( $uploaded_file['error'] ) ) {
@@ -363,21 +346,6 @@ class mif_bpc_custom_background {
         return $max_file_sizein_kb;
     }
 
-
-
-
-
-
-
-
-
-
-
 }
-
-   
-
-if ( mif_bpc_options( 'custom-background' ) ) 
-    new mif_bpc_custom_background();
 
 ?>
