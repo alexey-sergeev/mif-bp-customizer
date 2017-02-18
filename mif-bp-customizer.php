@@ -60,17 +60,6 @@ function get_mif_bpc_options()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 //
 // Подключаем свой файл CSS
 //
@@ -83,6 +72,15 @@ function mif_bp_customizer_styles()
 	wp_register_style( 'mif-bp-customizer-styles', plugins_url( 'mif-bp-customizer-styles.css', __FILE__ ) );
 	wp_enqueue_style( 'mif-bp-customizer-styles' );
 }
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,11 +1,11 @@
-/* Настройка виджета групп */
+/* Настройка виджетов пользователей и групп */
 
-.groups_widget span.avatar {
+.members_widget span.avatar, .groups_widget span.avatar {
     display: inline-block;
     margin: 0 4px 8px 4px;
 }
 
-.groups_widget span.avatar img {
+.members_widget span.avatar img, .groups_widget span.avatar img {
     border: 3px solid #fff;
     float: left;
 }

@@ -77,25 +77,30 @@ class mif_bpc_console_settings_page {
         //         <td><input type="checkbox"' . $chk['disable-admin-bar'] . ' value = "yes" name="disable-admin-bar" id="disable-admin-bar"></td>
         //         <td><label for="disable-admin-bar">' . __( 'Убрать верхнюю панель (админ-бар) для всех пользователей сайта.', 'mif-wp-customizer' ) . '</label></td>
         //         </tr>';
-        $out .= '<tr><td colspan="3">';
-        $out .= '<h2>' . __( 'Поведение сайта', 'mif-bp-customizer' ) . '</h2>';
-        $out .= '</td></tr>';
-        $out .= '<tr>
-                <th>' . __( 'Профиль как домашняя страница', 'mif-bp-customizer' ) . '</th>
-                <td><input type="checkbox"' . $chk['profile-as-homepage'] . ' value = "yes" name="profile-as-homepage" id="profile-as-homepage"></td>
-                <td><label for="profile-as-homepage">' . __( 'Назначить профиль пользователя его домашней страницей.', 'mif-bp-customizer' ) . '</label></td>
-                </tr>';
-        $out .= '<tr>
-                <th>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</th>
-                <td><input type="checkbox"' . $chk['custom-background'] . ' value = "yes" name="custom-background" id="custom-background"></td>
-                <td><label for="custom-background">' . __( 'Разрешить использовать пользовательское изображение в качестве фона для профиля пользователя или группы.', 'mif-bp-customizer' ) . '</label></td>
-                </tr>';
 
-        $out .= '<tr>
-                <th>' . __( 'Адрес группы', 'mif-bp-customizer' ) . '</th>
-                <td><input type="checkbox"' . $chk['edit-group-slug'] . ' value = "yes" name="edit-group-slug" id="edit-group-slug"></td>
-                <td><label for="edit-group-slug">' . __( 'Разрешить изменять адрес группы в её настройках и при создании.', 'mif-bp-customizer' ) . '</label></td>
-                </tr>';
+        if ( is_main_site() ) {
+
+            $out .= '<tr><td colspan="3">';
+            $out .= '<h2>' . __( 'Поведение сайта', 'mif-bp-customizer' ) . '</h2>';
+            $out .= '</td></tr>';
+            $out .= '<tr>
+                    <th>' . __( 'Профиль как домашняя страница', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['profile-as-homepage'] . ' value = "yes" name="profile-as-homepage" id="profile-as-homepage"></td>
+                    <td><label for="profile-as-homepage">' . __( 'Назначить профиль пользователя его домашней страницей.', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+            $out .= '<tr>
+                    <th>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['custom-background'] . ' value = "yes" name="custom-background" id="custom-background"></td>
+                    <td><label for="custom-background">' . __( 'Разрешить использовать пользовательское изображение в качестве фона для профиля пользователя или группы.', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+
+            $out .= '<tr>
+                    <th>' . __( 'Адрес группы', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['edit-group-slug'] . ' value = "yes" name="edit-group-slug" id="edit-group-slug"></td>
+                    <td><label for="edit-group-slug">' . __( 'Разрешить изменять адрес группы в её настройках и при создании.', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+            
+        }
 
         // $out .= '<tr>
         //         <th>' . __( 'MIME типы', 'mif-wp-customizer' ) . '</th>
