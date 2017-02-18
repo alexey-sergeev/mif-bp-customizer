@@ -18,6 +18,7 @@ include_once dirname( __FILE__ ) . '/inc/admin-settings-page.php';
 include_once dirname( __FILE__ ) . '/inc/custom-background.php';
 include_once dirname( __FILE__ ) . '/inc/edit-group-slug.php';
 include_once dirname( __FILE__ ) . '/inc/groups-widget.php';
+include_once dirname( __FILE__ ) . '/inc/members-widget.php';
 
 
 
@@ -49,6 +50,7 @@ function get_mif_bpc_options()
                 'custom-background' => false,
                 'edit-group-slug' => true,
                 'groups-widget' => true,
+                'members-widget' => true,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );

@@ -57,9 +57,14 @@ class mif_bpc_console_settings_page {
         //         </tr>';
 
         $out .= '<tr>
+                <th>' . __( 'Виджет участников сайта', 'mif-bp-customizer' ) . '</th>
+                <td><input type="checkbox"' . $chk['members-widget'] . ' value = "yes" name="members-widget" id="members-widget"></td>
+                <td><label for="members-widget">' . __( 'Разрешить использовать виджет участников сайта. Показывает аватры участников в области виджетов.', 'mif-bp-customizer' ) . '</label></td>
+                </tr>';
+        $out .= '<tr>
                 <th>' . __( 'Виджет групп', 'mif-bp-customizer' ) . '</th>
                 <td><input type="checkbox"' . $chk['groups-widget'] . ' value = "yes" name="groups-widget" id="groups-widget"></td>
-                <td><label for="groups-widget">' . __( 'Разрешить использовать виджет активных групп. Показывает аватры групп в области виджетов.', 'mif-bp-customizer' ) . '</label></td>
+                <td><label for="groups-widget">' . __( 'Разрешить использовать виджет групп. Показывает аватры групп в области виджетов.', 'mif-bp-customizer' ) . '</label></td>
                 </tr>';
             
         // $out .= '<tr>

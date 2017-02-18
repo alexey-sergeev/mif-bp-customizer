@@ -16,6 +16,8 @@ function mif_bpc_profile_as_homepage()
 {
 	global $bp;
 
+    if ( ! is_main_site() ) return;
+
     if ( is_user_logged_in() && is_front_page() ) {
         wp_redirect( $bp->loggedin_user->domain );
     }
