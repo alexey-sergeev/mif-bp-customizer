@@ -43,8 +43,8 @@ class mif_bpc_console_settings_page {
         $out .= '<form method="POST">';
         $out .= '<table class="form-table">';
         $out .= '<tr><td colspan="3">';
-        // $out .= '<h2>' . __( 'Визуальные элементы', 'mif-wp-customizer' ) . '</h2>';
-        // $out .= '</td></tr>';
+        $out .= '<h2>' . __( 'Визуальные элементы', 'mif-wp-customizer' ) . '</h2>';
+        $out .= '</td></tr>';
         // $out .= '<tr>
         //         <th class="one">' . __( 'Меню «Войти/Выйти»', 'mif-wp-customizer' ) . '</th>
         //         <td class="two"><input type="checkbox"' . $chk['login-logout-menu'] . ' value = "yes" name="login-logout-menu" id="login-logout-menu"></td>
@@ -55,11 +55,13 @@ class mif_bpc_console_settings_page {
         //         <td><input type="checkbox"' . $chk['login-logout-widget'] . ' value = "yes" name="login-logout-widget" id="login-logout-widget"></td>
         //         <td><label for="login-logout-widget">' . __( 'Разрешить использовать виджет авторизации. В зависимости от текущего статуса авторизации пользователя виджет отображает форму авторизации, либо аватар и имя пользователя.', 'mif-wp-customizer' ) . '</label></td>
         //         </tr>';
-        // // $out .= '<tr>
-        // //         <th>' . __( 'Виджет участников сайта', 'mif-wp-customizer' ) . '</th>
-        // //         <td><input type="checkbox"' . $chk['members-widget'] . ' value = "yes" name="members-widget" id="members-widget"></td>
-        // //         <td><label for="members-widget">' . __( 'Разрешить использовать виджет участников сайта. Показывает аватрки участников в области виджетов.', 'mif-wp-customizer' ) . '</label></td>
-        // //         </tr>';
+
+        $out .= '<tr>
+                <th>' . __( 'Виджет групп', 'mif-bp-customizer' ) . '</th>
+                <td><input type="checkbox"' . $chk['groups-widget'] . ' value = "yes" name="groups-widget" id="groups-widget"></td>
+                <td><label for="groups-widget">' . __( 'Разрешить использовать виджет активных групп. Показывает аватры групп в области виджетов.', 'mif-bp-customizer' ) . '</label></td>
+                </tr>';
+            
         // $out .= '<tr>
         //         <th>' . __( 'Кнопка «Наверх»', 'mif-wp-customizer' ) . '</th>
         //         <td><input type="checkbox"' . $chk['button-to-top'] . ' value = "yes" name="button-to-top" id="button-to-top"></td>
@@ -83,11 +85,13 @@ class mif_bpc_console_settings_page {
                 <td><input type="checkbox"' . $chk['custom-background'] . ' value = "yes" name="custom-background" id="custom-background"></td>
                 <td><label for="custom-background">' . __( 'Разрешить использовать пользовательское изображение в качестве фона для профиля пользователя или группы.', 'mif-bp-customizer' ) . '</label></td>
                 </tr>';
+
         $out .= '<tr>
                 <th>' . __( 'Адрес группы', 'mif-bp-customizer' ) . '</th>
                 <td><input type="checkbox"' . $chk['edit-group-slug'] . ' value = "yes" name="edit-group-slug" id="edit-group-slug"></td>
                 <td><label for="edit-group-slug">' . __( 'Разрешить изменять адрес группы в её настройках и при создании.', 'mif-bp-customizer' ) . '</label></td>
                 </tr>';
+
         // $out .= '<tr>
         //         <th>' . __( 'MIME типы', 'mif-wp-customizer' ) . '</th>
         //         <td><input type="checkbox"' . $chk['mif-wpc-mime-types'] . ' value = "yes" name="mif-wpc-mime-types" id="mif-wpc-mime-types"></td>
