@@ -44,18 +44,25 @@ class mif_bpc_members_widget extends WP_Widget {
         extract( $args );
 
         $out = '';
-        
+
+		// $out .= '<p>';
+   		// $out .= get_num_queries() . ' - ';
+		// $out .= timer_stop(1) . ' - ';
+		// $out .= round(memory_get_usage()/1024/1024, 2);
+
         $out .= $before_widget;
 
 		$title = apply_filters( 'mif_bpc_members_widget_title', $data['title'] );
-
 		if ( ! empty( $title ) ) $out .= $before_title . $title . $after_title;
 
 		$avatars = $this->get_avatars( $data );
-
         $out .= $avatars;
 
 		$out .= $after_widget;
+
+   		// $out .= get_num_queries() . ' - ';
+		// $out .= timer_stop(1) . ' - ';
+		// $out .= round(memory_get_usage()/1024/1024, 2);
 
         echo $out;
 
@@ -75,12 +82,12 @@ class mif_bpc_members_widget extends WP_Widget {
 
 	    global $wpdb, $blog_id;
 
-		$cache_widget_avatars = get_option( 'cache_widget_avatars' );
-		$timestamp = absint( $cache_widget_avatars['timestamp'] );
+        $cache_group = $number . '-' . $members_type . '-' . $cache_expires . '-' . $avatar_size;
+		$cache_widget_avatars = get_option( 'cache_widget_user_avatars' );
+		$expires = absint( $cache_widget_avatars[$cache_group]['expires'] );
 		$now = time();
 
-
-		if ( ! $cache_widget_avatars || $now - $timestamp > $cache_expires ) {
+		if ( ! isset( $cache_widget_avatars[$cache_group] ) || $now > $expires ) {
 		
 			if ( is_active_buddypress() ) {
 				// Если есть buddypress
@@ -155,11 +162,15 @@ class mif_bpc_members_widget extends WP_Widget {
 
 			}
 
-			update_option( 'cache_widget_avatars', array( 'timestamp' => time(), 'user_avatars' => $user_avatars ), false );
+            foreach ( (array) $cache_widget_avatars as $key => $value ) 
+                if ( $value['expires'] < $now ) unset( $cache_widget_avatars[$key] );
+
+            $cache_widget_avatars[$cache_group] = array( 'expires' => time() + $cache_expires, 'user_avatars' => $user_avatars );
+			update_option( 'cache_widget_user_avatars', $cache_widget_avatars, false );
 
 		} else {
 
-			$user_avatars = $cache_widget_avatars['user_avatars'];
+			$user_avatars = $cache_widget_avatars[$cache_group]['user_avatars'];
 
 		}
 
@@ -220,18 +231,6 @@ class mif_bpc_members_widget extends WP_Widget {
         echo $out;    
     }
 }
-
-
-// add_action( 'pre_user_query', 'my_random_user_query' );
-// function my_random_user_query( $class ) 
-// 	{
-// 		p('sss');
-
-// 		if( 'rand' == $class->query_vars['orderby'] )
-// 			$class->query_orderby = str_replace( 'user_login', 'RAND()', $class->query_orderby );
-
-// 		return $class;
-// 	}
 
 
 ?>

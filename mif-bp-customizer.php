@@ -13,17 +13,22 @@
 
 defined( 'ABSPATH' ) || exit;
 
+include_once dirname( __FILE__ ) . '/classes/members-page.php';
+
 include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
 include_once dirname( __FILE__ ) . '/inc/admin-settings-page.php';
 include_once dirname( __FILE__ ) . '/inc/custom-background.php';
 include_once dirname( __FILE__ ) . '/inc/edit-group-slug.php';
 include_once dirname( __FILE__ ) . '/inc/groups-widget.php';
 include_once dirname( __FILE__ ) . '/inc/members-widget.php';
+// include_once dirname( __FILE__ ) . '/inc/group-tags.php';
+include_once dirname( __FILE__ ) . '/inc/activity-stream.php';
 
 
 
 
-// 
+
+ 
 // Проверка опций
 // 
 // 
@@ -51,12 +56,16 @@ function get_mif_bpc_options()
                 'edit-group-slug' => true,
                 'groups-widget' => true,
                 'members-widget' => true,
+                'group-tags' => true,
+                'activity-stream' => true,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );
 
     return $args;
 }
+
+
 
 
 
@@ -82,6 +91,16 @@ function mif_bp_customizer_styles()
 
 
 
+if ( ! function_exists( 'p' ) ) {
+
+    function p( $data )
+    {
+        print_r( '<pre>' );
+        print_r( $data );
+        print_r( '</pre>' );
+    }
+
+}
 
 
 

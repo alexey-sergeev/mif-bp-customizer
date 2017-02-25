@@ -56,10 +56,6 @@ class mif_bpc_groups_widget extends WP_Widget {
 
 		if ( ! empty( $title ) ) $out .= $before_title . $title . $after_title;
 
-		// $data['number'] = 16;
-		// $data['size'] = 50;
-		// $data['cache_expires'] = 300;
-		// $data['members_type'] = 'active';
 		$avatars = $this->get_avatars( $data );
 
         $out .= $avatars;
@@ -88,15 +84,14 @@ class mif_bpc_groups_widget extends WP_Widget {
 
 	    global $wpdb, $blog_id;
 
-		$cache_widget_avatars = get_option( 'cache_widget_group_avatars' );
-		$timestamp = absint( $cache_widget_avatars['timestamp'] );
+		$cache_group = $number . '-' . $groups_type . '-' . $cache_expires . '-' . $avatar_size;
+        $cache_widget_avatars = get_option( 'cache_widget_group_avatars' );
+		$expires = absint( $cache_widget_avatars[$cache_group]['expires'] );
 		$now = time();
-
 
         $limit = $number * 3;
 
-
-		if ( ! $cache_widget_avatars || $now - $timestamp > $cache_expires ) {
+		if ( ! isset ( $cache_widget_avatars[$cache_group] ) || $now > $expires ) {
 		
             $args = array(
                     'type' => $groups_type,
@@ -150,11 +145,16 @@ class mif_bpc_groups_widget extends WP_Widget {
 
 			}
 
-			update_option( 'cache_widget_group_avatars', array( 'timestamp' => time(), 'group_avatars' => $group_avatars ), false );
+            foreach ( (array) $cache_widget_avatars as $key => $value ) 
+                if ( $value['expires'] < $now ) unset( $cache_widget_avatars[$key] );
+
+            $cache_widget_avatars[$cache_group] = array( 'expires' => time() + $cache_expires, 'group_avatars' => $group_avatars );
+
+            update_option( 'cache_widget_group_avatars', $cache_widget_avatars, false );
 
 		} else {
 
-			$group_avatars = $cache_widget_avatars['group_avatars'];
+			$group_avatars = $cache_widget_avatars[$cache_group]['group_avatars'];
 
 		}
 

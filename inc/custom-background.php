@@ -26,7 +26,8 @@ function mif_bpc_custom_background_groups_init() {
         var $enable_edit_item = true;
         
 
-        function __construct() {
+        function __construct() 
+        {
 
             $this->name = __( 'Фон', 'mif-bp-customizer' );
             $this->slug = 'custom-background';
@@ -35,7 +36,8 @@ function mif_bpc_custom_background_groups_init() {
         }
         
         
-        function settings_screen( $group_id = NULL ) {
+        function settings_screen( $group_id = NULL ) 
+        {
 
             echo '<h3>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</h3>';
 
@@ -44,7 +46,8 @@ function mif_bpc_custom_background_groups_init() {
         }
 
 
-        function settings_screen_save( $group_id = NULL ) {
+        function settings_screen_save( $group_id = NULL ) 
+        {
 
             mif_bpc_custom_background::submit_handler();
 
@@ -67,7 +70,8 @@ if ( mif_bpc_options( 'custom-background' ) )
 
 class mif_bpc_custom_background {
   
-    function __construct() {
+    function __construct() 
+    {
 
         add_filter( 'body_class', array( $this, 'get_body_class' ), 30 );
         add_action( 'wp_head', array( $this, 'add_css' ) );
@@ -141,8 +145,8 @@ class mif_bpc_custom_background {
     public function settings_save()
     {
 
-        if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-submit' ) ) return;
-        if ( ! $_POST['save'] && ! $_POST['delete'] ) return;
+        if ( ! ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-submit' ) ) ) return;
+        if ( empty( $_POST['save'] ) && empty( $_POST['delete'] ) ) return;
 
         // if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-submit' ) ) {
         //     bp_core_add_message( sprintf( __( 'Ошибка авторизации', 'mif-bp-customizer' ) ), 'error' );

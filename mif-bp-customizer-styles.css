@@ -1,3 +1,53 @@
+/* Настройка окна добавления пользователей */
+
+.members-page .add-member {
+    clear: both;
+    padding: 1em;
+    margin: 1em 0;
+    border: 3px dashed #eaeaea;
+}
+
+.members-page .add-btn, .members-page .submit-btn {
+    display: block;
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+.members-page .add-form, .members-page .response-box {
+    display: none;
+}
+
+.members-page .add-form div {
+    overflow: hidden;
+}
+
+.members-page .add-form textarea {
+    width: 100%;
+    height: 6em;
+}
+
+
+
+
+/* Настройка форм настроек в профиле */
+
+.nav-settings-form h4 {
+    display: block;
+    padding: 0 0 10px;
+    margin: 2em 0 1em;
+    border-bottom: 1px solid #E3E4E5;
+}
+
+.nav-settings-form label {
+    display: block;
+    margin: 0 0 0.5em;
+}
+
+.nav-settings-form label input {
+    margin: 0 0 0 1em;
+}
+
+
 /* Настройка виджетов пользователей и групп */
 
 .members_widget span.avatar, .groups_widget span.avatar {
