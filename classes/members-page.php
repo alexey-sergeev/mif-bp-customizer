@@ -387,9 +387,9 @@ class mif_bpc_members_page {
 
         }
 
-
         return apply_filters( 'mif_bpc_members_page_get_memberlist', $memberlist_arr ) ;
     }
+
     
     // 
     // Параметры для запроса списка пользователей

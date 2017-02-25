@@ -11,43 +11,38 @@ defined( 'ABSPATH' ) || exit;
 if ( mif_bpc_options( 'activity-stream' ) ) 
     new mif_bpc_activity_stream();
 
+
 class mif_bpc_activity_stream {
   
-    private static $instance;
-    
     function __construct()
     {
+        // Включить особый вид ленты активности        
         add_action( 'bp_activity_setup_nav', array( $this, 'activity_nav' ) );
-
-        add_action( 'bp_activity_setup_nav', array( $this, 'settings_activity_nav' ) );
-        add_action( 'bp_init', array( $this, 'settings_activity_helper' ) );
-
-        add_action( 'bp_activity_setup_nav', array( $this, 'banned_nav' ) );
-
         add_filter( 'bp_activity_get_where_conditions', array( $this, 'where_conditions' ), 2, 2 );
         add_action( 'bp_before_member_activity_post_form', array( $this,'show_post_form' ) );
 
-        add_action( 'bp_setup_nav', array( $this,'nav_default' ), 20 );  //### Чиним пустую страницу пользователя
+        // Включить настройку типов записей ленты активности
+        if ( mif_bpc_options( 'activity-exclude' ) ) {
+
+            add_action( 'bp_activity_setup_nav', array( $this, 'activity_exclude_nav' ) );
+            add_action( 'bp_init', array( $this, 'activity_exclude_helper' ) );
+
+        };
+
+        // Включить блокировку пользователей
+        if ( mif_bpc_options( 'banned-users' ) ) {
+
+            add_action( 'bp_activity_setup_nav', array( $this, 'banned_users_nav' ) );
+
+        }
     }
     
-    function banned_nav()
-    {
-        $args = array(
-                    'name' => __( 'Блокировки', 'mif-bp-customizer' ),
-                    'slug' => 'banned-members',
-                    'position' => 60,
-                    'title' => __( 'Блокировки пользователей', 'mif-bp-customizer' ),
-                    'body_comment' => __( 'Список пользователей, для которых ограничены контакты с вами. Эти пользователи не могут оставлять комментарии и нажимать «Нравится» для ваших записей. Их информация не отображается в ленте активности вашей страницы. Изменить статус блокировки вы можете здесь или на странице самих пользователей.', 'mif-bp-customizer' ),
-                    'can_edit' => true,
-                    // 'members_param' => array( 'include' => $this->get_banned_users() ),
-                    'members_usermeta' => 'banned_users',
-                );
-
-
-        new mif_bpc_members_page( $args );
-    }
-
     
+    //
+    // Настройка вкладок активности на странице пользователя
+    //
+    //
+
     function activity_nav()
     {
         global $bp;
@@ -61,6 +56,7 @@ class mif_bpc_activity_stream {
             $sub_nav = array(  
                     'name' => __( 'Вся лента', 'mif-bp-customizer' ), 
                     'slug' => 'all-stream', 
+                    'subnav_slug' => 'all-stream',
                     'parent_url' => $activity_link, 
                     'parent_slug' => $bp->activity->slug, 
                     'screen_function' => array( $this, 'activity_screen' ), 
@@ -69,6 +65,8 @@ class mif_bpc_activity_stream {
                 );
 
             bp_core_new_subnav_item( $sub_nav );
+            bp_core_new_nav_default( $sub_nav );
+
 
             // Личное - сделать второй вкладкой
 
@@ -129,16 +127,35 @@ class mif_bpc_activity_stream {
             bp_core_new_subnav_item( $sub_nav );
 
         }
-        
 
     }
 
 
     public function activity_screen()
     {
-            bp_core_load_template( apply_filters( 'bp_activity_template_mystream_activity', 'members/single/home' ) ); 
+        bp_core_load_template( apply_filters( 'bp_activity_template_mystream_activity', 'members/single/home' ) ); 
     }
 
+
+
+    //  
+    // Показывает форму публикации статуса на странице профиля пользователя
+    //  
+  
+    public function show_post_form()
+    {
+        if ( is_user_logged_in() && bp_is_my_profile() &&  bp_is_activity_component() && bp_is_current_action( 'all-stream' ) ) {
+
+            locate_template( array( 'activity/post-form.php'), true ) ;
+
+        } 
+    }
+
+
+
+    //  
+    // Настройка правил отображения элементов активности в лентах пользователей
+    //  
 
     public function where_conditions( $where, $r )
     {
@@ -224,19 +241,28 @@ class mif_bpc_activity_stream {
 
             }
 
-            // $activity_exclude = explode( ', ', get_user_meta( bp_loggedin_user_id(), 'activity_exclude', true ) );
-            $activity_exclude = explode( ', ', $this->get_activity_exclude() );
-            foreach ( $activity_exclude as $key => $item ) $activity_exclude[$key] = '\'' . trim( $item ) . '\'';
+            
+            // Убрать лишние типы активности, если такая возможность включена
+            
+            if ( mif_bpc_options( 'activity-exclude' ) ) {
 
-            if ( $activity_exclude ) $where['activity_exclude'] = 'a.type NOT IN (' . implode( ',', $activity_exclude ) . ')';
+                $activity_exclude = explode( ', ', $this->get_activity_exclude() );
+                foreach ( $activity_exclude as $key => $item ) $activity_exclude[$key] = '\'' . trim( $item ) . '\'';
 
-            $banned_users = $this->get_banned_users();
-            if ( $banned_users ) $where['banned_users'] = 'a.user_id NOT IN (' . $banned_users . ')';
+                if ( $activity_exclude ) $where['activity_exclude'] = 'a.type NOT IN (' . implode( ',', $activity_exclude ) . ')';
 
+            }
+            
+            // Убрать заблокированных пользователей, если такая возможность включена
+
+            if ( mif_bpc_options( 'banned-users' ) ) {
+                
+                $banned_users = $this->get_banned_users();
+                if ( $banned_users ) $where['banned_users'] = 'a.user_id NOT IN (' . $banned_users . ')';
+
+            }
 
         } else {
-
-
 
             // Избранное (чужая страница)
 
@@ -312,67 +338,25 @@ class mif_bpc_activity_stream {
 
         }
 
+        //
+        // Здесь можно уточнить правила отображения элементов
+        //
+
         return apply_filters( 'mif_bpc_activity_stream_where_conditions', $where, $r );
     }
 
 
 
-    public function get_activity_exclude( $user_id = NULL )
-    {
-        if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
-
-        $ret = get_user_meta( $user_id, 'activity_exclude', true );
-
-        return apply_filters( 'mif_bpc_activity_stream_get_activity_exclude', $ret, $user_id );
-    }
-
-
-
-    public function get_banned_users( $user_id = NULL )
-    {
-        if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
-
-        $ret = get_user_meta( $user_id, 'banned_users', true );
-
-        return apply_filters( 'mif_bpc_activity_stream_get_banned_users', $ret, $user_id );
-    }
 
 
 
 
+    // 
+    // Страница настройки ленты активности (типы активности)
+    // 
+    // 
 
-    
-    function nav_default() 
-    {
-        if( ! bp_is_my_profile() ) return;
-             
-        global $bp;
-
-        if ( $bp->current_action == 'personal' ) return;
-
-        bp_core_new_nav_default( 
-            array(  'parent_slug' => $bp->activity->slug,
-                    'subnav_slug' => 'all-stream',
-                    'screen_function' => array( $this,'activity_screen' )
-                ) );
-     }
-
-    function show_post_form()
-    {
-        if ( is_user_logged_in() && bp_is_my_profile() &&  bp_is_activity_component() && bp_is_current_action( 'all-stream' ) ) {
-
-            locate_template( array( 'activity/post-form.php'), true ) ;
-
-        } 
-    }
-
-
-
-
-    // Страница настройки ленты активности
-
-
-    public function settings_activity_nav()
+    public function activity_exclude_nav()
     {
         global $bp;
 
@@ -384,7 +368,7 @@ class mif_bpc_activity_stream {
                 'slug' => 'activity-settings', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
-                'screen_function' => array( $this, 'settings_activity_screen' ), 
+                'screen_function' => array( $this, 'activity_exclude_screen' ), 
                 'position' => 60,
                 'user_has_access'=>  bp_is_my_profile() 
             );
@@ -394,24 +378,23 @@ class mif_bpc_activity_stream {
     }
 
 
-    public function settings_activity_screen()
+    public function activity_exclude_screen()
     {
         global $bp;
-        add_action( 'bp_template_title', array( $this, 'settings_activity_title' ) );
-        add_action( 'bp_template_content', array( $this, 'settings_activity_body' ) );
+        add_action( 'bp_template_title', array( $this, 'activity_exclude_title' ) );
+        add_action( 'bp_template_content', array( $this, 'activity_exclude_body' ) );
         bp_core_load_template( apply_filters( 'bp_core_template_plugin', 'members/single/plugins' ) );
     }
 
 
-    public function settings_activity_title()
+    public function activity_exclude_title()
     {
         echo __( 'Параметры ленты активности', 'mif-bp-customizer' );
     }
 
 
-    public function settings_activity_body()
+    public function activity_exclude_body()
     {
-
         $activity_exclude = explode( ', ', $this->get_activity_exclude() );
         
         $out = '';
@@ -430,8 +413,6 @@ class mif_bpc_activity_stream {
                 $checked = ( ! in_array( $key, $activity_exclude ) ) ? ' checked' : '';
                 $out .= '<label><input type="checkbox" name="items[' . $key . ']"' . $checked . ' /> <span>' . $item . '</span></label>';
             }
-
-
         }
 
         $out .= '<input type="hidden" name="items[last_activity]" value="on"  />';
@@ -439,14 +420,12 @@ class mif_bpc_activity_stream {
         $out .= '&nbsp;<p><input type="submit" value="' . __( 'Сохранить изменения', 'mif-bp-customizer' ) . '">';
         $out .= '</form>';
 
-
         echo $out;
-
     }
 
-    public function settings_activity_helper()
-    {
 
+    public function activity_exclude_helper()
+    {
         if ( ! ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-settings-activity' ) ) ) return;
 
         $form_types = array_keys( $_POST['items'] );
@@ -458,9 +437,12 @@ class mif_bpc_activity_stream {
             bp_core_add_message( __( 'Список элементов активности сохранён.', 'mif-bp-customizer' ) );
 
         }
-
     }
 
+        
+    //
+    // Получает таблицу типов активности (только ключи или полная таблица с описанием)
+    //
 
     public function get_activity_types( $mode = 'keys' )
     {
@@ -488,6 +470,10 @@ class mif_bpc_activity_stream {
 
             );
 
+            //
+            // Здесь можно менять перечень типов активности из внешних плагинов
+            //
+
             $data = apply_filters( 'mif_bpc_activity_get_activity_types_data', $data );
 
             $group = array(
@@ -498,12 +484,20 @@ class mif_bpc_activity_stream {
                     1000 => __( 'Прочее', 'mif-bp-customizer' ),
             );
 
+            //
+            // Здесь можно менять перечень групп типов активности из внешних плагинов
+            //
+
             $group = apply_filters( 'mif_bpc_activity_get_activity_types_group', $group );
             
             global $bp, $wpdb;
 
             $sql = $wpdb->prepare( "SELECT DISTINCT type FROM {$bp->activity->table_name}" );
-            $activity_types = $wpdb->get_col( $sql );
+            $activity_types = $wpdb->get_col( $sql ); 
+            
+            //
+            // Здесь можно менять фактические типы активности из базы данных для дальнейшего сопоставления
+            //
 
             $activity_types = apply_filters( 'mif_bpc_activity_get_activity_types_activity_types', $activity_types );
 
@@ -526,6 +520,61 @@ class mif_bpc_activity_stream {
         return $arr;
 
     }
+
+
+
+    // 
+    // Страница блокировки пользователей
+    // 
+    // 
+
+    function banned_users_nav()
+    {
+        $args = array(
+                    'name' => __( 'Блокировки', 'mif-bp-customizer' ),
+                    'slug' => 'banned-members',
+                    'position' => 60,
+                    'title' => __( 'Блокировка пользователей', 'mif-bp-customizer' ),
+                    'body_comment' => __( 'Список пользователей, для которых ограничены контакты с вами. Эти пользователи не могут оставлять комментарии и нажимать «Нравится» для ваших записей. Их информация не отображается в ленте активности вашей страницы. Изменить статус блокировки вы можете здесь или на странице самих пользователей.', 'mif-bp-customizer' ),
+                    'can_edit' => true,
+                    'members_usermeta' => 'banned_users',
+                );
+
+        new mif_bpc_members_page( $args );
+    }
+ 
+
+
+    // 
+    // Получить список исключенной активности для пользователя
+    // 
+
+    public function get_activity_exclude( $user_id = NULL )
+    {
+        if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
+
+        $ret = get_user_meta( $user_id, 'activity_exclude', true );
+
+        return apply_filters( 'mif_bpc_activity_stream_get_activity_exclude', $ret, $user_id );
+    }
+
+
+
+    // 
+    // Получить список заблокированных пользователей  для пользователя
+    // 
+
+    public function get_banned_users( $user_id = NULL )
+    {
+        if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
+
+        $ret = get_user_meta( $user_id, 'banned_users', true );
+
+        return apply_filters( 'mif_bpc_activity_stream_get_banned_users', $ret, $user_id );
+    }
+
+
+
 
 }
 

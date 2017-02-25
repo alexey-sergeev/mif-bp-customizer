@@ -58,6 +58,8 @@ function get_mif_bpc_options()
                 'members-widget' => true,
                 'group-tags' => true,
                 'activity-stream' => true,
+                'activity-exclude' => true,
+                'banned-users' => true,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );
