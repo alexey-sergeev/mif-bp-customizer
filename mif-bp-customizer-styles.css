@@ -1,3 +1,102 @@
+/* Уточнение всплывающих меню для профиля пользователя */
+
+#item-buttons .mif-bpc-hint {
+   right: 27px;
+}
+
+
+/* Настройка всплывающих меню для ленты активности */
+
+.mif-bpc-hint {
+    position: absolute;
+    margin: 0;
+    padding: 15px 0 0 0;
+    right: 15px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 100ms linear, visibility 100ms linear;
+}
+
+.mif-bpc-hint div {
+    padding: 3px 0;
+    background-color: #fff;
+    border: 1px solid #E3E4E5; 
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+div:hover > .mif-bpc-hint, .mif-bpc-hint:hover {
+    transition: opacity 100ms linear, visibility 100ms linear;
+    visibility: visible;
+    opacity: 1;
+}
+
+.mif-bpc-hint:before, .mif-bpc-hint:after {
+	position: absolute;
+	content: "";
+	width: 0; 
+    top: 7px;
+	right: 10px;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+    border-bottom: 8px solid #E3E4E5;
+}
+
+.mif-bpc-hint:after {
+    top: 8.5px;
+	right: 11px;
+	border-left: 7px solid transparent;
+	border-right: 7px solid transparent;
+    border-bottom: 7px solid #fff;
+}
+
+div.activity-meta .mif-bpc-hint a, #item-buttons .mif-bpc-hint a, .mif-bpc-hint a {
+    color: #0086b3;
+    padding: 4px 15px;
+    display: block;
+    background-color: #fff;
+    border-radius: 0px;
+    text-align: left;
+}
+
+div.activity-meta .mif-bpc-hint a:hover, #item-buttons .mif-bpc-hint a:hover, .mif-bpc-hint a:hover {
+    color: #222;
+    display: block;
+    background-color: #ededed;
+}
+
+
+/* Настройка кнопки на старнице профиля пользователя */
+
+div#item-header div.generic-button.right {
+    float: right;
+}
+
+div#item-header div.generic-button a.gray {
+    background: #eaeaea;
+    color: #828282;
+}
+
+div#item-header div.generic-button a.gray:hover {
+    background: #414141;
+    color: #fff;
+}
+
+
+/* Настройка кнопок в ленте активности */
+
+div.activity-meta div.right {
+    float: right;
+}
+
+div.activity-meta a.disable-activity-type {
+    color: #828282;
+}
+
+div.activity-meta a.disable-activity-type:hover {
+    color: #fff;
+}
+
 /* Настройка окна добавления пользователей */
 
 .members-page .add-member {

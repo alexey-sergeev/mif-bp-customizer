@@ -27,8 +27,8 @@ class mif_bpc_members_page {
                 'title' => 'Title',
                 'body_comment' => 'Comment',
                 'can_edit' => true,
-                // 'members_param' => array(),
                 'members_usermeta' => '',
+                'exclude_users' => '',
                 'user_id' => bp_displayed_user_id(),
                 'add_btn' => __( 'Добавить пользователей', 'mif-bp-customizer' ),
                 'add_submit' => __( 'Сохранить изменения', 'mif-bp-customizer' ),
@@ -67,7 +67,7 @@ class mif_bpc_members_page {
 
     function user_has_access()
     {
-        return apply_filters( 'mif_bpc_members_page_user_has_access_' . $this->slug, true );
+        return apply_filters( 'mif_bpc_members_page_user_has_access_' . $this->argd['slug'], true );
     }
 
 
@@ -308,6 +308,15 @@ class mif_bpc_members_page {
 
                 }
 
+                $exclude_users = $this->get_exclude_users_arr();
+
+                if ( in_array( $user->ID, $exclude_users ) ) {
+
+                    $response[4][] = $user_nicename; // Пользователь в списке тех, кого нельзя добавлять в список
+                    continue;
+
+                }
+
                 if ( apply_filters( 'mif_bpc_members_page_check_adduser_' . $this->args['slug'], false, $this->args ) ) {
 
                     $response[5][] = $user_nicename; // Прочая причина невозможности добавления
@@ -344,8 +353,9 @@ class mif_bpc_members_page {
         if ( $response[1] ) echo '<p>' . __( 'Пользователи не найдены:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[1] ) . '</strong></p>';
         if ( $response[2] ) echo '<p>' . __( 'Пользователи уже присутствуют в списке:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[2] ) . '</strong></p>';
         if ( $response[3] ) echo '<p>' . __( 'Нельзя добавить самого себя:', 'mif-bp-customizer' ) . ' <strong>' . $response[3][0] . '</strong></p>';
-        if ( $response[4] ) echo '<p>' . apply_filters( 'mif_bpc_members_page_check_adduser_comment' . $this->args['slug'],       
-                                    __( 'Невозможно добавить:', 'mif-bp-customizer' ), $this->args ) . ' <strong>' . implode( ', ', $response[4] ) . '</strong></p>';
+        if ( $response[4] ) echo '<p>' . __( 'Пользователя нельзя добавить в список:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[4] ) . '</strong></p>';
+        if ( $response[5] ) echo '<p>' . apply_filters( 'mif_bpc_members_page_check_adduser_comment' . $this->args['slug'],       
+                                    __( 'Невозможно добавить:', 'mif-bp-customizer' ), $this->args ) . ' <strong>' . implode( ', ', $response[5] ) . '</strong></p>';
         if ( $response[0] && ! $res ) echo '<p>' . __( 'Произошла ошибка при добавлении пользователей:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[0] ) . '</strong></p>';
 
         echo '</div>';
@@ -381,7 +391,8 @@ class mif_bpc_members_page {
         if ( ! $memberlist_arr = wp_cache_get( 'memberlist', $this->args['user_id'] ) ) {
 
             $memberlist = get_user_meta( $this->args['user_id'], $this->args['members_usermeta'], true );
-            $memberlist_arr = array_diff( array_unique( explode( ",", $memberlist ) ), array( '' ) );
+            $exclude_users = $this->get_exclude_users_arr();
+            $memberlist_arr = array_diff( array_unique( explode( ",", $memberlist ) ), $exclude_users, array( '' ) );
         
             wp_cache_set( 'memberlist', $this->args['user_id'], $memberlist_arr );
 
@@ -390,7 +401,7 @@ class mif_bpc_members_page {
         return apply_filters( 'mif_bpc_members_page_get_memberlist', $memberlist_arr ) ;
     }
 
-    
+
     // 
     // Параметры для запроса списка пользователей
     // 
@@ -404,6 +415,20 @@ class mif_bpc_members_page {
         return apply_filters( 'mif_bpc_members_page_members_param', $members_param, $members_param_old, $this->args, $object ) ;
     }    
 
+
+    // 
+    // Возвращает массив пользователей, которые не должны быть в списке
+    // 
+    function get_exclude_users_arr()
+    {
+        $exclude_users = $this->args['exclude_users'];
+        $exclude_users = ( is_array( $exclude_users ) ) ? $exclude_users : explode( ',', $exclude_users );
+
+        foreach ( $exclude_users as $key => $item ) $exclude_users[$key] = (int) $item;
+        $exclude_users = array_diff( $exclude_users, array( '' ) );
+
+        return apply_filters( 'mif_bpc_members_page_get_exclude_users_arr', $exclude_users ) ;
+    }
     
 }
 

@@ -1,3 +1,10 @@
+//
+// JS-помощник формы добавления пользователя
+//
+//
+
+
+
 jQuery( document ).ready( function( jq ) {
 
     var time = 200;

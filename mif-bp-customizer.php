@@ -24,6 +24,7 @@ include_once dirname( __FILE__ ) . '/inc/members-widget.php';
 // include_once dirname( __FILE__ ) . '/inc/group-tags.php';
 include_once dirname( __FILE__ ) . '/inc/activity-stream.php';
 
+include_once dirname( __FILE__ ) . '/inc/functions.php';
 
 
 
@@ -86,8 +87,18 @@ function mif_bp_customizer_styles()
 
 
 
+//
+// Перемещае кнопку "Добавить в друзья" на третье место
+//
+//
 
+add_action( 'bp_member_header_actions', 'friends_button_fix', 1 );
 
+function friends_button_fix()
+{
+    remove_action( 'bp_member_header_actions', 'bp_add_friend_button', 5 );
+    add_action( 'bp_member_header_actions', 'bp_add_friend_button', 30 );
+}
 
 
 
@@ -113,25 +124,25 @@ if ( ! function_exists( 'p' ) ) {
 
 // add_action( 'bp_init', 'mif_bp_nav_customize' );
 
-function mif_bp_nav_customize()
-{
-	bp_core_remove_nav_item( 'blogs' );
-}
+// function mif_bp_nav_customize()
+// {
+// 	bp_core_remove_nav_item( 'blogs' );
+// }
 
-add_filter( 'bp_get_options_nav_change-avatar', 'mif_bp_nav_change_avatar_customize', 10, 3 );
+// add_filter( 'bp_get_options_nav_change-avatar', 'mif_bp_nav_change_avatar_customize', 10, 3 );
 
-function mif_bp_nav_change_avatar_customize( $link, $subnav_item, $selected_item )
-{
-	$txt = __( 'Аватар', 'mif-bp-customizer' );
-	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
-}
+// function mif_bp_nav_change_avatar_customize( $link, $subnav_item, $selected_item )
+// {
+// 	$txt = __( 'Аватар', 'mif-bp-customizer' );
+// 	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
+// }
 
-add_filter( 'bp_get_options_nav_change-cover-image', 'mif_bp_nav_change_cover_image_customize', 10, 3 );
+// add_filter( 'bp_get_options_nav_change-cover-image', 'mif_bp_nav_change_cover_image_customize', 10, 3 );
 
-function mif_bp_nav_change_cover_image_customize( $link, $subnav_item, $selected_item )
-{
-	$txt = __( 'Обложка', 'mif-bp-customizer' );
-	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
-}
+// function mif_bp_nav_change_cover_image_customize( $link, $subnav_item, $selected_item )
+// {
+// 	$txt = __( 'Обложка', 'mif-bp-customizer' );
+// 	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
+// }
 
 ?>

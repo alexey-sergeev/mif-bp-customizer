@@ -13,7 +13,20 @@ if ( mif_bpc_options( 'activity-stream' ) )
 
 
 class mif_bpc_activity_stream {
-  
+
+    //
+    // Пользователи, которых нельзя блокировать
+    //
+
+    public $unbanned_users = array( 'admin' );
+    
+    //
+    // Типы активности, которые нельзя блокировать
+    //
+
+    public $unexcluded_types = array( 'activity_update' );
+
+
     function __construct()
     {
         // Включить особый вид ленты активности        
@@ -27,12 +40,20 @@ class mif_bpc_activity_stream {
             add_action( 'bp_activity_setup_nav', array( $this, 'activity_exclude_nav' ) );
             add_action( 'bp_init', array( $this, 'activity_exclude_helper' ) );
 
+            add_action( 'bp_activity_entry_meta', array( $this, 'exclude_button' ) );
+            add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
+            add_action( 'wp_ajax_disable-activity-type-button', array( $this, 'exclude_button_ajax_helper' ) );
+
         };
 
         // Включить блокировку пользователей
         if ( mif_bpc_options( 'banned-users' ) ) {
 
             add_action( 'bp_activity_setup_nav', array( $this, 'banned_users_nav' ) );
+
+            add_action( 'bp_member_header_actions', array( $this, 'banned_user_button' ), 100 );
+            add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
+            add_action( 'wp_ajax_banned-user-button', array( $this, 'banned_user_button_ajax_helper' ) );
 
         }
     }
@@ -130,6 +151,10 @@ class mif_bpc_activity_stream {
 
     }
 
+
+    //  
+    // Показывает ленту активности в новых вкладках
+    //  
 
     public function activity_screen()
     {
@@ -242,11 +267,12 @@ class mif_bpc_activity_stream {
             }
 
             
-            // Убрать лишние типы активности, если такая возможность включена
+            // Убрать на странице "Вся лена" лишние типы активности, если такая возможность включена
             
-            if ( mif_bpc_options( 'activity-exclude' ) ) {
+            if ( mif_bpc_options( 'activity-exclude' ) && bp_is_current_action( 'all-stream' ) ) {
+            // if ( mif_bpc_options( 'activity-exclude' ) ) {
 
-                $activity_exclude = explode( ', ', $this->get_activity_exclude() );
+                $activity_exclude = $this->get_activity_exclude();
                 foreach ( $activity_exclude as $key => $item ) $activity_exclude[$key] = '\'' . trim( $item ) . '\'';
 
                 if ( $activity_exclude ) $where['activity_exclude'] = 'a.type NOT IN (' . implode( ',', $activity_exclude ) . ')';
@@ -350,6 +376,79 @@ class mif_bpc_activity_stream {
 
 
 
+    // 
+    // Кнопка удаления типов активности в своей ленте
+    // 
+    // 
+
+    public function exclude_button()
+    {
+
+        if ( ! bp_is_current_action( 'all-stream' ) ) return;
+
+        global $bp;
+
+        $activity_type = bp_get_activity_type();
+        $unexcluded_types = $this->get_unexcluded_types();
+
+        if ( in_array( $activity_type, $unexcluded_types ) ) return;
+
+        $settings_url = $bp->loggedin_user->domain . $bp->profile->slug . '/activity-settings';
+        $exclude_url = wp_nonce_url( $settings_url . '/request-exclude/' . $activity_type . '/', 'mif_bpc_activity_type_exclude_button' );
+
+        // $arr = array();
+        // if ( ! in_array( $at, $unexcluded_types ) ) $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $at ) );
+        // $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) );
+
+        $arr = array(
+                    array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $activity_type ) ),
+                    array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+                );
+
+        echo '<div class="right disable-activity-type"><a href="" class="button bp-secondary-action disable-activity-type"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
+
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Не показывать записи этого типа', 'mif-bp-customizer' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></a>';
+    }
+
+
+
+    public function load_js_helper()
+    {
+        wp_register_script( 'mif_bpc_exclude_button', plugins_url( '../js/button-hint-helper.js', __FILE__ ) );  
+        wp_enqueue_script( 'mif_bpc_exclude_button' );
+    }
+
+
+
+    public function exclude_button_ajax_helper()
+    {
+        check_ajax_referer( 'mif_bpc_activity_type_exclude_button' );
+
+        if ( ! mif_bpc_options( 'activity-exclude' ) ) wp_die();
+
+        $exclude = sanitize_text_field( $_POST['exclude'] );
+        $unexcluded_types = $this->get_unexcluded_types();
+        $activity_exclude = $this->get_activity_exclude();
+
+
+        if ( in_array( $exclude, $unexcluded_types ) ) wp_die();
+        if ( in_array( $exclude, $activity_exclude ) ) wp_die();
+
+        $activity_exclude[] = $exclude;
+        
+        if ( update_user_meta( bp_loggedin_user_id(), 'activity_exclude', implode( ', ', $activity_exclude ) ) ) {
+
+            echo $exclude;
+        
+        }
+        
+        wp_die();
+    }
+
+
+
+
 
     // 
     // Страница настройки ленты активности (типы активности)
@@ -395,11 +494,12 @@ class mif_bpc_activity_stream {
 
     public function activity_exclude_body()
     {
-        $activity_exclude = explode( ', ', $this->get_activity_exclude() );
-        
+        $activity_exclude = $this->get_activity_exclude();
+        $unexcluded_types = $this->get_unexcluded_types();
+
         $out = '';
 
-        $out .= '<p>' . __( 'Укажите элементы ленты активности, которые должны отображаться на вашей странице. Блокировка этих элементов также доступна и в самой ленте.', 'mif-bp-customizer' ) . '</p>';
+        $out .= '<p>' . __( 'Укажите элементы ленты активности, которые должны отображаться на вашей главной странице. Блокировка этих элементов также доступна и в самой ленте главной страницы.', 'mif-bp-customizer' ) . '</p>';
         
         $out .= '<form class="nav-settings-form" method="POST">';
 
@@ -411,7 +511,8 @@ class mif_bpc_activity_stream {
 
             foreach ( (array) $activity_types_data_group['items'] as $key => $item ) {
                 $checked = ( ! in_array( $key, $activity_exclude ) ) ? ' checked' : '';
-                $out .= '<label><input type="checkbox" name="items[' . $key . ']"' . $checked . ' /> <span>' . $item . '</span></label>';
+                $disabled = ( in_array( $key, $unexcluded_types ) ) ? ' disabled' : '';
+                $out .= '<label><input type="checkbox" name="items[' . $key . ']"' . $checked . $disabled . ' /> <span>' . $item . '</span></label>';
             }
         }
 
@@ -430,7 +531,8 @@ class mif_bpc_activity_stream {
 
         $form_types = array_keys( $_POST['items'] );
         $all_types = $this->get_activity_types();
-        $exclude_types = array_diff( $all_types, $form_types );
+        $unexcluded_types = $this->get_unexcluded_types();
+        $exclude_types = array_diff( $all_types, $form_types, $unexcluded_types );
 
         if ( update_user_meta( bp_loggedin_user_id(), 'activity_exclude', implode( ', ', $exclude_types ) ) ) {
             
@@ -492,7 +594,7 @@ class mif_bpc_activity_stream {
             
             global $bp, $wpdb;
 
-            $sql = $wpdb->prepare( "SELECT DISTINCT type FROM {$bp->activity->table_name}" );
+            $sql = "SELECT DISTINCT type FROM {$bp->activity->table_name}";
             $activity_types = $wpdb->get_col( $sql ); 
             
             //
@@ -535,14 +637,105 @@ class mif_bpc_activity_stream {
                     'slug' => 'banned-members',
                     'position' => 60,
                     'title' => __( 'Блокировка пользователей', 'mif-bp-customizer' ),
-                    'body_comment' => __( 'Список пользователей, для которых ограничены контакты с вами. Эти пользователи не могут оставлять комментарии и нажимать «Нравится» для ваших записей. Их информация не отображается в ленте активности вашей страницы. Изменить статус блокировки вы можете здесь или на странице самих пользователей.', 'mif-bp-customizer' ),
+                    'body_comment' => __( 'Список пользователей, для которых ограничены контакты с вами. Эти пользователи не могут предлагать дружбу, оставлять комментарии и нажимать «Нравится» для ваших записей. Их информация не отображается в ленте активности вашей страницы. Изменить статус блокировки вы можете здесь или на странице самих пользователей.', 'mif-bp-customizer' ),
                     'can_edit' => true,
                     'members_usermeta' => 'banned_users',
+                    'exclude_users' => $this->get_unbanned_users(),
                 );
 
         new mif_bpc_members_page( $args );
     }
  
+
+    // 
+    // Кнопка блокировки пользователей на странице пользователей
+    // 
+    // 
+
+    function banned_user_button()
+    {
+
+        if ( bp_is_my_profile() ) return;
+
+        $user_id = bp_displayed_user_id();
+        $unbanned_users = $this->get_unbanned_users( $mode = 'ids_arr' );
+
+        if ( in_array( $user_id, $unbanned_users ) ) return;
+
+
+        global $bp;
+
+        $banned_url = $bp->loggedin_user->domain . $bp->profile->slug . '/banned-members';
+        $banned_url_request = wp_nonce_url( $settings_url . '/banned-members/requests/' . $user_id . '/', 'mif_bpc_banned_user_button' );
+
+        $caption = $this->get_caption();
+
+        $arr = array(
+                    array( 'href' => $banned_url_request, 'descr' => $caption, 'class' => 'ajax', 'data' => array( 'userid' => $user_id ) ),
+                    array( 'href' => $banned_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+                );
+
+        echo '<div class="right generic-button banned-users"><a href="" class="gray banned-users"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
+
+    }
+ 
+
+    public function banned_user_button_ajax_helper()
+    {
+        check_ajax_referer( 'mif_bpc_banned_user_button' );
+
+        if ( ! mif_bpc_options( 'banned-users' ) ) wp_die();
+
+        $user_id = (int) $_POST['userid'];
+        $current_user_id = bp_loggedin_user_id();
+        $banned_users = $this->get_banned_users( $current_user_id, 'arr' );
+        
+        if ( in_array( $user_id, $banned_users ) ) {
+
+            $banned_users = array_diff( $banned_users, array( $user_id ) );
+
+        } else {
+
+            $banned_users[] = $user_id;
+            sort( $banned_users );
+
+        }
+
+        update_user_meta( $current_user_id, 'banned_users', implode( ',', $banned_users ) );
+        $caption = $this->get_caption();
+
+        echo $caption;
+
+
+        // $exclude = sanitize_text_field( $_POST['exclude'] );
+        // $unexcluded_types = $this->get_unexcluded_types();
+        // $activity_exclude = $this->get_activity_exclude();
+
+
+        // if ( in_array( $exclude, $unexcluded_types ) ) wp_die();
+        // if ( in_array( $exclude, $activity_exclude ) ) wp_die();
+
+        // $activity_exclude[] = $exclude;
+        
+        // if ( update_user_meta( bp_loggedin_user_id(), 'activity_exclude', implode( ', ', $activity_exclude ) ) ) {
+
+        //     echo $exclude;
+        
+        // }
+        
+        wp_die();
+    }
+
+
+    function get_caption()
+    {
+        $caption = ( $this->is_banned() ) ? __( 'Снять ограничения', 'mif-bp-customizer' ) : __( 'Ограничить контакты', 'mif-bp-customizer' );
+
+        return $caption;
+    }
+
+
+
 
 
     // 
@@ -551,26 +744,133 @@ class mif_bpc_activity_stream {
 
     public function get_activity_exclude( $user_id = NULL )
     {
+        // возвращает массив типов активности
+
         if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
 
         $ret = get_user_meta( $user_id, 'activity_exclude', true );
+        $ret_arr = explode( ', ', $ret );
 
-        return apply_filters( 'mif_bpc_activity_stream_get_activity_exclude', $ret, $user_id );
+        $unexcluded_types = $this->get_unexcluded_types();
+
+        $ret_arr = array_diff( $ret_arr, $unexcluded_types );
+
+        return apply_filters( 'mif_bpc_activity_stream_get_activity_exclude', $ret_arr, $user_id );
     }
 
 
 
     // 
-    // Получить список заблокированных пользователей  для пользователя
+    // Получить активности, которые нельзя блокировать
     // 
 
-    public function get_banned_users( $user_id = NULL )
+    public function get_unexcluded_types( $mode = 'arr' )
     {
-        if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
+        // возвращает массив или строку неблокинуемых типов активности
 
+        // Зднесь можно менять список неблокируемых типов
+        $unexcluded_types = apply_filters( 'mif_bpc_activity_stream_get_unexcluded_types', $this->unexcluded_types );
+        $unexcluded_types = array_unique( $unexcluded_types ); // массив типов активности
+
+        // вернуть типы активности в строке через запятую
+        if ( ! $mode = 'arr' ) return implode( ',', $unexcluded_types );
+
+        // вернуть массив типов активности
+        return $unexcluded_types;
+    }
+
+
+
+    // 
+    // Получить список заблокированных пользователей для пользователя
+    // 
+
+    public function get_banned_users( $user_id = NULL, $mode = 'str' )
+    {
+        // возвращает строку id через запятую
+
+        if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
         $ret = get_user_meta( $user_id, 'banned_users', true );
 
+        $ret_arr = explode( ',', $ret );
+        foreach ( (array) $ret_arr as $key => $item ) $ret_arr[$key] = (int) $item;
+
+        $unbanned_users = $this->get_unbanned_users( 'ids_arr' );
+
+        $ret_arr = array_diff( $ret_arr, $unbanned_users );
+
+        // Здесь можно поменять id заблокированных пользователей в массиве
+        $ret_arr = apply_filters( 'mif_bpc_activity_stream_get_banned_users_arr', $ret_arr, $user_id );
+
+        if ( $mode == 'arr' ) return $ret_arr;
+
+        $ret = implode( ',', $ret_arr );
+
         return apply_filters( 'mif_bpc_activity_stream_get_banned_users', $ret, $user_id );
+    }
+
+
+    // 
+    // Проверяет, является ли user2 заблокироанным пользователем у пользователя user
+    // 
+
+    public function is_banned( $user_id = NULL, $user2_id = NULL )
+    {
+        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+        if ( $user2_id == NULL ) $user2_id = bp_displayed_user_id();
+
+        $banned_users = $this->get_banned_users( $user_id, 'arr' );
+
+        $ret = ( in_array( $user2_id, $banned_users ) ) ? true : false;
+
+        return apply_filters( 'mif_bpc_activity_stream_get_banned_users', $ret, $user_id, $user2_id );
+    }
+
+
+    // 
+    // Получить пользователей, которых нельзя блокировать
+    // 
+
+    public function get_unbanned_users( $mode = 'ids' )
+    {
+        // возвращает массив или строку пользователей, которых нельзя блокировать
+        
+        // Здесь можно менять список неблокируемых пользователей (массив nicenames)
+        $unbanned_users = apply_filters( 'mif_bpc_activity_stream_get_unbanned_users', $this->unbanned_users );
+        $unbanned_users = array_unique( $unbanned_users ); // массив nicenames
+
+        if ( $mode == 'ids' || $mode = 'ids_arr' ) {
+
+            if ( ! $unbanned_users_ids_arr = wp_cache_get( 'unbanned_users' ) ) {
+
+                $unbanned_users_ids_arr = array();
+
+                foreach ( (array) $unbanned_users as $item ) {
+
+                    if ( trim( $item ) == '' ) continue;
+
+                    $user = get_user_by( 'slug', $item ); 
+                    if ( is_object( $user ) ) $unbanned_users_ids_arr[] = $user->ID;
+
+                }
+            
+                // Здесь можно менять список неблокируемых пользователей (массив id)
+                $unbanned_users_ids_arr = apply_filters( 'mif_bpc_activity_stream_get_unbanned_users_ids', $unbanned_users_ids_arr );
+
+                wp_cache_set( 'unbanned_users', $unbanned_users_ids_arr );
+
+            }
+
+            // вернуть id в массиве
+            if ( $mode == 'ids_arr' ) return $unbanned_users_ids_arr;
+
+            // вернуть id в строке через запятую
+            if ( $mode == 'ids' ) return implode( ',', $unbanned_users_ids_arr );
+
+        }
+
+        // вернуть массив nicenames
+        return $unbanned_users;
     }
 
 
