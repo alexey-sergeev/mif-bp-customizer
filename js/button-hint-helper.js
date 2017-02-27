@@ -64,7 +64,10 @@ jQuery( document ).ready( function( jq ) {
 		},
 		function( response ) {
             // alert(response);
-            if ( response ) button.fadeOut( time, function() { button.fadeIn( time ).html( response ) } );
+            if ( response ) {
+                button.fadeOut( time, function() { button.fadeIn( time ).html( response ) } );
+                jq( 'i.banned-users.icon' ).toggleClass( 'none' );
+        }
 		});
 
 		return false;

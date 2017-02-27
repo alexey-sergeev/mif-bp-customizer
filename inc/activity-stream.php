@@ -55,6 +55,10 @@ class mif_bpc_activity_stream {
             add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
             add_action( 'wp_ajax_banned-user-button', array( $this, 'banned_user_button_ajax_helper' ) );
 
+            add_action( 'bp_get_add_friend_button', array( $this, 'remove_friendship_button' ) );
+            add_action( 'bp_activity_can_comment', array( $this, 'remove_comment_button' ) );
+            
+
         }
     }
     
@@ -675,7 +679,9 @@ class mif_bpc_activity_stream {
                     array( 'href' => $banned_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
                 );
 
-        echo '<div class="right generic-button banned-users"><a href="" class="gray banned-users"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
+        $none = ( $this->is_banned() ) ? '' : ' none';
+
+        echo '<div class="right"><div class="right generic-button banned-users"><a href="" class="gray banned-users"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div><i class="fa fa-ban fa-2x right banned-users icon' . $none . '"></i></div>';
 
     }
  
@@ -732,6 +738,36 @@ class mif_bpc_activity_stream {
         $caption = ( $this->is_banned() ) ? __( 'Снять ограничения', 'mif-bp-customizer' ) : __( 'Ограничить контакты', 'mif-bp-customizer' );
 
         return $caption;
+    }
+
+
+    // 
+    // Удалить кнопку "Добавить в друзья", если пользователь тебя заблокировал
+    // 
+
+    public function remove_friendship_button( $button )
+    {
+        $target_user_id = bp_get_potential_friend_id();
+        $user_id = bp_loggedin_user_id();
+        
+        if ( $this->is_banned( $target_user_id, $user_id ) ) $button = array();
+
+        return $button;
+    }
+
+
+    // 
+    // Удалить кнопку "Оставить комментарий", если пользователь тебя заблокировал
+    // 
+
+    public function remove_comment_button( $can_comment )
+    {
+        $target_user_id = bp_get_activity_user_id();
+        $user_id = bp_loggedin_user_id();
+        
+        if ( $this->is_banned( $target_user_id, $user_id ) ) $can_comment = false;
+
+        return $can_comment;
     }
 
 
