@@ -56,8 +56,11 @@ class mif_bpc_activity_stream {
             add_action( 'wp_ajax_banned-user-button', array( $this, 'banned_user_button_ajax_helper' ) );
 
             add_action( 'bp_get_add_friend_button', array( $this, 'remove_friendship_button' ) );
-            add_action( 'bp_activity_can_comment', array( $this, 'remove_comment_button' ) );
+            add_filter( 'bp_activity_can_comment', array( $this, 'remove_comment_button' ) );
+            add_filter( 'bp_activity_can_comment_reply', array( $this, 'remove_comment_button' ) );
             
+            add_action( 'bp_before_activity_comment', array( $this, 'before_activity_comment' ) );
+            add_action( 'bp_after_activity_comment', array( $this, 'after_activity_comment' ) );
 
         }
     }
@@ -749,8 +752,13 @@ class mif_bpc_activity_stream {
     {
         $target_user_id = bp_get_potential_friend_id();
         $user_id = bp_loggedin_user_id();
-        
-        if ( $this->is_banned( $target_user_id, $user_id ) ) $button = array();
+
+        if ( bp_is_friend() == 'is_friend' || bp_is_friend() == 'pending' ) return $button;
+
+        if ( $this->is_banned( $target_user_id, $user_id ) ||
+             $this->is_banned( $user_id, $target_user_id ) ) $button = array();
+
+        // if ( $this->is_banned( $target_user_id, $user_id ) ) $button = array();
 
         return $button;
     }
@@ -762,12 +770,37 @@ class mif_bpc_activity_stream {
 
     public function remove_comment_button( $can_comment )
     {
-        $target_user_id = bp_get_activity_user_id();
+        $target_user_id = ( bp_get_activity_comment_user_id() ) ? bp_get_activity_comment_user_id() : bp_get_activity_user_id();
         $user_id = bp_loggedin_user_id();
-        
-        if ( $this->is_banned( $target_user_id, $user_id ) ) $can_comment = false;
+
+        if ( $this->is_banned( $target_user_id, $user_id ) ||
+             $this->is_banned( $user_id, $target_user_id ) ) $can_comment = false;
+
+        // if ( $this->is_banned( $target_user_id, $user_id ) ) $can_comment = false;
 
         return $can_comment;
+    }
+
+    public function before_activity_comment()
+    {
+        if ( ! bp_is_my_profile() ) return;
+        
+        if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
+
+            echo '<!--';
+        
+        }
+    }
+
+    public function after_activity_comment()
+    {
+        if ( ! bp_is_my_profile() ) return;
+
+        if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
+
+            echo '-->';
+        
+        }
     }
 
 
@@ -826,17 +859,23 @@ class mif_bpc_activity_stream {
         // возвращает строку id через запятую
 
         if ( $user_id === NULL ) $user_id = bp_loggedin_user_id();
-        $ret = get_user_meta( $user_id, 'banned_users', true );
 
-        $ret_arr = explode( ',', $ret );
-        foreach ( (array) $ret_arr as $key => $item ) $ret_arr[$key] = (int) $item;
+        if ( ! $ret_arr = wp_cache_get( 'banned_users', $user_id ) ) {
 
-        $unbanned_users = $this->get_unbanned_users( 'ids_arr' );
+            $ret = get_user_meta( $user_id, 'banned_users', true );
 
-        $ret_arr = array_diff( $ret_arr, $unbanned_users );
+            $ret_arr = explode( ',', $ret );
+            foreach ( (array) $ret_arr as $key => $item ) $ret_arr[$key] = (int) $item;
 
-        // Здесь можно поменять id заблокированных пользователей в массиве
-        $ret_arr = apply_filters( 'mif_bpc_activity_stream_get_banned_users_arr', $ret_arr, $user_id );
+            $unbanned_users = $this->get_unbanned_users( 'ids_arr' );
+            $ret_arr = array_diff( $ret_arr, $unbanned_users );
+
+            // Здесь можно поменять id заблокированных пользователей в массиве
+            $ret_arr = apply_filters( 'mif_bpc_activity_stream_get_banned_users_arr', $ret_arr, $user_id );
+
+            wp_cache_set( 'banned_users', $user_id, $ret_arr );
+
+        }
 
         if ( $mode == 'arr' ) return $ret_arr;
 

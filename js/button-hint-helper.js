@@ -66,6 +66,9 @@ jQuery( document ).ready( function( jq ) {
             // alert(response);
             if ( response ) {
                 button.fadeOut( time, function() { button.fadeIn( time ).html( response ) } );
+
+                jq( '.acomment-user-' + userid ).toggleClass( 'none' );
+                jq( '.friendship-button' ).toggleClass( 'none' );
                 jq( 'i.banned-users.icon' ).toggleClass( 'none' );
         }
 		});

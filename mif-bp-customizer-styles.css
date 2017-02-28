@@ -10,7 +10,7 @@ i.banned-users.icon {
     color: #eaeaea;
 }
 
-i.banned-users.icon.none {
+i.banned-users.icon.none, .acomment-reply.none, .friendship-button.none {
     display: none;
 }
 
