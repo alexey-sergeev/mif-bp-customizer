@@ -377,6 +377,9 @@ class mif_bpc_members_page {
 
         $res = update_user_meta( $this->args['user_id'], $this->args['members_usermeta'], $memberlist_ids );
         
+        foreach ( (array) $memberlist as $member_id )
+            update_user_meta( (int) $member_id, $this->args['members_usermeta'] . '_timestamp', time() );
+
         wp_cache_delete( 'memberlist', $this->args['user_id'] );
 
         return $res;
@@ -394,7 +397,7 @@ class mif_bpc_members_page {
             $exclude_users = $this->get_exclude_users_arr();
             $memberlist_arr = array_diff( array_unique( explode( ",", $memberlist ) ), $exclude_users, array( '' ) );
         
-            wp_cache_set( 'memberlist', $this->args['user_id'], $memberlist_arr );
+            wp_cache_set( 'memberlist', $memberlist_arr, $this->args['user_id'] );
 
         }
 

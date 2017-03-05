@@ -15,17 +15,22 @@ defined( 'ABSPATH' ) || exit;
 
 include_once dirname( __FILE__ ) . '/classes/members-page.php';
 
+
 include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
-include_once dirname( __FILE__ ) . '/inc/admin-settings-page.php';
 include_once dirname( __FILE__ ) . '/inc/custom-background.php';
 include_once dirname( __FILE__ ) . '/inc/edit-group-slug.php';
 include_once dirname( __FILE__ ) . '/inc/groups-widget.php';
 include_once dirname( __FILE__ ) . '/inc/members-widget.php';
 // include_once dirname( __FILE__ ) . '/inc/group-tags.php';
+
 include_once dirname( __FILE__ ) . '/inc/activity-stream.php';
+include_once dirname( __FILE__ ) . '/inc/banned-users.php';
+include_once dirname( __FILE__ ) . '/inc/activity-exclude.php';
+
+include_once dirname( __FILE__ ) . '/inc/settings-page-admin.php';
+include_once dirname( __FILE__ ) . '/inc/banned-users-admin.php';
 
 include_once dirname( __FILE__ ) . '/inc/functions.php';
-
 
 
 
