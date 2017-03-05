@@ -66,6 +66,7 @@ function get_mif_bpc_options()
                 'activity-stream' => true,
                 'activity-exclude' => true,
                 'banned-users' => true,
+                'like-button' => true,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );

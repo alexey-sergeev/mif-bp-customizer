@@ -50,15 +50,16 @@ class mif_bpc_banned_users {
         add_filter( 'bp_activity_can_comment', array( $this, 'remove_comment_button' ) );
         add_filter( 'bp_activity_can_comment_reply', array( $this, 'remove_comment_button' ) );
         add_filter( 'bp_get_friendship_requests', array( $this, 'remove_friendship_requests' ), 10, 2 );
-        
-        add_action( 'bp_before_activity_comment', array( $this, 'before_activity_comment' ) );
-        add_action( 'bp_after_activity_comment', array( $this, 'after_activity_comment' ) );
+
+        add_filter( 'bp_use_legacy_activity_query', array( $this, 'remove_comment_query' ), 10, 2 );
+        add_filter( 'bp_activity_comments_user_join_filter', array( $this, 'remove_comment_sql' ), 10, 5 );
+
+
+        // add_action( 'bp_before_activity_comment', array( $this, 'before_activity_comment' ) );
+        // add_action( 'bp_after_activity_comment', array( $this, 'after_activity_comment' ) );
 
     }
     
-    
-
-
 
     // 
     // Страница блокировки пользователей в профиле пользователя
@@ -204,31 +205,77 @@ class mif_bpc_banned_users {
     }
 
 
-    // 
-    // Удалить комментарии пользователя, если пользователь заблокирован
-    // 
-
-    public function before_activity_comment()
+    //
+    // Не показывать комментарии заблокированного пользователя
+    //
+    
+    function remove_comment_query( $ret, $method )
     {
-        if ( ! bp_is_my_profile() ) return;
-        
-        if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
-
-            echo '<!--';
-        
+        if ( $method == 'BP_Activity_Activity::get_activity_comments' ) {
+            $ret = true;
         }
+
+        return $ret;
     }
 
-    public function after_activity_comment()
+
+    function remove_comment_sql( $sql, $activity_id, $left, $right, $spam_sql )
     {
-        if ( ! bp_is_my_profile() ) return;
+        global $wpdb;
+        $bp = buddypress();
 
-        if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
+        $top_level_parent_id = $activity_id;
 
-            echo '-->';
-        
+        if ( bp_is_active( 'xprofile' ) ) {
+            $fullname_select = ", pd.value as user_fullname";
+            $fullname_from = ", {$bp->profile->table_name_data} pd ";
+            $fullname_where = "AND pd.user_id = a.user_id AND pd.field_id = 1";
+        } else {
+            $fullname_select = $fullname_from = $fullname_where = '';
         }
+
+        $banned_users = $this->get_banned_users();
+
+        $sql = $wpdb->prepare( "SELECT a.*, u.user_email, u.user_nicename, u.user_login, u.display_name{$fullname_select} FROM {$bp->activity->table_name} a, {$wpdb->users} u{$fullname_from} WHERE u.ID = a.user_id {$fullname_where} AND a.type = 'activity_comment' {$spam_sql} AND a.item_id = %d AND a.mptt_left > %d AND a.mptt_left < %d AND a.user_id NOT IN (%d) ORDER BY a.date_recorded ASC", $top_level_parent_id, $left, $right, $banned_users );
+
+        // p($sql);
+
+        return $sql;
     }
+
+
+
+
+
+
+    // // 
+    // // Удалить комментарии пользователя, если пользователь заблокирован
+    // // 
+
+    // public function before_activity_comment()
+    // {
+    //     if ( ! bp_is_my_profile() ) return;
+
+    //     $msg = '<li class="hidden-comment"><div>' . __( 'Комментарий скрыт', 'mif-bp-customizer' ) . '</div></li>';
+
+    //     if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
+
+    //         // echo $msg;
+    //         echo '<!--';
+        
+    //     }
+    // }
+
+    // public function after_activity_comment()
+    // {
+    //     if ( ! bp_is_my_profile() ) return;
+
+    //     if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
+
+    //         echo '-->';
+        
+    //     }
+    // }
 
 
     // 
