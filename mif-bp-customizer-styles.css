@@ -1,7 +1,39 @@
+/* Кнопки "Нравится", "Избранное" */
+
+
+div.like .mif-bpc-hint img.avatar {
+    margin: 0;
+    float: none;
+}
+
+div.like .mif-bpc-hint div {
+    padding: 5px;
+}
+
+div.like .mif-bpc-hint span.avatar a {
+    padding: 0;
+    display: inline;
+}
+
+.activity-meta div.like {
+	position: relative;
+    display: inline-block;
+}
+
+
+a.bp-primary-action i {
+	color: #AAA;
+}
+
+a.bp-primary-action.active i {
+	color: #FA0;
+}
+
+
 /* Уточнение всплывающих меню для профиля пользователя */
 
 #item-buttons .mif-bpc-hint {
-   right: 27px;
+    bottom: 30px;
 }
 
 i.banned-users.icon {
@@ -15,13 +47,15 @@ i.banned-users.icon.none, .acomment-reply.none, .friendship-button.none {
 }
 
 
+
 /* Настройка всплывающих меню для ленты активности */
 
 .mif-bpc-hint {
     position: absolute;
     margin: 0;
-    padding: 15px 0 0 0;
-    right: 15px;
+    padding: 0 0 15px 0;
+    bottom: 20px;
+    right: 0px;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
@@ -35,7 +69,7 @@ i.banned-users.icon.none, .acomment-reply.none, .friendship-button.none {
     box-shadow: 0 1px 3px rgba(0,0,0,.1);
 }
 
-div:hover > .mif-bpc-hint, .mif-bpc-hint:hover {
+div:hover > .mif-bpc-hint, a:hover > .mif-bpc-hint, .mif-bpc-hint:hover {
     transition: opacity 100ms linear, visibility 100ms linear;
     visibility: visible;
     opacity: 1;
@@ -45,19 +79,19 @@ div:hover > .mif-bpc-hint, .mif-bpc-hint:hover {
 	position: absolute;
 	content: "";
 	width: 0; 
-    top: 7px;
+    bottom: 7.5px;
 	right: 10px;
 	border-left: 8px solid transparent;
 	border-right: 8px solid transparent;
-    border-bottom: 8px solid #E3E4E5;
+    border-top: 8px solid #E3E4E5;
 }
 
 .mif-bpc-hint:after {
-    top: 8.5px;
+    bottom: 9px;
 	right: 11px;
 	border-left: 7px solid transparent;
 	border-right: 7px solid transparent;
-    border-bottom: 7px solid #fff;
+    border-top: 7px solid #fff;
 }
 
 div.activity-meta .mif-bpc-hint a, #item-buttons .mif-bpc-hint a, .mif-bpc-hint a {
@@ -67,6 +101,7 @@ div.activity-meta .mif-bpc-hint a, #item-buttons .mif-bpc-hint a, .mif-bpc-hint 
     background-color: #fff;
     border-radius: 0px;
     text-align: left;
+    white-space: nowrap;
 }
 
 div.activity-meta .mif-bpc-hint a:hover, #item-buttons .mif-bpc-hint a:hover, .mif-bpc-hint a:hover {
@@ -76,7 +111,7 @@ div.activity-meta .mif-bpc-hint a:hover, #item-buttons .mif-bpc-hint a:hover, .m
 }
 
 
-/* Настройка кнопки на старнице профиля пользователя */
+/* Настройка кнопки на странице профиля пользователя */
 
 div#item-header div.right, div#item-header div.generic-button.right {
     float: right;
@@ -92,6 +127,9 @@ div#item-header div.generic-button a.gray:hover {
     color: #fff;
 }
 
+.relative {
+    position: relative;
+}
 
 /* Настройка кнопок в ленте активности */
 
@@ -165,7 +203,7 @@ div.activity-meta a.disable-activity-type:hover {
 }
 
 .members_widget span.avatar img, .groups_widget span.avatar img {
-    border: 3px solid #fff;
+    /*border: 3px solid #fff;*/
     float: left;
 }
 

@@ -18,8 +18,10 @@ if ( mif_bpc_options( 'banned-users' ) ) {
 class mif_bpc_banned_users {
 
     //
-    // Смысл блокировки - у пользователя есть мета-поле 'banned_users' со списком id заблокированных пользователей.
-    // У пользователя есть мета-поле 'banned_users_timestamp' - время, когда его в последний раз заблокировали
+    // Механизм блокировки - у пользователя есть мета-поле 'banned_users' со списком id заблокированных пользователей, 
+    // это используется при выподе элементов активности на экран.
+    // 
+    // У пользователя есть мета-поле 'banned_users_timestamp' - время, когда его в последний раз заблокировали (для статистики и контроля)
     //
 
     //
@@ -113,7 +115,7 @@ class mif_bpc_banned_users {
 
         $none = ( $this->is_banned() ) ? '' : ' none';
 
-        echo '<div class="right"><div class="right generic-button banned-users"><a href="" class="gray banned-users"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div><i class="fa fa-ban fa-2x right banned-users icon' . $none . '"></i></div>';
+        echo '<div class="right"><div class="right relative generic-button banned-users"><a href="" class="gray banned-users"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div><i class="fa fa-ban fa-2x right banned-users icon' . $none . '"></i></div>';
 
     }
  

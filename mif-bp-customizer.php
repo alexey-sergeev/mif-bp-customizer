@@ -26,6 +26,7 @@ include_once dirname( __FILE__ ) . '/inc/members-widget.php';
 include_once dirname( __FILE__ ) . '/inc/activity-stream.php';
 include_once dirname( __FILE__ ) . '/inc/banned-users.php';
 include_once dirname( __FILE__ ) . '/inc/activity-exclude.php';
+include_once dirname( __FILE__ ) . '/inc/like-button.php';
 
 include_once dirname( __FILE__ ) . '/inc/settings-page-admin.php';
 include_once dirname( __FILE__ ) . '/inc/banned-users-admin.php';

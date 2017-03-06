@@ -1,7 +1,7 @@
 <?php
 
 //
-// Настройка режима "вся лента" ленты активности
+// Класс исключенной активности
 // 
 //
 
@@ -19,8 +19,8 @@ if ( mif_bpc_options( 'activity-exclude' ) ) {
 class mif_bpc_activity_exclude {
 
     //
-    // Смысл блокировки - у пользователя есть мета-поле 'activity_exclude' со списком типов исключенной активности,
-    // это учитывается при формировании главной страницы профиля пользователя.$_COOKIE
+    // Механизм блокировки - у пользователя есть мета-поле 'activity_exclude' со списком типов исключенной активности,
+    // это учитывается при формировании главной страницы профиля пользователя.
     // 
 
     //
@@ -42,7 +42,7 @@ class mif_bpc_activity_exclude {
         add_action( 'bp_activity_setup_nav', array( $this, 'activity_exclude_nav' ) );
         add_action( 'bp_init', array( $this, 'activity_exclude_helper' ) );
 
-        add_action( 'bp_activity_entry_meta', array( $this, 'exclude_button' ) );
+        add_action( 'bp_activity_entry_meta', array( $this, 'exclude_button' ), 20 );
         add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
         add_action( 'wp_ajax_disable-activity-type-button', array( $this, 'exclude_button_ajax_helper' ) );
 
@@ -82,7 +82,7 @@ class mif_bpc_activity_exclude {
                     array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
                 );
 
-        echo '<div class="right disable-activity-type"><a href="" class="button bp-secondary-action disable-activity-type"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
+        echo '<div class="right relative disable-activity-type"><a href="" class="button bp-secondary-action disable-activity-type"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
 
         // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Не показывать записи этого типа', 'mif-bp-customizer' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
         // echo '<a href="" class="button bp-secondary-action disable-activity-type"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></a>';

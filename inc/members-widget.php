@@ -123,8 +123,10 @@ class mif_bpc_members_widget extends WP_Widget {
 				$avatar_dir = trailingslashit( bp_core_avatar_upload_path() ) . trailingslashit( 'avatars' ); 
 
 				foreach ( (array) $user_data as $key => $item ) {
+
 					if ( count( $user_data ) <= $number ) break;
 					if ( ! file_exists( $avatar_dir . $item['ID'] ) ) unset( $user_data[$key] );
+					
 				}
 
 
