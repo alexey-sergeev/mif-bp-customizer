@@ -1,13 +1,32 @@
 /* Кнопки "Нравится", "Избранное" */
 
+div.like .mif-bpc-hint {
+    right: auto;
+}
+
+div.like .mif-bpc-hint:before, div.like .mif-bpc-hint:after {
+	left: 10px;
+    border-top: 8px solid #E3E4E5;
+}
+
+div.like .mif-bpc-hint:after {
+	left: 11px;
+    border-top: 7px solid #F2F2F2;
+}
 
 div.like .mif-bpc-hint img.avatar {
     margin: 0;
     float: none;
+    vertical-align: top;
 }
 
 div.like .mif-bpc-hint div {
-    padding: 5px;
+    padding: 10px 5px;
+    background: #F2F2F2;
+}
+
+div.like .mif-bpc-hint span.avatar {
+    margin: 3px;
 }
 
 div.like .mif-bpc-hint span.avatar a {
@@ -21,14 +40,29 @@ div.like .mif-bpc-hint span.avatar a {
 }
 
 
-a.bp-primary-action i {
+div a.bp-primary-action i {
 	color: #AAA;
 }
 
-a.bp-primary-action.active i {
+div.active a.bp-primary-action i {
 	color: #FA0;
 }
 
+div.like .mif-bpc-hint span.current_user {
+    display: none;
+}
+
+div.like.active .mif-bpc-hint span.current_user {
+    display: inline;
+}
+
+div.like .mif-bpc-hint span.n4 {
+    display: inline;
+}
+
+div.like.active .mif-bpc-hint span.n4 {
+    display: none;
+}
 
 /* Уточнение всплывающих меню для профиля пользователя */
 
@@ -56,7 +90,7 @@ i.banned-users.icon.none, .acomment-reply.none, .friendship-button.none {
     padding: 0 0 15px 0;
     bottom: 20px;
     right: 0px;
-    z-index: 1000;
+    z-index: 9999;
     opacity: 0;
     visibility: hidden;
     transition: opacity 100ms linear, visibility 100ms linear;

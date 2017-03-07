@@ -44,6 +44,12 @@ class mif_bpc_like_button {
 
     public $unlikes_activity = array( 'activity_update' );
     
+    //
+    // Размер аватар, выводимых в подсказке
+    //
+    
+    public $avatar_size  = 30;
+
 
     function __construct()
     {
@@ -53,7 +59,7 @@ class mif_bpc_like_button {
         add_action( 'wp_ajax_like-button-press', array( $this, 'like_button_ajax_helper' ) );
 
         $this->number = apply_filters( 'mif_bpc_like_buttons_avatar_number', $this->number );
-
+        $this->avatar_size  = apply_filters( 'mif_bpc_like_buttons_avatar_size', $this->avatar_size );
 
         // Расскоментируйте на один раз эту строку для конвертации старых данных
         // add_action( 'init', array( $this, 'likes_old_to_new_converted' ) );
@@ -82,7 +88,7 @@ class mif_bpc_like_button {
         $avatar_hint = $this->avatar_hint();
 // echo $avatar_hint;
         // echo '<a href="" class="button bp-secondary-action like">' . __( 'Нравится', 'mif-bp-customizer' ) . $span . '</a>';
-        echo '<div class="like"><a href="' . $url . '" class="button bp-primary-action like' . $active . '"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span></a>' . $avatar_hint . '</div>';
+        echo '<div class="like' . $active . '"><a href="' . $url . '" class="button bp-primary-action like"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span></a>' . $avatar_hint . '</div>';
         // echo '<a href="' . $url . '" class="button bp-primary-action like' . $active . '"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span>' . $avatar_hint . '</a>';
 
     }
@@ -125,29 +131,17 @@ class mif_bpc_like_button {
 
     function avatar_hint()
     {
-        // if ( $arr == NULL ) return;
-
         $out = '';
 
-        $out .= '<div class="mif-bpc-hint"><div>';
+        $avatars = $this->get_avatars();
 
-        $out .= $this->get_avatars();
-        // $out .= '<img src="dd">';
-        // p($this->get_avatars());
+        if ( $avatars ) {
 
-        // foreach ( (array) $arr as $item ) {
+            $out .= '<div class="mif-bpc-hint"><div>';
+            $out .= $this->get_avatars();
+            $out .= '</div></div>';
 
-        //     $param = '';
-        //     if ( is_array( $item['data'] ) )
-        //         foreach ( $item['data'] as $key => $value )
-        //             $param = ' '. 'data-' . $key . '="' . $value . '"';
-
-        //     $class = ( isset( $item['class'] ) ) ? ' class="' . $item['class'] . '"' : '';
-        //     $out .= '<a href="' . $item['href'] . '"' . $class . $param . '>' . $item['descr'] . '</a>';
-
-        // };
-
-        $out .= '</div></div>';
+        }
 
         return $out;
     }
@@ -179,10 +173,10 @@ class mif_bpc_like_button {
 
             if ( count( $arr ) >= $this->number ) break;
 
-            if ( $item['avatar'] == 'default' ) continue;
+            if ( $item['type'] == 'default' ) continue;
             if ( ! in_array( $key, $friends_ids ) ) continue;
 
-            $arr[] = $item['html'];
+            $arr[] = $item;
             unset( $user_avatars[$key] );
 
         }
@@ -193,9 +187,9 @@ class mif_bpc_like_button {
 
             if ( count( $arr ) >= $this->number ) break;
 
-            if ( $item['avatar'] == 'default' ) continue;
+            if ( $item['type'] == 'default' ) continue;
 
-            $arr[] = $item['html'];
+            $arr[] = $item;
             unset( $user_avatars[$key] );
 
         }
@@ -208,7 +202,7 @@ class mif_bpc_like_button {
 
             if ( ! in_array( $key, $friends_ids ) ) continue;
 
-            $arr[] = $item['html'];
+            $arr[] = $item;
             unset( $user_avatars[$key] );
 
         }
@@ -219,22 +213,33 @@ class mif_bpc_like_button {
 
             if ( count( $arr ) >= $this->number ) break;
 
-            $arr[] = $item['html'];
+            $arr[] = $item;
             unset( $user_avatars[$key] );
 
         }
 
-        shuffle( $arr );
-        
-        $current_user_avatar = $this->get_item_avatar( array(   'ID' => $current_user_id, 
-                                                                'url' => bp_loggedin_user_domain(),
-                                                                'name' => bp_core_get_user_displayname( $current_user_id ) ), 'current_user' );
+        if ( $arr ) {
 
-        // $out = $current_user_avatar;
-        // $out = $current_user_avatar . implode( '', $arr );
-        $out = implode( '', $arr );
-        
-        return apply_filters( 'mif_bpc_like_button_get_avatars', $out, $activity_id, $current_user_id );
+            shuffle( $arr );
+
+            $arr_html = array();
+
+            $arr_html[] = $this->get_item_avatar( array( 'ID' => $current_user_id, 
+                                                        'img' => $this->get_avatar( $current_user_id, $this->avatar_size ),
+                                                        'url' => bp_loggedin_user_domain(),
+                                                        'name' => bp_core_get_user_displayname( $current_user_id ) ), 'current_user' );
+
+            foreach ( (array) $arr as $key => $item ) $arr_html[] = $this->get_item_avatar( $item, 'n' . $key );
+
+            $out = implode( '', $arr_html );
+            
+            return apply_filters( 'mif_bpc_like_button_get_avatars', $out, $activity_id, $current_user_id );
+
+        } else {
+
+            return false;
+
+        }
 
     }
 
@@ -250,6 +255,8 @@ class mif_bpc_like_button {
         if ( empty( $cache_data ) || $cache_data['expires'] < time() || $nocache != false ) {
 
             $user_ids = $this->get_likes( $activity_id );
+            
+            if ( $user_ids === array() ) return;
 
             $args = array(
                     'max' => $this->number * 10,
@@ -259,6 +266,8 @@ class mif_bpc_like_button {
                     'type' => 'random',
             );
             
+            $user_data = array();
+
             if ( bp_has_members( $args ) ) {
 
                 while ( bp_members() ) {
@@ -275,6 +284,8 @@ class mif_bpc_like_button {
 
             }
 
+            if ( $user_data === array() ) return;
+
             $avatar_dir = trailingslashit( bp_core_avatar_upload_path() ) . trailingslashit( 'avatars' ); 
 
             $user_data_clean = array();
@@ -285,7 +296,7 @@ class mif_bpc_like_button {
 
                 if ( file_exists( $avatar_dir . $item['ID'] ) ) {
 
-                    $item['avatar'] = 'img';
+                    $item['type'] = 'img';
                     $user_data_clean[] = $item;
                     unset( $user_data[$key] );
 
@@ -300,7 +311,7 @@ class mif_bpc_like_button {
             foreach ( (array) $user_data as $key => $item ) {
 
                 if ( count( $user_data ) >= $this->number * 5 ) break;
-                $item['avatar'] = 'default';
+                $item['type'] = 'default';
                 $user_data_clean[] = $item;
 
             }
@@ -311,9 +322,9 @@ class mif_bpc_like_button {
 
             foreach ( (array) $user_data_clean as $item ) {
                 
-                $user_avatars[$item['ID']] = array( 'avatar' => $item['avatar'],
-                                                    'html' => $this->get_item_avatar( $item ) );
-
+                $item['img'] = $this->get_avatar( $item['ID'], $this->avatar_size );
+                $user_avatars[$item['ID']] = $item;
+                
             }
             
             // Здесь можно изменить время жизни аватарок в кеше. По умолчанию 1 час = 3600 секунд.
@@ -342,20 +353,31 @@ class mif_bpc_like_button {
     function get_item_avatar( $item, $class = '' )
     {
 
-        // Размер аватар, выводимых в подсказке
-        $avatar_size  = apply_filters( 'mif_bpc_like_buttons_avatar_size', 30 );
-
         $before = ( $item['url'] ) ? '<a href="' . $item['url'] . '">' : '';
         $after = ( $item['url'] ) ? '</a>' : '';
 
         if ( $class ) $class = ' ' . $class;
 
-        $ret = '<span class="avatar' . $class . '" title="' . $item['name'] . '">' . $before . get_avatar( $item['ID'], $avatar_size ) . $after . '</span>';
+        // $ret = '<span class="avatar' . $class . '" title="' . $item['name'] . '">' . $before . get_avatar( $item['ID'], $avatar_size ) . $after . '</span>';
+        $ret = '<span class="avatar' . $class . '" title="' . $item['name'] . '">' . $before . $item['img'] . $after . '</span>';
 
         return $ret;
 
     }
 
+
+    function get_avatar( $user_id, $size )
+    {
+
+        if ( ! $avatar = wp_cache_get( 'user_avatar_' . $size, $user_id ) ) {
+
+            $avatar = get_avatar( $user_id, $size );
+            wp_cache_set( 'user_avatar_' . $size, $avatar, $user_id );
+
+        }
+
+        return $avatar;
+    }
 
 
     //

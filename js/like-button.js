@@ -22,6 +22,7 @@ jQuery( document ).ready( function( jq ) {
 	jq( '#activity-stream' ).on( 'click', '.button.like', function() {
 
 		var target = jq( this ),
+        wrap = target.closest('div');
         parent = target.closest('.activity-item');
         activity_id = parent.attr('id').substr( 9, parent.attr( 'id' ).length );
 
@@ -41,14 +42,14 @@ jQuery( document ).ready( function( jq ) {
 		function( response ) {
             
             if ( response == 'liked' ) {
-                target.addClass( 'active' );
+                wrap.addClass( 'active' );
                 n = target.find( "span" ).html();
                 n++;
                 target.find( "span" ).html( n )
             }
 
             if ( response == 'unliked' ) {
-                target.removeClass( 'active' );
+                wrap.removeClass( 'active' );
                 n = target.find( "span" ).html();
                 n--;
                 target.find( "span" ).html( n )
