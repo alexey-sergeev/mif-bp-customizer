@@ -19,7 +19,7 @@ jQuery( document ).ready( function( jq ) {
 	// Отправляем данные о новом исключенном типе активности
 	//
 
-	jq( '#activity-stream' ).on( 'click', '.disable-activity-type a.ajax', function() {
+	jq( '#activity-stream' ).on( 'click', '.disable-activity-type a.ajax.activity-exclude', function() {
 
         var nonce = jq( this ).attr( 'href' );
 		nonce = nonce.split('?_wpnonce=');
@@ -27,7 +27,7 @@ jQuery( document ).ready( function( jq ) {
 		nonce = nonce[0];
 
 		var exclude = jq( this ).attr( 'data-exclude' );
-        var button = jq( this );
+        // var button = jq( this );
 
 		jq.post( ajaxurl, {
 			action: 'disable-activity-type-button',

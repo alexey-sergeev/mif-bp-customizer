@@ -42,15 +42,58 @@ class mif_bpc_activity_exclude {
         add_action( 'bp_activity_setup_nav', array( $this, 'activity_exclude_nav' ) );
         add_action( 'bp_init', array( $this, 'activity_exclude_helper' ) );
 
-        add_action( 'bp_activity_entry_meta', array( $this, 'exclude_button' ), 20 );
+        // add_action( 'bp_activity_entry_meta', array( $this, 'exclude_button' ), 20 );
         add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
         add_action( 'wp_ajax_disable-activity-type-button', array( $this, 'exclude_button_ajax_helper' ) );
+
+        add_filter( 'mif_bpc_activity_action_menu', array( $this, 'exclude_button_menu' ), 40 );
 
     }
     
     
 
 
+
+
+    // 
+    // Кнопка удаления типов активности в своей ленте
+    // 
+    // 
+
+    public function exclude_button_menu( $arr )
+    {
+
+        if ( ! bp_is_current_action( 'all-stream' ) ) return $arr;
+
+        global $bp;
+
+        $activity_type = bp_get_activity_type();
+        $unexcluded_types = $this->get_unexcluded_types();
+
+        if ( in_array( $activity_type, $unexcluded_types ) ) return $arr;
+
+        $settings_url = $bp->loggedin_user->domain . $bp->profile->slug . '/activity-settings';
+        $exclude_url = wp_nonce_url( $settings_url . '/request-exclude/' . $activity_type . '/', 'mif_bpc_activity_type_exclude_button' );
+
+        // $arr = array();
+        // if ( ! in_array( $at, $unexcluded_types ) ) $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $at ) );
+        // $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) );
+
+        // $arr = array(
+        //             array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $activity_type ) ),
+        //             array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+        //         );
+
+        $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax activity-exclude', 'data' => array( 'exclude' => $activity_type ) );
+        $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) );
+
+        // echo '<div class="right relative disable-activity-type"><a href="" class="button bp-secondary-action disable-activity-type"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
+
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Не показывать записи этого типа', 'mif-bp-customizer' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></a>';
+
+        return $arr;
+    }
 
 
     // 
@@ -340,8 +383,6 @@ class mif_bpc_activity_exclude {
         // вернуть массив типов активности
         return $unexcluded_types;
     }
-
-
 
 }
 

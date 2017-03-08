@@ -29,22 +29,13 @@ class mif_bpc_activity_stream {
 
     function __construct()
     {
-        // Включить особый вид ленты активности        
+
         add_action( 'bp_activity_setup_nav', array( $this, 'activity_nav' ) );
         add_filter( 'bp_activity_get_where_conditions', array( $this, 'where_conditions' ), 2, 2 );
         add_action( 'bp_before_member_activity_post_form', array( $this,'show_post_form' ) );
 
-        // // Включить настройку типов записей ленты активности
-        // if ( mif_bpc_options( 'activity-exclude' ) ) {
+        add_action( 'bp_activity_entry_meta', array( $this, 'action_menu' ), 20 );
 
-        //     add_action( 'bp_activity_setup_nav', array( $this, 'activity_exclude_nav' ) );
-        //     add_action( 'bp_init', array( $this, 'activity_exclude_helper' ) );
-
-        //     add_action( 'bp_activity_entry_meta', array( $this, 'exclude_button' ) );
-        //     add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
-        //     add_action( 'wp_ajax_disable-activity-type-button', array( $this, 'exclude_button_ajax_helper' ) );
-
-        // };
 
     }
     
@@ -362,6 +353,34 @@ class mif_bpc_activity_stream {
         //
 
         return apply_filters( 'mif_bpc_activity_stream_where_conditions', $where, $r );
+    }
+
+
+
+    // 
+    // Добавляет кнопку с меню различных действий для элемента активности
+    // 
+    // 
+
+    public function action_menu()
+    {
+        $arr = array();
+
+        // Через этот фильтр происходит добавление элементов в меню
+
+        $arr = apply_filters( 'mif_bpc_activity_action_menu', $arr );
+
+        // $arr = array(
+        //             array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $activity_type ) ),
+        //             array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+        //         );
+
+        if ( ! $arr ) return;
+
+        echo '<div class="right relative disable-activity-type"><a href="" class="button bp-secondary-action disable-activity-type"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
+
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Не показывать записи этого типа', 'mif-bp-customizer' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></a>';
     }
 
 

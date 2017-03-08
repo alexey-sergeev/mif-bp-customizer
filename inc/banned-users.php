@@ -56,6 +56,8 @@ class mif_bpc_banned_users {
         add_filter( 'bp_use_legacy_activity_query', array( $this, 'remove_comment_query' ), 10, 2 );
         add_filter( 'bp_activity_comments_user_join_filter', array( $this, 'remove_comment_sql' ), 10, 5 );
 
+        add_filter( 'mif_bpc_like_button_get_likes', array( $this, 'remove_likes_item' ) );
+        add_filter( 'mif_bpc_like_button_like_button', array( $this, 'remove_like_button' ) );
 
         // add_action( 'bp_before_activity_comment', array( $this, 'before_activity_comment' ) );
         // add_action( 'bp_after_activity_comment', array( $this, 'after_activity_comment' ) );
@@ -93,6 +95,7 @@ class mif_bpc_banned_users {
     function banned_user_button()
     {
 
+        if ( ! is_user_logged_in() ) return;
         if ( bp_is_my_profile() ) return;
 
         $user_id = bp_displayed_user_id();
@@ -167,6 +170,40 @@ class mif_bpc_banned_users {
 
         return $caption;
     }
+
+
+    // 
+    // Не показывать "Нравится" на своей старнице, если пользователь заблокирован
+    // 
+
+    public function remove_likes_item( $likes_arr )
+    {
+        if ( bp_is_my_profile() ) {
+            $user_id = bp_loggedin_user_id();
+            $banned_users = $this->get_banned_users( $user_id, 'arr' );
+            $likes_arr = array_diff( $likes_arr, $banned_users );
+
+        }
+
+        return $likes_arr;
+    }
+
+
+    // 
+    // Удалить кнопку "Нравится" для заблокированных пользователей
+    // 
+
+    public function remove_like_button( $button )
+    {
+        $target_user_id = bp_get_activity_user_id();
+        $user_id = bp_loggedin_user_id();
+
+        if ( $this->is_banned( $target_user_id, $user_id ) ||
+             $this->is_banned( $user_id, $target_user_id ) ) $button = '';
+
+        // if ( $this->is_banned( $target_user_id, $user_id ) ) $button = array();
+
+        return $button;    }
 
 
     // 

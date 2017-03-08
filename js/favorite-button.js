@@ -1,5 +1,5 @@
 //
-// JS-помощник кнопки "Нравится"
+// JS-помощник кнопки "Избранное"
 //
 //
 
@@ -9,10 +9,10 @@ jQuery( document ).ready( function( jq ) {
     time = 200;
 
 	//
-	// Отправляем данные о новом нажатии "Нравится"
+	// Отправляем данные о новом нажатии "Избранное"
 	//
 
-	jq( '#activity-stream' ).on( 'click', '.button.like', function() {
+	jq( '#activity-stream' ).on( 'click', '.button.favorite', function() {
 
 		var target = jq( this ),
         wrap = target.closest('div');
@@ -25,26 +25,22 @@ jQuery( document ).ready( function( jq ) {
 		nonce = nonce[0];
 
 		jq.post( ajaxurl, {
-			action: 'like-button-press',
+			action: 'favorite-button-press',
 			_wpnonce: nonce,
             activity_id: activity_id,
 		},
 		function( response ) {
             
-            if ( response == 'liked' ) {
+            if ( response == 'fav' ) {
                 wrap.addClass( 'active' );
-                n = target.find( "span" ).html();
-                n++;
-                target.find( "span" ).html( n )
             }
 
-            if ( response == 'unliked' ) {
+            if ( response == 'unfav' ) {
                 wrap.removeClass( 'active' );
-                n = target.find( "span" ).html();
-                n--;
-                target.find( "span" ).html( n )
             }
 
+            // alert(response);
+            // if ( response ) jq( 'li.' + response ).slideUp();
 		});
 
 		return false;

@@ -4,7 +4,8 @@ div.like .mif-bpc-hint {
     right: auto;
 }
 
-div.like .mif-bpc-hint:before, div.like .mif-bpc-hint:after {
+div.like .mif-bpc-hint:before, 
+div.like .mif-bpc-hint:after {
 	left: 10px;
     border-top: 8px solid #E3E4E5;
 }
@@ -23,10 +24,29 @@ div.like .mif-bpc-hint img.avatar {
 div.like .mif-bpc-hint div {
     padding: 10px 5px;
     background: #F2F2F2;
+    overflow: hidden;
 }
 
-div.like .mif-bpc-hint span.avatar {
+div.like .mif-bpc-hint span.avatar, 
+div.like .mif-bpc-hint span.more {
     margin: 3px;
+}
+
+div.like .mif-bpc-hint span.more i {
+    display: inline-block;
+    line-height: 20px;
+    padding: 5px;
+    background: #fff;
+}
+
+div.like .mif-bpc-hint span.more a {
+    background-color: inherit;
+}
+
+div.like .mif-bpc-hint span.more span.wrap {
+    display: inline-block;
+    padding: 3px;
+    border: 1px solid #e7e7e7;
 }
 
 div.like .mif-bpc-hint span.avatar a {
@@ -34,34 +54,52 @@ div.like .mif-bpc-hint span.avatar a {
     display: inline;
 }
 
-.activity-meta div.like {
+.activity-meta div.like,
+.activity-meta div.favorite,
+.activity-meta div.remove {
 	position: relative;
     display: inline-block;
+}
+
+.activity-meta div.remove {
+    float: right;
 }
 
 
 div a.bp-primary-action i {
 	color: #AAA;
+    transition-duration: 100ms;
 }
 
 div.active a.bp-primary-action i {
 	color: #FA0;
+    transition-duration: 100ms;
 }
 
 div.like .mif-bpc-hint span.current_user {
-    display: none;
+    /*display: none;*/
+    margin-left: -41px;
+    opacity: 0;
+    transition: opacity 100ms ease, margin 100ms ease-out;
 }
 
 div.like.active .mif-bpc-hint span.current_user {
-    display: inline;
+    /*display: inline;*/
+    margin-left: 3px;
+    opacity: 1;
+    transition: opacity 100ms ease 100ms, margin 100ms ease-out;
 }
 
 div.like .mif-bpc-hint span.n4 {
-    display: inline;
+    /*display: inline;*/
+    margin-right: 3px;
+    transition: margin 100ms ease-out;
 }
 
 div.like.active .mif-bpc-hint span.n4 {
-    display: none;
+    /*display: none;*/
+    margin-right: -44px;
+    transition: margin 100ms ease-out;
 }
 
 /* Уточнение всплывающих меню для профиля пользователя */

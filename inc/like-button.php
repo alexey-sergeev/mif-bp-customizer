@@ -56,12 +56,12 @@ class mif_bpc_like_button {
 
         add_action( 'bp_activity_entry_meta', array( $this, 'like_button' ), 10 );
         add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
-        add_action( 'wp_ajax_like-button-press', array( $this, 'like_button_ajax_helper' ) );
+        add_action( 'wp_ajax_like-button-press', array( $this, 'ajax_helper' ) );
 
         $this->number = apply_filters( 'mif_bpc_like_buttons_avatar_number', $this->number );
         $this->avatar_size  = apply_filters( 'mif_bpc_like_buttons_avatar_size', $this->avatar_size );
 
-        // Расскоментируйте на один раз эту строку для конвертации старых данных
+        // Раскомментируйте на один раз эту строку для конвертации старых данных
         // add_action( 'init', array( $this, 'likes_old_to_new_converted' ) );
 
     }
@@ -73,34 +73,31 @@ class mif_bpc_like_button {
 
     function like_button()
     {
-
-        global $bp;
-
         $likes = $this->get_likes();
         $count = count( $likes );
 
 		$url = wp_nonce_url( home_url( bp_get_activity_root_slug() . '/like/' . bp_get_activity_id() . '/' ), 'mif_bpc_like_button_press' );
 
-        // $span = ( $count ) ? ' <span>' . $count . '</span>' : '';
-        // $span = ' <span>' . $count . '</span>';
         $active = ( $this->is_liked() ) ? ' active' : '';
 
         $avatar_hint = $this->avatar_hint();
-// echo $avatar_hint;
-        // echo '<a href="" class="button bp-secondary-action like">' . __( 'Нравится', 'mif-bp-customizer' ) . $span . '</a>';
-        echo '<div class="like' . $active . '"><a href="' . $url . '" class="button bp-primary-action like"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span></a>' . $avatar_hint . '</div>';
-        // echo '<a href="' . $url . '" class="button bp-primary-action like' . $active . '"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span>' . $avatar_hint . '</a>';
 
+        $button = '<div class="like' . $active . '"><a href="' . $url . '" class="button bp-primary-action like"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span></a>' . $avatar_hint . '</div>';
+
+        // Здесь можно убрать кнопку "Нравится" для заблокированных пользователей
+
+        $button = apply_filters( 'mif_bpc_like_button_like_button', $button );
+
+        echo $button;
     }
 
     public function load_js_helper()
     {
-        wp_register_script( 'mif_bpc_ilke-button', plugins_url( '../js/like-button.js', __FILE__ ) );  
-        wp_enqueue_script( 'mif_bpc_ilke-button' );
+        wp_register_script( 'mif_bpc_like-button', plugins_url( '../js/like-button.js', __FILE__ ) );  
+        wp_enqueue_script( 'mif_bpc_like-button' );
     }
 
-
-    public function like_button_ajax_helper()
+    public function ajax_helper()
     {
         check_ajax_referer( 'mif_bpc_like_button_press' );
 
@@ -134,11 +131,14 @@ class mif_bpc_like_button {
         $out = '';
 
         $avatars = $this->get_avatars();
+        $user_ids = $this->get_likes( $activity_id );
 
-        if ( $avatars ) {
+        if ( $avatars && ! bp_is_single_activity() ) {
 
             $out .= '<div class="mif-bpc-hint"><div>';
-            $out .= $this->get_avatars();
+            $out .= $avatars;
+            // if ( count( $user_ids ) > $this->number ) $out .= '<span class="avatar more"><a href="' . bp_get_activity_comment_permalink() . '"><span class="wrap"><i class="fa fa-arrow-right" aria-hidden="true"></i></span></a></span>';
+            // if ( count( $user_ids ) > $this->number ) $out .= '<p>И еще 15 <a href="' . bp_get_activity_comment_permalink() . '">подробнее</a></p>';
             $out .= '</div></div>';
 
         }
@@ -161,6 +161,17 @@ class mif_bpc_like_button {
         $current_user_id = bp_loggedin_user_id();
 
         unset( $user_avatars[$current_user_id] );
+
+        $user_ids = $this->get_likes( $activity_id );
+
+        // Удалим тех, кто есть в кэше, но кого нет в лайках (заблокированные пользователи)
+
+        foreach ( (array) $user_avatars as $key => $item ) {
+
+            if ( ! in_array( $key, $user_ids ) ) unset( $user_avatars[$key] );
+
+        }
+
         shuffle( $user_avatars );
 
         $friends_ids = friends_get_friend_user_ids( $current_user_id );
@@ -254,7 +265,7 @@ class mif_bpc_like_button {
         $cache_data = bp_activity_get_meta( $activity_id, 'cache_liked_avatar', true );
         if ( empty( $cache_data ) || $cache_data['expires'] < time() || $nocache != false ) {
 
-            $user_ids = $this->get_likes( $activity_id );
+            $user_ids = $this->get_likes_raw( $activity_id );
             
             if ( $user_ids === array() ) return;
 
@@ -346,6 +357,7 @@ class mif_bpc_like_button {
 
     }
 
+
     //
     // Получить HTML-блок одной аватарки
     //
@@ -365,6 +377,10 @@ class mif_bpc_like_button {
 
     }
 
+
+    //
+    // Стандартный get_avatar, но с кэшированием
+    //
 
     function get_avatar( $user_id, $size )
     {
@@ -404,6 +420,10 @@ class mif_bpc_like_button {
         
         wp_cache_delete( 'likes_arr', $activity_id );
 
+        // Здесь можно отслеживать добавление "Нравится". Например, отправлять уведомление пользователю
+
+        if ( $ret ) do_action( 'mif_bpc_like_button_liked', $activity_id, $user_id );
+
         return $ret;
 
     }
@@ -432,6 +452,10 @@ class mif_bpc_like_button {
         
         wp_cache_delete( 'likes_arr', $activity_id );
 
+        // Здесь можно отслеживать снятие "Нравится"
+
+        if ( $ret ) do_action( 'mif_bpc_like_button_unliked', $activity_id, $user_id );
+
         return $ret;
 
     }
@@ -451,7 +475,7 @@ class mif_bpc_like_button {
 
         $ret = ( isset( $likes_arr ) && in_array( $user_id, $likes_arr ) ) ? true : false;
 
-        return apply_filters( 'mif_bpc_like_button_get_likes', $ret, $activity_id, $user_id );
+        return apply_filters( 'mif_bpc_like_button_is_likes', $ret, $activity_id, $user_id );
 
     }
 
@@ -468,11 +492,13 @@ class mif_bpc_like_button {
 
         if ( ! $likes_arr = wp_cache_get( 'likes_arr', $activity_id ) ) {
 
-            $likes_ids = bp_activity_get_meta( $activity_id, $this->meta_key, true );
-            $likes_arr = ( $likes_ids ) ? explode( ',', $likes_ids ) : NULL;
+            // $likes_ids = bp_activity_get_meta( $activity_id, $this->meta_key, true );
+            // $likes_arr = ( $likes_ids ) ? explode( ',', $likes_ids ) : NULL;
 
-            $likes_arr = array_unique( (array) $likes_arr );
-            $likes_arr = array_diff( (array) $likes_arr, array( '' ) );
+            // $likes_arr = array_unique( (array) $likes_arr );
+            // $likes_arr = array_diff( (array) $likes_arr, array( '' ) );
+
+            $likes_arr = $this->get_likes_raw( $activity_id );
 
             // Здесь можно уточнить список пользователей. Например, удалить тех, кто заблокирован
             
@@ -481,6 +507,26 @@ class mif_bpc_like_button {
             wp_cache_set( 'likes_arr', $likes_arr, $activity_id );
 
         }
+
+        return $likes_arr;
+
+    }
+
+
+    //
+    // Получить массив ID пользователей, которым нравится элемент активности
+    // Без кэша и фильтров
+    //
+
+    function get_likes_raw( $activity_id = NULL )
+    {
+
+        if ( $activity_id == NULL ) $activity_id = bp_get_activity_id();
+
+        $likes_ids = bp_activity_get_meta( $activity_id, $this->meta_key, true );
+        $likes_arr = ( $likes_ids ) ? explode( ',', $likes_ids ) : NULL;
+        $likes_arr = array_unique( (array) $likes_arr );
+        $likes_arr = array_diff( (array) $likes_arr, array( '' ) );
 
         return $likes_arr;
 
