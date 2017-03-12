@@ -27,6 +27,8 @@ include_once dirname( __FILE__ ) . '/inc/activity-stream.php';
 include_once dirname( __FILE__ ) . '/inc/banned-users.php';
 include_once dirname( __FILE__ ) . '/inc/activity-exclude.php';
 include_once dirname( __FILE__ ) . '/inc/like-button.php';
+include_once dirname( __FILE__ ) . '/inc/repost-button.php';
+include_once dirname( __FILE__ ) . '/inc/repost-button-template.php';
 include_once dirname( __FILE__ ) . '/inc/activity-button-customize.php';
 
 include_once dirname( __FILE__ ) . '/inc/settings-page-admin.php';
@@ -69,6 +71,7 @@ function get_mif_bpc_options()
                 'activity-exclude' => true,
                 'banned-users' => true,
                 'like-button' => true,
+                'repost-button' => true,
                 'activity-button-customize' => true,
             );
 

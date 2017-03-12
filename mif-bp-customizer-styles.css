@@ -1,4 +1,51 @@
-/* Кнопки "Нравится", "Избранное" */
+/* Стили для репоста */
+
+body.repost-activity-form #whats-new-submit {
+    display: none;
+}
+
+#repost-submit-wrap {
+    float: right;
+    margin-top: 12px;
+}
+
+/*.repost-activity {
+    margin-top: 40px;
+    margin-left: -21px;
+}*/
+
+/*.repost-activity .activity-inner {
+    margin-left: 0px;
+}*/
+
+
+/* Кнопки "Нравится", "Избранное" и др. */
+
+.activity-meta div.like,
+.activity-meta div.favorite,
+.activity-meta div.repost,
+.activity-meta div.remove {
+	position: relative;
+    display: inline-block;
+}
+
+.activity-meta div.remove {
+    float: right;
+}
+
+div a.bp-primary-action i {
+	color: #AAA;
+    transition-duration: 100ms;
+}
+
+div.active a.bp-primary-action i {
+	color: #FA0;
+    transition-duration: 100ms;
+}
+
+
+
+/* Уточнение всплывающих меню для кнопки "Нравится" */
 
 div.like .mif-bpc-hint {
     right: auto;
@@ -54,28 +101,6 @@ div.like .mif-bpc-hint span.avatar a {
     display: inline;
 }
 
-.activity-meta div.like,
-.activity-meta div.favorite,
-.activity-meta div.remove {
-	position: relative;
-    display: inline-block;
-}
-
-.activity-meta div.remove {
-    float: right;
-}
-
-
-div a.bp-primary-action i {
-	color: #AAA;
-    transition-duration: 100ms;
-}
-
-div.active a.bp-primary-action i {
-	color: #FA0;
-    transition-duration: 100ms;
-}
-
 div.like .mif-bpc-hint span.current_user {
     /*display: none;*/
     margin-left: -41px;
@@ -102,6 +127,8 @@ div.like.active .mif-bpc-hint span.n4 {
     transition: margin 100ms ease-out;
 }
 
+
+
 /* Уточнение всплывающих меню для профиля пользователя */
 
 #item-buttons .mif-bpc-hint {
@@ -114,7 +141,12 @@ i.banned-users.icon {
     color: #eaeaea;
 }
 
-i.banned-users.icon.none, .acomment-reply.none, .friendship-button.none {
+i.banned-users.icon.none, 
+.acomment-reply.none, 
+.friendship-button.none,
+.activity-meta div.repost.none,
+.activity-meta div.like.none
+{
     display: none;
 }
 

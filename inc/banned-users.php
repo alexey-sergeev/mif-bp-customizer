@@ -58,6 +58,7 @@ class mif_bpc_banned_users {
 
         add_filter( 'mif_bpc_like_button_get_likes', array( $this, 'remove_likes_item' ) );
         add_filter( 'mif_bpc_like_button_like_button', array( $this, 'remove_like_button' ) );
+        add_filter( 'mif_bpc_repost_button_is_reposted_activity', array( $this, 'remove_repost_button' ) );
 
         // add_action( 'bp_before_activity_comment', array( $this, 'before_activity_comment' ) );
         // add_action( 'bp_after_activity_comment', array( $this, 'after_activity_comment' ) );
@@ -156,6 +157,7 @@ class mif_bpc_banned_users {
 
         // Обновим список блокировки
         update_user_meta( $current_user_id, $this->meta_key, implode( ',', $banned_users ) );
+        wp_cache_delete( 'banned_users', $current_user_id );
         $caption = $this->get_caption();
 
         echo $caption;
@@ -241,6 +243,24 @@ class mif_bpc_banned_users {
         // if ( $this->is_banned( $target_user_id, $user_id ) ) $can_comment = false;
 
         return $can_comment;
+    }
+
+
+    // 
+    // Удалить кнопку "Репост", если пользователь тебя заблокировал
+    // 
+
+    public function remove_repost_button( $can_reposted )
+    {
+        $target_user_id = ( bp_get_activity_comment_user_id() ) ? bp_get_activity_comment_user_id() : bp_get_activity_user_id();
+        $user_id = bp_loggedin_user_id();
+
+        if ( $this->is_banned( $target_user_id, $user_id ) ||
+             $this->is_banned( $user_id, $target_user_id ) ) $can_reposted = false;
+
+        // if ( $this->is_banned( $target_user_id, $user_id ) ) $can_comment = false;
+
+        return $can_reposted;
     }
 
 

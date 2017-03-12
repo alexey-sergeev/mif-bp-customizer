@@ -68,6 +68,8 @@ jQuery( document ).ready( function( jq ) {
                 button.fadeOut( time, function() { button.fadeIn( time ).html( response ) } );
 
                 jq( '.acomment-user-' + userid ).toggleClass( 'none' );
+                jq( '.like-user-' + userid ).toggleClass( 'none' );
+                jq( '.repost-user-' + userid ).toggleClass( 'none' );
                 jq( '.friendship-button.add' ).toggleClass( 'none' );
                 jq( 'i.banned-users.icon' ).toggleClass( 'none' );
         }

@@ -152,7 +152,9 @@ class mif_bpc_activity_stream {
     {
         if ( is_user_logged_in() && bp_is_my_profile() &&  bp_is_activity_component() && bp_is_current_action( 'all-stream' ) ) {
 
-            locate_template( array( 'activity/post-form.php'), true ) ;
+            // locate_template( array( 'activity/post-form.php'), true ) ;
+
+            bp_get_template_part( 'activity/post-form' );
 
         } 
     }
@@ -268,7 +270,9 @@ class mif_bpc_activity_stream {
                 global $mif_bpc_banned_users;
 
                 $banned_users = $mif_bpc_banned_users->get_banned_users();
-                if ( $banned_users ) $where['banned_users'] = 'a.user_id NOT IN (' . $banned_users . ')';
+                // if ( $banned_users ) $where['banned_users'] = 'a.user_id NOT IN (' . $banned_users . ')';
+                if ( $banned_users ) $where['banned_users'] = 'a.user_id NOT IN (' . $banned_users . ') AND NOT ( a.type = \'activity_repost\'  AND a.secondary_item_id IN (' . $banned_users . ') )';
+                // if ( $banned_users ) $where['banned_users'] = 'a.user_id NOT IN (' . $banned_users . ') AND NOT ( a.type = \'activity_repost\'  AND a.secondary_item_id IN (' . $banned_users . ')';
 
             }
 

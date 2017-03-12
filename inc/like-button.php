@@ -76,13 +76,16 @@ class mif_bpc_like_button {
         $likes = $this->get_likes();
         $count = count( $likes );
 
+        global $activities_template;
+        $user_id = $activities_template->activity->user_id;
+
 		$url = wp_nonce_url( home_url( bp_get_activity_root_slug() . '/like/' . bp_get_activity_id() . '/' ), 'mif_bpc_like_button_press' );
 
         $active = ( $this->is_liked() ) ? ' active' : '';
 
         $avatar_hint = $this->avatar_hint();
 
-        $button = '<div class="like' . $active . '"><a href="' . $url . '" class="button bp-primary-action like"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span></a>' . $avatar_hint . '</div>';
+        $button = '<div class="like like-user-' . $user_id  . $active . '"><a href="' . $url . '" class="button bp-primary-action like"><i class="fa fa-heart" aria-hidden="true"></i> <span>' . $count . '</span></a>' . $avatar_hint . '</div>';
 
         // Здесь можно убрать кнопку "Нравится" для заблокированных пользователей
 
@@ -267,7 +270,7 @@ class mif_bpc_like_button {
 
             $user_ids = $this->get_likes_raw( $activity_id );
             
-            if ( $user_ids === array() ) return;
+            if ( $user_ids === array() ) return array();
 
             $args = array(
                     'max' => $this->number * 10,
@@ -295,7 +298,7 @@ class mif_bpc_like_button {
 
             }
 
-            if ( $user_data === array() ) return;
+            if ( $user_data === array() ) return array();
 
             $avatar_dir = trailingslashit( bp_core_avatar_upload_path() ) . trailingslashit( 'avatars' ); 
 

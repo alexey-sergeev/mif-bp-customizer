@@ -105,6 +105,18 @@ class mif_bpc_console_settings_page {
                     <td><label for="like-button">' . __( 'Разрешить использовать кнопку «Нравится».', 'mif-bp-customizer' ) . '</label></td>
                     </tr>';
             
+            $out .= '<tr>
+                    <th>' . __( 'Кнопка «Репост»', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['repost-button'] . ' value = "yes" name="repost-button" id="repost-button"></td>
+                    <td><label for="repost-button">' . __( 'Разрешить использовать кнопку «Репост».', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+            
+            $out .= '<tr>
+                    <th>' . __( 'Кнопки «Избранное», «Удалить»', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['activity-button-customize'] . ' value = "yes" name="activity-button-customize" id="activity-button-customize"></td>
+                    <td><label for="activity-button-customize">' . __( 'Использовать особые кнопки  «Избранное», «Удалить».', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+            
 
 
         }

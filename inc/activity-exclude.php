@@ -33,7 +33,7 @@ class mif_bpc_activity_exclude {
     // Типы активности, которые нельзя блокировать
     //
 
-    public $unexcluded_types = array( 'activity_update' );
+    public $unexcluded_types = array( 'activity_update', 'activity_repost' );
 
 
     function __construct()
@@ -274,6 +274,7 @@ class mif_bpc_activity_exclude {
             $data = array(
 
                     'activity_update' => array( 'part' => 10, 'descr' => __( 'Сообщение в ленте активности', 'mif-bp-customizer' ) ),
+                    'activity_repost' => array( 'part' => 10, 'descr' => __( 'Репост записи в ленте активности', 'mif-bp-customizer' ) ),
                     'activity_comment' => array( 'part' => 10, 'descr' => __( 'Комментарий в ленте активности', 'mif-bp-customizer' ) ),
                     'new_media_update' => array( 'part' => 10, 'descr' => __( 'Новый документ', 'mif-bp-customizer' ) ),
 

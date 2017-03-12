@@ -56,9 +56,9 @@ class mif_bpc_activity_button_customize {
     function favorite_button()
     {
 		$url = wp_nonce_url( home_url( bp_get_activity_root_slug() . '/favorite/' . bp_get_activity_id() . '/' ), 'mif_bpc_favorite_button_press' );
-
         $active = ( bp_get_activity_is_favorite() ) ? ' active' : '';
 
+        // $button = '<div class="favorite' . $active . '"><a href="' . $url . '" class="button bp-primary-action favorite" title="' . __( 'Избранное', 'mif-bp-customizer' ) . '"><i class="fa fa-star" aria-hidden="true"></i></a></div>';
         $button = '<div class="favorite' . $active . '"><a href="' . $url . '" class="button bp-primary-action favorite"><i class="fa fa-star" aria-hidden="true"></i></a></div>';
 
         // Здесь можно убрать или скорректировать кнопку "Избранное"
