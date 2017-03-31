@@ -88,6 +88,12 @@ class mif_bpc_console_settings_page {
                     </tr>';
 
             $out .= '<tr>
+                    <th>' . __( 'Приватность профиля', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['profile-privacy'] . ' value = "yes" name="profile-privacy" id="profile-privacy"></td>
+                    <td><label for="profile-privacy">' . __( 'Разрешить пользователям ограничивать доступ к своему профилю.', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+
+            $out .= '<tr>
                     <th>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</th>
                     <td><input type="checkbox"' . $chk['custom-background'] . ' value = "yes" name="custom-background" id="custom-background"></td>
                     <td><label for="custom-background">' . __( 'Разрешить использовать пользовательское изображение в качестве фона для профиля пользователя или группы.', 'mif-bp-customizer' ) . '</label></td>

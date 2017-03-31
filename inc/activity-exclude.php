@@ -50,10 +50,6 @@ class mif_bpc_activity_exclude {
 
     }
     
-    
-
-
-
 
     // 
     // Кнопка удаления типов активности в своей ленте
@@ -193,7 +189,7 @@ class mif_bpc_activity_exclude {
             );
 
         bp_core_new_subnav_item( $sub_nav );
-        
+       
     }
 
 

@@ -51,9 +51,11 @@ class mif_bpc_members_page {
         bp_core_new_subnav_item( $sub_nav );
 
         if ( $this->args['can_edit'] ) {
+
             add_action( 'wp_print_scripts', array( $this, 'load_js_helper_script' ) );
             add_action( 'wp_ajax_members-page-submit-' . $this->args['slug'], array( $this, 'ajax_helper' ) );
             add_action( 'wp_ajax_members-page-add-remove-button', array( $this, 'ajax_helper_add_remove_button' ) );
+            
         }
     }
 

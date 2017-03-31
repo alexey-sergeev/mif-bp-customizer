@@ -17,6 +17,7 @@ include_once dirname( __FILE__ ) . '/classes/members-page.php';
 
 
 include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
+include_once dirname( __FILE__ ) . '/inc/profile-privacy.php';
 include_once dirname( __FILE__ ) . '/inc/custom-background.php';
 include_once dirname( __FILE__ ) . '/inc/edit-group-slug.php';
 include_once dirname( __FILE__ ) . '/inc/groups-widget.php';
@@ -62,6 +63,7 @@ function get_mif_bpc_options()
 {
     $default = array(
                 'profile-as-homepage' => true,
+                'profile-privacy' => true,
                 'custom-background' => false,
                 'edit-group-slug' => true,
                 'groups-widget' => true,

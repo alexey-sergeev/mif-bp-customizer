@@ -1,3 +1,10 @@
+/* Приватность страниц */
+
+.profile-hidden #item-meta {
+    display: none;
+}
+
+
 /* Стили для репоста */
 
 body.repost-activity-form #whats-new-submit {

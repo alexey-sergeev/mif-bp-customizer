@@ -84,10 +84,10 @@ class mif_bpc_members_widget extends WP_Widget {
 
         $cache_group = $number . '-' . $members_type . '-' . $cache_expires . '-' . $avatar_size;
 		$cache_widget_avatars = get_option( 'cache_widget_user_avatars' );
+
 		$expires = absint( $cache_widget_avatars[$cache_group]['expires'] );
 		$now = time();
-
-		if ( ! isset( $cache_widget_avatars[$cache_group] ) || $now > $expires ) {
+		if ( ! isset( $cache_widget_avatars[$cache_group] ) || $now > $expires || $cache_widget_avatars[$cache_group]['user_avatars'] == array() ) {
 		
 			if ( is_active_buddypress() ) {
 				// Если есть buddypress

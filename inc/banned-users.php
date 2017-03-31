@@ -108,7 +108,7 @@ class mif_bpc_banned_users {
         global $bp;
 
         $banned_url = $bp->loggedin_user->domain . $bp->profile->slug . '/banned-members';
-        $banned_url_request = wp_nonce_url( $settings_url . '/banned-members/requests/' . $user_id . '/', 'mif_bpc_banned_user_button' );
+        $banned_url_request = wp_nonce_url( $banned_url . '/banned-members/requests/' . $user_id . '/', 'mif_bpc_banned_user_button' );
 
         $caption = $this->get_caption();
 
