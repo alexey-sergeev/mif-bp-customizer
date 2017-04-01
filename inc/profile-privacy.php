@@ -46,7 +46,7 @@ class mif_bpc_profile_privacy {
     // Уровень доступа по умолчанию
     //
     
-    public $default_privacy = 0;
+    public $default_privacy = 10;
 
     //
     // Режим ограничения доступа по умолчанию
@@ -75,6 +75,7 @@ class mif_bpc_profile_privacy {
     function __construct()
     {
 
+
         // Страница настройки
         add_action( 'bp_activity_setup_nav', array( $this, 'profile_privacy_nav' ) );
         add_action( 'bp_init', array( $this, 'profile_privacy_helper' ) );
@@ -102,11 +103,19 @@ class mif_bpc_profile_privacy {
         add_action( 'bp_first_activity_for_member', array( $this, 'clear_member_count_caches' ) );
         add_action( 'deleted_user', array( $this, 'clear_member_count_caches' ) );
 
+        // Корректировка опций
+        $this->default_privacy = get_option( 'mif_bpc_default_privacy', $this->default_privacy );
+        $this->default_mode = get_option( 'mif_bpc_default_mode', $this->default_mode );
+        $this->profile_hidden_time = get_option( 'mif_bpc_hidden_time', $this->profile_hidden_time );
+        $this->profile_hidden_privacy = get_option( 'mif_bpc_hidden_privacy', $this->profile_hidden_privacy );
+        $this->profile_deleted_time = get_option( 'mif_bpc_deleted_time', $this->profile_deleted_time );
+        $this->profile_deleted_privacy = get_option( 'mif_bpc_deleted_privacy', $this->profile_deleted_privacy );
 
+        // Установка профиля по умолчанию при активации нового пользователя
+        add_action( 'bp_core_activated_user', array( $this, 'set_default_level' ) );
 
-//        add_filter( 'bp_core_fetch_avatar', array( $this, 'hide_avatar' ), 10, 9 );
-        // add_filter( 'bp_ajax_querystring', array( $this, 'members_param' ), 100, 2 );
-        // add_filter( 'bp_user_query_uid_clauses', array( $this, 'members_param2' ), 100, 2 );
+        // Раскомментировать на один раз для конвертации данных
+        // add_action( 'bp_init', array( $this, 'old_level_correct' ) );
 
     }
 
@@ -129,11 +138,6 @@ class mif_bpc_profile_privacy {
         // Администратор имеет доступ ко всем
         if ( current_user_can( 'manage_options' ) ) return true;
 
-        // // Изменить уровень доступа, если истек срок активности
-        // $delta_day = timestamp_to_now( mif_bpc_get_last_activity_timestamp( $profile_user_id ), 'day' );
-        // if ( $delta_day > $this->profile_hidden_time ) $privacy_level = $this->profile_hidden_privacy;
-        // if ( $delta_day > $this->profile_deleted_time ) $privacy_level = $this->profile_deleted_privacy;
-        
         // Уровень 0 - открытый профиль показываем всегда
         if ( $privacy_level == 0 ) return true;
 
@@ -221,7 +225,7 @@ class mif_bpc_profile_privacy {
 
 
     //
-    // profile_deleted
+    // Реализация режима profile_deleted
     //
 
     //
@@ -237,7 +241,7 @@ class mif_bpc_profile_privacy {
 
 
     //
-    // profile_hidden
+    // Реализация режима profile_hidden
     //
 
     //
@@ -298,7 +302,7 @@ class mif_bpc_profile_privacy {
 
 
     //
-    // activity_hidden
+    // Реализация режима activity_hidden
     //
 
     //
@@ -491,20 +495,7 @@ class mif_bpc_profile_privacy {
 
         $privacy_level = (int) $_POST['privacy_level'];
 
-        // p($privacy_level);
-
         update_user_meta( bp_displayed_user_id(), 'mif_bpc_privacy_level', $privacy_level );
-
-        // $form_types = array_keys( $_POST['items'] );
-        // $all_types = $this->get_activity_types();
-        // $unexcluded_types = $this->get_unexcluded_types();
-        // $exclude_types = array_diff( $all_types, $form_types, $unexcluded_types );
-
-        // if ( update_user_meta( bp_loggedin_user_id(), $this->meta_key, implode( ', ', $exclude_types ) ) ) {
-            
-        //     bp_core_add_message( __( 'Список элементов активности сохранён.', 'mif-bp-customizer' ) );
-
-        // }
     }
 
 
@@ -515,7 +506,6 @@ class mif_bpc_profile_privacy {
 
     function get_levels_data()
     {
-
         $arr = array(
             0 =>  array( 'descr' => __( 'Все пользователи', 'mif-bp-customizer' ), 'comment' => __( 'Страница будет доступна как авторизованным, так и не авторизованным пользователям. Ваши записи и документы будут публично представлены в Интернете', 'mif-bp-customizer' ) ),
             10 => array( 'descr' => __( 'Авторизованные пользователи', 'mif-bp-customizer' ), 'comment' => __( 'Страница будет доступна только тем пользователям, кто работает на сайте, указав свой логин и пароль', 'mif-bp-customizer' ) ),
@@ -527,5 +517,44 @@ class mif_bpc_profile_privacy {
 
         return apply_filters( 'mif_bpc_profile_privacy_privacy_levels', $arr );
     }
+
+
+
+    // 
+    // Установка мета-поля вновь создаваемым пользователям
+    // 
+
+    function set_default_level( $user )
+    {
+        if ( empty( $user ) ) return false;
+
+        $user_id = ( is_array( $user ) ) ? $user['user_id'] : $user;
+        if ( empty( $user_id ) ) return false;
+
+        update_user_meta( $user_id, 'mif_bpc_privacy_level', $this->default_privacy );
+
+    }
+
+
+
+    // 
+    // Установка мета-поля старым пользователям, чтобы учесть их публичный уровень доступа
+    // 
+
+    function old_level_correct()
+    {
+ 
+        global $bp, $wpdb;
+
+        $arr = $wpdb->get_col( $wpdb->prepare( "SELECT user_id FROM {$bp->members->table_name_last_activity} WHERE component = %s AND type = 'last_activity'", $bp->members->id ) );
+
+        $i=0;
+        foreach ( (array) $arr as $user_id )
+            if ( update_user_meta( $user_id, 'mif_bpc_privacy_level', 0 ) ) $i++;
+
+        p( 'Changed levels of ' . $i . ' members' );
+
+    }
+
 
 }
