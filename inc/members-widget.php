@@ -92,8 +92,9 @@ class mif_bpc_members_widget extends WP_Widget {
 			if ( is_active_buddypress() ) {
 				// Если есть buddypress
 
-				$limit = $number * 4;
-
+                add_filter( 'bp_is_current_component', 'no_friends_page', 10, 2 );
+		
+        		$limit = $number * 4;
 
 				$args = array(
 						'type' => $members_type,

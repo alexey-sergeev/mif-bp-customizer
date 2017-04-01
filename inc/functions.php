@@ -86,3 +86,16 @@ function timestamp_to_now( $timestamp, $mode = NULL )
 
     return $res;
 }
+
+
+//
+// Корректирует ответ о нахождении на странице друзей
+//
+
+function no_friends_page( $is_current_component, $component )
+{
+    if ( $component == 'friends' ) $is_current_component = false;
+
+    remove_filter( 'bp_is_current_component', 'no_friends_page' );
+    return $is_current_component;
+}

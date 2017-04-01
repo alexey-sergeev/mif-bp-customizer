@@ -184,6 +184,7 @@ class mif_bpc_activity_stream {
 
                 $friends = (array) friends_get_friend_user_ids( $current_user_id );
                 $friends[] = $current_user_id;
+                $friends = apply_filters( 'mif_bpc_activity_stream_friends', $friends, $current_user_id );
                 $filter_sql .= '(a.user_id IN (' . implode( ',', $friends ) . ') AND a.hide_sitewide = 0)';
 
                 // Мои группы

@@ -31,6 +31,7 @@ include_once dirname( __FILE__ ) . '/inc/like-button.php';
 include_once dirname( __FILE__ ) . '/inc/repost-button.php';
 include_once dirname( __FILE__ ) . '/inc/repost-button-template.php';
 include_once dirname( __FILE__ ) . '/inc/activity-button-customize.php';
+include_once dirname( __FILE__ ) . '/inc/followers.php';
 
 include_once dirname( __FILE__ ) . '/inc/settings-page-admin.php';
 include_once dirname( __FILE__ ) . '/inc/banned-users-admin.php';
@@ -75,6 +76,7 @@ function get_mif_bpc_options()
                 'like-button' => true,
                 'repost-button' => true,
                 'activity-button-customize' => true,
+                'followers' => true,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );

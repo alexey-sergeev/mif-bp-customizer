@@ -75,7 +75,6 @@ class mif_bpc_profile_privacy {
     function __construct()
     {
 
-
         // Страница настройки
         add_action( 'bp_activity_setup_nav', array( $this, 'profile_privacy_nav' ) );
         add_action( 'bp_init', array( $this, 'profile_privacy_helper' ) );
