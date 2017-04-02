@@ -1,3 +1,10 @@
+/* Фолловеры */
+
+#requests-personal-li {
+    display: none;
+}
+
+
 /* Приватность страниц */
 
 .profile-hidden #item-meta {

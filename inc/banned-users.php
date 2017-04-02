@@ -117,6 +117,8 @@ class mif_bpc_banned_users {
                     array( 'href' => $banned_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
                 );
 
+        $arr = apply_filters( 'mif_bpc_banned_user_button', $arr );
+
         $none = ( $this->is_banned() ) ? '' : ' none';
 
         echo '<div class="right"><div class="right relative generic-button banned-users"><a href="" class="gray banned-users"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div><i class="fa fa-ban fa-2x right banned-users icon' . $none . '"></i></div>';
@@ -169,7 +171,6 @@ class mif_bpc_banned_users {
     function get_caption()
     {
         $caption = ( $this->is_banned() ) ? __( 'Снять ограничения', 'mif-bp-customizer' ) : __( 'Ограничить контакты', 'mif-bp-customizer' );
-
         return $caption;
     }
 

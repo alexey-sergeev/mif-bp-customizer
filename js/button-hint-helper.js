@@ -63,7 +63,7 @@ jQuery( document ).ready( function( jq ) {
             userid: userid,
 		},
 		function( response ) {
-            // alert(response);
+//            alert(response);
             if ( response ) {
                 button.fadeOut( time, function() { button.fadeIn( time ).html( response ) } );
 
@@ -72,6 +72,45 @@ jQuery( document ).ready( function( jq ) {
                 jq( '.repost-user-' + userid ).toggleClass( 'none' );
                 jq( '.friendship-button.add' ).toggleClass( 'none' );
                 jq( 'i.banned-users.icon' ).toggleClass( 'none' );
+        }
+		});
+
+		return false;
+
+	} );
+
+
+	//
+	// Отправляем данные о новоой поддписке на пользователя
+	//
+
+	jq( '#item-buttons' ).on( 'click', '.banned-users a.following', function() {
+
+        var nonce = jq( this ).attr( 'href' );
+		nonce = nonce.split('?_wpnonce=');
+		nonce = nonce[1].split('&');
+		nonce = nonce[0];
+
+        // alert(nonce);
+		var user_id = jq( this ).attr( 'data-userid' );
+        var button = jq( this );
+		// alert(userid);
+
+		jq.post( ajaxurl, {
+			action: 'following-user-button',
+			_wpnonce: nonce,
+            user_id: user_id,
+		},
+		function( response ) {
+        //    alert(response);
+            if ( response ) {
+                button.fadeOut( time, function() { button.fadeIn( time ).html( response ) } );
+
+        //         jq( '.acomment-user-' + userid ).toggleClass( 'none' );
+        //         jq( '.like-user-' + userid ).toggleClass( 'none' );
+        //         jq( '.repost-user-' + userid ).toggleClass( 'none' );
+        //         jq( '.friendship-button.add' ).toggleClass( 'none' );
+        //         jq( 'i.banned-users.icon' ).toggleClass( 'none' );
         }
 		});
 
