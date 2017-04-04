@@ -1,8 +1,113 @@
-/* Фолловеры */
+/* Уведомления */
 
-#requests-personal-li {
+.custom-button a.button {
+    padding: 4px 8px;
+    margin: 0;
+    background: #ededed;
+    color: #545557;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.custom-button a.notification-to-not-new {
+    color: #e55005;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.custom-button a.notification-to-new {
+    color: #545557;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.custom-notifications tr.new .custom-button a.notification-to-not-new { display: block; }
+.custom-notifications .custom-button a.notification-to-not-new { display: none; }
+.custom-notifications tr.new .custom-button a.notification-to-new { display: none; }
+.custom-notifications .custom-button a.notification-to-new { display: none; }
+.custom-notifications tr:hover .custom-button a.notification-to-new { display: block; }
+.custom-notifications tr.new:hover .custom-button a.notification-to-new { display: none; }
+
+
+.custom-notifications span.time-since {
+	/*float:right;*/
+	background:#F2F2F2;
+	font-size: 85%;
+	color:#828282;
+	padding: 3px 10px;
+	display: inline-block;
+	text-decoration: none;
+	border-radius: 2px;
+    white-space: nowrap;
+}
+
+.custom-notifications {
+    border-bottom: 0;
+}
+
+.custom-notifications tr.new td.cn-description {
+    font-weight: bold;
+}
+
+.custom-notifications td {
+    padding: 8px;
+}
+
+.custom-notifications td.cn-check,
+.custom-notifications td.cn-avatar,
+.custom-notifications td.cn-delete {
+    width: 1px;
+}
+
+.custom-notifications td.cn-is-new {
+    width: 12px;
+}
+
+.custom-notifications td.cn-is-new {
+    padding: 8px 0 8px 16px;
+}
+
+.custom-notifications td.cn-actions div {
+    float: right;
+    margin-left: 10px;
+}
+
+.custom-notifications td img.avatar {
+    display: block;
+}
+
+.custom-notifications thead tr,
+.custom-notifications tbody tr:hover {
+    background-color: #f8f8f8;
+}
+
+.custom-notifications tbody tr.load-more,
+.custom-notifications tbody tr.load-more:hover {
+    background-color: inherit;
+}
+
+.custom-notifications tbody tr.load-more td {
+    /*padding-top: 30px;*/
+    height: 50px;
+    text-align: center;
+}
+ 
+.custom-notifications tbody tr.load-more td div {
+    margin: 20px 0 -20px 0;
+}
+
+.custom-notifications tbody tr.load-more .loader {
     display: none;
 }
+
+.custom-notifications tbody tr.load-more.loading div {
+    display: none;
+}
+
+.custom-notifications tbody tr.load-more.loading div.loader {
+    display: block;
+}
+
 
 
 /* Приватность страниц */
@@ -324,6 +429,8 @@ div.activity-meta a.disable-activity-type:hover {
     /*border: 3px solid #fff;*/
     float: left;
 }
+
+
 
 
 /* Настройка редактирования адреса группы */

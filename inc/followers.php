@@ -32,6 +32,7 @@ class mif_bpc_followers {
         add_action( 'bp_activity_setup_nav', array( $this, 'followers_nav' ) );
         add_action( 'bp_activity_setup_nav', array( $this, 'subscriptions_nav' ) );
         // add_action( 'bp_activity_setup_nav', array( $this, 'delete_requests_nav' ) );
+        add_action( 'bp_init', array( $this, 'delete_requests_nav' ) );
 
         // Кнопки в списке пользователей
         add_action( 'bp_get_add_friend_button', array( $this, 'friend_button' ) );
@@ -49,7 +50,11 @@ class mif_bpc_followers {
         add_filter( 'mif_bpc_banned_user_button', array( $this, 'following_user_menu' ) );
         add_action( 'wp_ajax_following-user-button', array( $this, 'following_user_menu_ajax_helper' ) );
 
+        // Корректировка ссылки в уведомлении
+        add_filter( 'bp_friends_single_friendship_request_notification', array( $this, 'notification_link' ) );
+        add_filter( 'bp_friends_multiple_friendship_request_notification', array( $this, 'notification_link' ) );
 
+        
         // add_action( 'bp_get_add_friend_button', array( $this, 'remove_old_friend_button' ) );
     
     }
@@ -111,8 +116,6 @@ class mif_bpc_followers {
         $friendship_status = friends_check_friendship_status( $current_user_id, $target_user_id );
         $friendship_id = friends_get_friendship_id( $current_user_id, $target_user_id );
 
-        // echo $friendship_status;
-
         if ( $action_id == 'friend' ) {
 
             switch ( $friendship_status ) {
@@ -120,26 +123,21 @@ class mif_bpc_followers {
                 case 'not_friends' :
                     check_ajax_referer( 'friends_add_friend' );
                     friends_add_friend( $current_user_id, $target_user_id );
-                    // echo '1';
                     break;
 
                 case 'awaiting_response' :
                     check_ajax_referer( 'friends_accept_friendship' );
                     friends_accept_friendship( $friendship_id );
-                    // echo '2';
                     break;
 
                 case 'is_friend' :
                     check_ajax_referer( 'friends_remove_friend' );
                     friends_remove_friend( $current_user_id, $target_user_id );
-                    // echo '3';
                     break;
 
                 case 'pending' :
                     check_ajax_referer( 'friends_withdraw_friendship' );
                     friends_withdraw_friendship( $current_user_id, $target_user_id );
-                    // echo '4';
-                    // friends_reject_friendship( $friendship_id );
                     break;
 
             }
@@ -153,22 +151,15 @@ class mif_bpc_followers {
                 case 'not_now' :
                     check_ajax_referer( 'friends_not_now' );
                     $this->add_not_now_status( $target_user_id, $current_user_id );
-                    // ) echo 'OK';
-                    // // friends_add_friend( $current_user_id, $target_user_id );
-                    // echo 'not_now1';
-                    break;
 
+                    bp_notifications_mark_notifications_by_item_id( $current_user_id, $target_user_id, buddypress()->friends->id, 'friendship_request' );
+
+                    break;
 
             }
 
         }
 
-
-
-
-        // echo '5';
-        // echo '-' . $target_user_id;
-        
         wp_die();
     }
 
@@ -622,16 +613,31 @@ class mif_bpc_followers {
 
 
 
-    // //
-    // // Удалить стандартную страницу запросов
-    // //
+    //
+    // Удалить стандартную страницу запросов
+    //
 
-    // function delete_requests_nav()
-    // {
-    //     global $bp;
-    //     // p($bp);
+    function notification_link( $notification )
+    {
+        global $bp;
+
+        $new_url = $bp->displayed_user->domain . $bp->friends->slug . '/followers/';
+        $pattern = '/href="[^"]+"/';
+        $notification = preg_replace( $pattern, 'href="' . $new_url . '"', $notification ); 
         
-    // }
+        return $notification;
+    }
+
+
+
+    //
+    // Удалить стандартную страницу запросов
+    //
+
+    function delete_requests_nav()
+    {
+        bp_core_remove_subnav_item( 'friends', 'requests' );
+    }
 
 
 }

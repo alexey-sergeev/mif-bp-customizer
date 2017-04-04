@@ -77,8 +77,6 @@ class mif_bpc_repost_button {
     {
         global $reposted_activity;
         
-        // $reposted_activity_arr = bp_activity_get( array( 'in' => $activity_id ) );
-        // $reposted_activity = $reposted_activity_arr['activities'][0];
         $reposted_activity = $this->activity_get( $activity_id );
 
         if ( $reposted_activity ) {

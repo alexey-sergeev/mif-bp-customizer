@@ -94,6 +94,18 @@ class mif_bpc_console_settings_page {
                     </tr>';
 
             $out .= '<tr>
+                    <th>' . __( 'Подписчики', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['followers'] . ' value = "yes" name="followers" id="followers"></td>
+                    <td><label for="followers">' . __( 'Включить возможность подписки на обновления пользователей (подписка = односторонняя дружба).', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+
+            $out .= '<tr>
+                    <th>' . __( 'Уведомления', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['notifications'] . ' value = "yes" name="notifications" id="notifications"></td>
+                    <td><label for="notifications">' . __( 'Включить продвинутый режим уведомлений.', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+
+            $out .= '<tr>
                     <th>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</th>
                     <td><input type="checkbox"' . $chk['custom-background'] . ' value = "yes" name="custom-background" id="custom-background"></td>
                     <td><label for="custom-background">' . __( 'Разрешить использовать пользовательское изображение в качестве фона для профиля пользователя или группы.', 'mif-bp-customizer' ) . '</label></td>

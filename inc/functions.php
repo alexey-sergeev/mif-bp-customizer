@@ -99,3 +99,5 @@ function no_friends_page( $is_current_component, $component )
     remove_filter( 'bp_is_current_component', 'no_friends_page' );
     return $is_current_component;
 }
+
+
