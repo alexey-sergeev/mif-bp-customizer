@@ -3,10 +3,9 @@
 //
 //
 
-
 jQuery( document ).ready( function( jq ) {
 
-	time = 200;
+	var time = 200;
     
 
 
@@ -53,9 +52,12 @@ jQuery( document ).ready( function( jq ) {
 		function( response ) {
 
 			if ( response ) {
+
 				jq( input ).map( function() { 
 					jq( this ).parent().parent().fadeOut();
-			} );
+				} );
+				
+				new_notifotation_updated( jq, response );
 			}
 
 		});
@@ -89,11 +91,15 @@ jQuery( document ).ready( function( jq ) {
 		function( response ) {
 			
 			if ( response ) {
+
 				jq( input ).map( function() { 
 					jq( this ).parent().parent().removeClass( 'new' );
 					jq( this ).removeAttr( 'checked' );
+					jq( '#div-notification-' + this.value ).fadeOut();
 					jq( '#select-all-notifications' ).removeAttr( 'checked' );
-			} );
+				} );
+
+				new_notifotation_updated( jq, response );
 			}
 
 		});
@@ -107,9 +113,9 @@ jQuery( document ).ready( function( jq ) {
 	// Отметить как прочитанное
 	//
 
-	jq( '.custom-notifications' ).on( 'click', 'a.notification-to-not-new', function() {
+	jq( '.custom-notifications, .float-notification' ).on( 'click', 'a.notification-to-not-new', function() {
 
-		var tr = jq( this ).parent().parent().parent();
+		// var tr = jq( this ).parent().parent().parent();
         var href = jq( this ).attr( 'href' );
         var id = jq( this ).attr( 'id' );
 
@@ -127,7 +133,14 @@ jQuery( document ).ready( function( jq ) {
 		},
 		function( response ) {
 
-			if ( response ) tr.removeClass( 'new' );
+			if ( response ) {
+				// tr.removeClass( 'new' );
+				jq( '#tr-notification-' + id ).removeClass( 'new' );
+				jq( '#div-notification-' + id ).fadeOut();
+
+				new_notifotation_updated( jq, response );
+
+			}
 
 		});
 
@@ -143,7 +156,7 @@ jQuery( document ).ready( function( jq ) {
 
 	jq( '.custom-notifications' ).on( 'click', 'a.notification-to-new', function() {
 
-		var tr = jq( this ).parent().parent().parent();
+		// var tr = jq( this ).parent().parent().parent();
         var href = jq( this ).attr( 'href' );
         var id = jq( this ).attr( 'id' );
 
@@ -161,7 +174,14 @@ jQuery( document ).ready( function( jq ) {
 		},
 		function( response ) {
 
-			if ( response ) tr.addClass( 'new' );
+			if ( response ) {
+				// tr.addClass( 'new' );
+				jq( '#tr-notification-' + id ).addClass( 'new' );
+				jq( '#div-notification-' + id ).fadeIn();
+
+				new_notifotation_updated( jq, response );
+
+			}
 
 		});
 
@@ -177,7 +197,7 @@ jQuery( document ).ready( function( jq ) {
 
 	jq( '.custom-notifications' ).on( 'click', 'a.notification-delete', function() {
 
-		var tr = jq( this ).parent().parent().parent();
+		// var tr = jq( this ).parent().parent().parent();
         var href = jq( this ).attr( 'href' );
         var id = jq( this ).attr( 'id' );
 
@@ -196,7 +216,14 @@ jQuery( document ).ready( function( jq ) {
 		},
 		function( response ) {
 
-			if ( response ) tr.fadeOut();
+			if ( response ) {
+				// tr.fadeOut();
+				jq( '#tr-notification-' + id ).fadeOut();
+				jq( '#div-notification-' + id ).fadeOut();
+
+				new_notifotation_updated( jq, response );
+
+			}
 			
 		});
 
@@ -256,4 +283,94 @@ jQuery( document ).ready( function( jq ) {
 
 	} );
 
+
 });
+
+
+
+//
+// Обновить данные виджета новых уведомлений
+//
+
+function new_notifotation_updated( jq, count )
+{
+	if ( count > 0 ) {
+
+		jq( '.notifications-info' ).fadeIn( 'fast' );
+
+		jq( '.notifications-info span' ).fadeOut( 'fast', function() { 
+			jq( '.notifications-info span' ).html( count ); 
+			jq( '.notifications-info span' ).show() 
+		});
+
+		// notufy = jq( '#notification_notify' )[0];
+		// notufy.volume = 0.1;
+		// notufy.play();
+
+	} else {
+
+		jq( '.notifications-info' ).fadeOut();
+
+	}
+}
+
+//
+// Обновить всплывающие подсказки
+//
+
+function float_notification_update( jq ) 
+{
+
+	jq.post( ajaxurl, {
+		action: 'mif-bpc-float-notification-update'
+	},
+	function( response ) {
+
+		if ( response ) {
+
+			// объект с номерами и html-кодом уведомлений, которые надо показать
+			var obj = jQuery.parseJSON( response );
+
+			// обновить общее число уведомлений
+			new_notifotation_updated( jq, obj[0] );
+			delete obj[0];
+
+			// id всплывающих уведомлений, которые сейчас есть на странице (открытые или скрытые)
+			var arr = jq( '.float-notification>div' ).map( function() { 
+				return jq( this ).attr( 'id' );
+				// return jq( this ).attr( 'id' ); 
+			} ).get();
+
+
+			// Удалим из массивов то, что на странице не меняется
+			for ( var key in obj ) {
+
+				var pos = jq.inArray( 'div-notification-' + key, arr );
+				if ( pos == -1 ) continue;
+
+				jq( '#' + arr[pos] ).fadeIn( time );
+
+				arr.splice( pos, 1 );
+				delete obj[key];
+
+			}
+
+			// Удалим то, что показывать больше не надо
+			for ( var key in arr ) {
+				jq( '#' + arr[key] ).fadeOut( time );
+			}
+
+			// Покажем то, что надо показать
+			setTimeout( function() {
+				for ( var key in obj ) {
+					jq( obj[key] ).prependTo( jq( '.float-notification' ) ).hide().fadeIn();
+				}
+			}, time * 2 );
+
+		}
+
+
+	});
+
+	return false;
+}

@@ -46,12 +46,101 @@ class mif_bpc_notifications {
         add_action( 'wp_ajax_mif-bpc-notification-to-not-new', array( $this, 'ajax_helper_to_not_new' ) );
         add_action( 'wp_ajax_mif-bpc-notification-bulk-not-is-new', array( $this, 'ajax_helper_bulk_not_is_new' ) );
         add_action( 'wp_ajax_mif-bpc-notification-bulk-delete', array( $this, 'ajax_helper_bulk_delete' ) );
+        add_action( 'wp_ajax_mif-bpc-float-notification-update', array( $this, 'ajax_helper_float_update' ) );
 
         // Корректировка запроса
         add_filter( 'bp_notifications_get_where_conditions', array( $this, 'where_conditions' ) );
     
+        add_action( 'bp_notification_before_update', array( $this, 'remove_cache' ) );
+        add_action( 'bp_notification_before_delete', array( $this, 'remove_cache' ) );
+
+        add_action( 'wp_footer', array( $this, 'float_notifications' ) );
     }
 
+
+
+
+    //
+    // Всплывающие уведомления
+    //
+
+    function float_notifications()
+    {
+        if ( ! is_main_site() ) return;
+        if ( ! is_user_logged_in() ) return;
+
+        echo '<div class="float-notification">';
+        echo implode( '', $this->get_float_notifications() );
+        echo '</div>';
+
+        $audio = apply_filters( 'mif_bpc_notifications_audio', plugins_url( '../media/notify2.ogg', __FILE__ ) );
+
+        echo '<audio id="notification_notify" src="' . $audio . '" type="audio/ogg"></audio>';
+
+    }
+
+    function get_float_notifications()
+    {
+        $arr = '';
+        $user_id = bp_loggedin_user_id(); 
+        
+        if ( bp_has_notifications( array( 'user_id' => $user_id, 'per_page' => 5, 'is_new' => 1 ) ) ) {
+
+            while ( bp_the_notifications() ) : bp_the_notification(); 
+
+                $arr[bp_get_the_notification_id()] = $this->get_notification_item();
+
+            endwhile;
+        }
+
+        return $arr;
+    }
+
+    function get_notification_item()
+    {
+        $out = '';
+
+        $icons = array(
+                        'messages' => '<span class="type"><i class="fa fa-envelope" aria-hidden="true"></i></span>',
+                        'groups' => '<span class="type"><i class="fa fa-users" aria-hidden="true"></i></span>',
+                        'friends' => '<span class="type"><i class="fa fa-user" aria-hidden="true"></i></span>',
+                        'activity' => '<span class="type"><i class="fa fa-comments" aria-hidden="true"></i></span>',
+                        'default' => '<span class="type"><i class="fa fa-user" aria-hidden="true"></i></span>',
+                        );
+
+
+        $type = bp_get_the_notification_component_name();
+        $icon = ( isset( $icons[$type] ) ) ? $icons[$type] : $icons['default'];
+
+        global $bp;
+        $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
+        $id = bp_get_the_notification_id();
+
+        $out .= '<div id="div-notification-' . $id . '">';
+        $out .= '<span class="hint">' . bp_get_the_notification_description() . '</span>';
+        $out .= $this->notification_avatar( 40, false );
+        $out .= '<span class="close"><a href="' . $url . '" class="notification-to-not-new" id="float-tonew-' . $id . '"><i class="fa fa-times-circle" aria-hidden="true"></i></a></span>';
+        $out .= $icon;
+        $out .= '</div>';
+
+        return $out;
+    }
+
+
+
+    //
+    // Обновить блок всплывающих уведомлений
+    //
+
+    function ajax_helper_float_update()
+    {
+        $arr = $this->get_float_notifications();
+        $arr[0] = mif_bpc_new_notifications_count();
+
+        echo json_encode( $arr );
+
+        wp_die();
+    }
 
 
     //
@@ -68,7 +157,7 @@ class mif_bpc_notifications {
 
         $arr = (array) $_POST['arr'];
         foreach ( $arr as $item ) bp_notifications_delete_notification( $item );
-        echo '1';
+        echo mif_bpc_new_notifications_count();
 
         wp_die();
     }
@@ -84,7 +173,7 @@ class mif_bpc_notifications {
 
         $arr = (array) $_POST['arr'];
         foreach ( $arr as $item ) bp_notifications_mark_notification( $item, false );
-        echo '1';
+        echo mif_bpc_new_notifications_count();
 
         wp_die();
     }
@@ -101,7 +190,7 @@ class mif_bpc_notifications {
         $id = (int) $_POST['id'];
 
         if ( isset( $id ) ) $ret = bp_notifications_mark_notification( $id, false );
-        if ( $ret ) echo '1';
+        if ( $ret ) echo mif_bpc_new_notifications_count();
 
         wp_die();
     }
@@ -118,7 +207,7 @@ class mif_bpc_notifications {
         $id = (int) $_POST['id'];
 
         if ( isset( $id ) ) $ret = bp_notifications_mark_notification( $id, true );
-        if ( $ret ) echo '1';
+        if ( $ret ) echo mif_bpc_new_notifications_count();
 
         wp_die();
     }
@@ -134,7 +223,7 @@ class mif_bpc_notifications {
 
         $id = (int) $_POST['id'];
         if ( isset( $id ) ) $ret = bp_notifications_delete_notification( $id );
-        if ( $ret ) echo '1';
+        if ( $ret ) echo mif_bpc_new_notifications_count();
 
         wp_die();
     }
@@ -151,7 +240,7 @@ class mif_bpc_notifications {
         $page = (int) $_POST['page'];
         $page = ( $page ) ? $page : 1;
 
-        if ( bp_has_notifications( array( 'per_page' => $this->per_page, 'page' => $page ) ) ) {
+        if ( bp_has_notifications( array( 'per_page' => $this->per_page, 'page' => $page, 'is_new' => 0 ) ) ) {
 
             $i == 0;
 			while ( bp_the_notifications() ) : bp_the_notification(); 
@@ -282,7 +371,7 @@ class mif_bpc_notifications {
     function where_conditions( $where_conditions )
     {
         // p($where_conditions);
-        unset( $where_conditions['is_new'] );
+        if ( isset( $where_conditions['is_new'] ) && $where_conditions['is_new'] == 'is_new = 0' ) unset( $where_conditions['is_new'] );
         return $where_conditions;
     }
 
@@ -360,6 +449,17 @@ class mif_bpc_notifications {
     }
 
 
+    //
+    // Удалить кэш-данные о количестве новых уведомлений
+    //
+
+    function remove_cache()
+    {
+        $user_id = bp_loggedin_user_id(); 
+        wp_cache_delete( 'mif_bpc_new_notifications_count', $user_id );
+    }
+
+
 }
 
 
@@ -432,7 +532,7 @@ function mif_bpc_notification_delete_button()
 function mif_bpc_the_notification_row()
 {
 ?>
-    <tr<?php if ( mif_bpc_is_new_notification() ) echo ' class="new"'; ?>>
+    <tr<?php if ( mif_bpc_is_new_notification() ) echo ' class="new"'; ?> id="tr-notification-<?php bp_the_notification_id(); ?>">
         <td class="cn-check"><input id="chk-<?php bp_the_notification_id(); ?>" type="checkbox" name="notifications_ids[]" value="<?php bp_the_notification_id(); ?>" class="cn-check"></td>
         <td class="cn-avatar"><?php mif_bpc_the_notification_avatar() ?></td>
         <td class="cn-is-new"><?php mif_bpc_notification_is_new_button() ?></td>
@@ -481,14 +581,15 @@ function mif_bpc_the_notifications_info()
 
 function mif_bpc_get_notifications_info()
 {
+    if ( ! mif_bpc_options( 'notifications' ) ) return;
+
     global $bp;
-        
-    $out = '';
 
     $count = mif_bpc_new_notifications_count();
     $url = $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/';
+    $none = ( $count > 0 ) ? '' : ' style="display: none;"';
 
-    if ( $count ) $out .= '<div class="notifications-info"><a href="' . $url . '">' . __( 'Новых уведомлений', 'mif-bp-customizer' ) . ': <span>' . $count . '</span></a></div>';
+    $out = '<div class="notifications-info"' . $none . '><a href="' . $url . '">' . __( 'Новых уведомлений', 'mif-bp-customizer' ) . ': <span>' . $count . '</span></a></div>';
 
     return apply_filters( 'mif_bpc_get_notifications_info', $out, $count );
 }

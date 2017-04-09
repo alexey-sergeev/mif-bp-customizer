@@ -1,3 +1,114 @@
+/* Всплывающие уведомления */
+
+.float-notification {
+    z-index: 9999;
+    position: fixed;
+    bottom: 2em;
+    right: 2em;
+}
+
+.float-notification>div {
+    margin-top: 5px;
+    position: relative;
+}
+
+.float-notification>div img {
+    display: block;
+    opacity: 0.75;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.float-notification>div:hover img {
+    opacity: 1;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.float-notification>div span.hint {
+    position: absolute;
+    right: 45px;
+    font-size: 12px;
+    line-height: 16px;
+    width: 170px;
+    /*background-color: rgba(0,0,0,0.3);*/
+    opacity: 0; 
+    visibility: hidden;
+    color: rgba(255,255,255,0.85);
+    padding-right: 10px;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.float-notification>div:hover span.hint {
+    opacity: 0.85; 
+    visibility: visible;
+    
+    /*transition-duration: .12s;
+    transition-timing-function: ease-out;    */
+}
+
+.float-notification span.hint a {
+    background-color: #333;
+    color: rgba(255,255,255,0.75);
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.float-notification span.hint a:hover {
+    color: #fff;
+}
+
+.float-notification>div span.hint::after {
+    content: ''; 
+    position: absolute;
+    top: 16px;
+    right: -5px;
+    border: 8px solid transparent;
+    border-left: 8px solid #333;
+}
+
+.float-notification>div span.type {
+    background-color: #fff;
+    padding: 3px;
+    border-radius: 12px;
+    color: #e55005;
+    font-size: 12px;
+    line-height: 14px;
+    width: 14px;
+    text-align: center;
+    position: absolute;
+    z-index: 10000;
+    bottom: -4px;
+    right: -4px;
+}
+
+.float-notification>div span.close {
+    background-color: #fff;
+    padding: 2px;
+    border-radius: 12px;
+    color: #e55005;
+    font-size: 12px;
+    line-height: 12px;
+    position: absolute;
+    z-index: 10000;
+    right: -2px;
+    top: -2px;
+    opacity: 0;
+    visibility: hidden;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.float-notification>div:hover span.close {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+
+
 /* Уведомления */
 
 .custom-button a.button {

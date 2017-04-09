@@ -14,6 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 include_once dirname( __FILE__ ) . '/classes/members-page.php';
+// include_once dirname( __FILE__ ) . '/classes/socket-io-client.php';
 
 
 include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
@@ -33,6 +34,7 @@ include_once dirname( __FILE__ ) . '/inc/repost-button-template.php';
 include_once dirname( __FILE__ ) . '/inc/activity-button-customize.php';
 include_once dirname( __FILE__ ) . '/inc/followers.php';
 include_once dirname( __FILE__ ) . '/inc/notifications.php';
+include_once dirname( __FILE__ ) . '/inc/websocket.php';
 
 include_once dirname( __FILE__ ) . '/inc/settings-page-admin.php';
 include_once dirname( __FILE__ ) . '/inc/banned-users-admin.php';
@@ -79,6 +81,7 @@ function get_mif_bpc_options()
                 'activity-button-customize' => true,
                 'followers' => true,
                 'notifications' => true,
+                'websocket' => false,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );

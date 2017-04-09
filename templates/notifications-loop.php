@@ -1,8 +1,4 @@
-<?php 
-
-mif_bpc_the_notifications_info();
-
-if ( bp_has_notifications( array( 'per_page' => mif_bpc_get_notifications_per_page() ) ) ) : ?>
+<?php if ( bp_has_notifications( array( 'per_page' => mif_bpc_get_notifications_per_page(), 'is_new' => 0 ) ) ) : ?>
 
 <p><br />
 
