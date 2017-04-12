@@ -8,8 +8,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// use ElephantIO\Client;
-// use ElephantIO\Engine\SocketIO\Version1X;
 
 if ( mif_bpc_options( 'websocket' ) ) {
 
@@ -22,8 +20,20 @@ if ( mif_bpc_options( 'websocket' ) ) {
 class mif_bpc_websocket {
 
     //
-    // Стандартный механизм уведомлений, но с улучшенной интерфейсной частью
+    // Механизм всплывающих уведомлений - есть эхо-сервер, с которым устанавливают websocket-соединения браузеры клиентов. Каждый клиент
+    // подключается к своему каналу, ассоциированному с его учетной записью. Когда на сайте появляется новое уведомление (или исчезают 
+    // старые) - вордпресс дает об этом знать эхо-серверу, сообщая идентификатор канала нужного пользователя. Эхо-сервер тот шлет уведомление 
+    // о событии через websocket-соединение. Браузеры, получив событие, делают ajax-запрос для получения информации о новых уведомлениях.
     //
+    // Требуется настройка эхо-сервера (node.js и socket.io) на машине с вордпрессом или где-то еще. Для лучшей безопасности нужно указать
+    // общий ключ для вордпресса и эхо-сервера, а также на эхо-сервере указать ip-адрес водрпресса, который может делать рассылку уведомлений.
+    // 
+    // Для настройки используйте wp-config.php:
+    // 
+    // define( 'ECHOSERVER_PORT', ... );
+    // define( 'ECHOSERVER_SECURE_KEY', '...' );
+    // define( 'ECHOSERVER_NOTIFICATION_DELAY', ... );
+    // 
 
 
     //
@@ -38,6 +48,12 @@ class mif_bpc_websocket {
 
     public $secure_key = 'A4nYoRiq0dispfmCkFzfUAtAnV6wBglC';
 
+    //
+    // Время задержки между всплывающими сообщениями (секунды)
+    //
+
+    public $notification_delay = 3;
+
 
 
     function __construct()
@@ -48,7 +64,6 @@ class mif_bpc_websocket {
         add_action( 'bp_notification_before_update', array( $this, 'notification_before_update' ), 10, 2 );
         add_action( 'bp_notification_before_delete', array( $this, 'notification_before_delete' ) );
         add_action( 'bp_notification_before_save', array( $this, 'notification_before_save' ) );
-
 
         // JS-скрипты для связки "браузер - эхо-сервер"
 
@@ -76,7 +91,7 @@ class mif_bpc_websocket {
 
     function notification_before_save( $data )
     {
-        $this->send_notification( $data->user_id );
+        $this->send_notification( $data->user_id, 'yes' );
     }
 
 
@@ -85,23 +100,45 @@ class mif_bpc_websocket {
     // Отправляет уведомление клиенту
     // 
 
-    function send_notification( $user_id )
+    function send_notification( $user_id = NULL, $default_notify = 'no' )
     {
+        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+        
         $url = $this->get_local_url();
         $port = $this->get_port();
-        $room = $this->get_user_room( $user_id );
-        $key = $this->get_secure_key();
 
-        // require __DIR__ . '/../vendor/autoload.php';
-        // include_once dirname( __FILE__ ) . '/../classes/elephant.io/Client.php';
+        $notify = ( bp_loggedin_user_id() == $user_id ) ? 'no' : $default_notify;
 
-        $event = 'float_notification_update';
-        $data = '1';
+        $last_notification = get_user_meta( $user_id, 'last_notification_timestamp', true );
+        $now = time();
+
+        // Выйти, если уведомление уже запланировано
+
+        if ( $last_notification > $now ) return;
+
+        // Рассчитать время задержки
+        
+        $min_delay = $this->get_notification_delay();
+        $delay = ( $now > $last_notification + $min_delay ) ? 0 : $last_notification + $min_delay - $now;
+
+        $last_notification = $now + $delay;
+        update_user_meta( $user_id, 'last_notification_timestamp', $last_notification );
+
+        $delay = ($delay + 1) * 1000;
+
+        $args = array(
+                    'room' => $this->get_user_room( $user_id ),
+                    'event' => 'float_notification_update',
+                    'data' => '1',
+                    'notify' => $notify,
+                    'delay' => $delay,
+                    'key' => $this->get_secure_key(),
+                );
 
         try {
 
             $conn = curl_init();
-        	curl_setopt( $conn, CURLOPT_URL, $url . ':' . $port . '?' . 'key=' . $key . '&room=' . $room . '&event=' . $event . '&data=' . $data );
+        	curl_setopt( $conn, CURLOPT_URL, $url . ':' . $port . '?' . http_build_query( $args ) );
         	curl_setopt( $conn, CURLOPT_NOBODY, 1 );
         	curl_exec( $conn );
         	curl_close( $conn );            
@@ -176,7 +213,8 @@ class mif_bpc_websocket {
 
     function get_port()
     {
-        return apply_filters( 'mif_bpc_websocket_port', get_option( 'mif_bpc_websocket_url', $this->port ) );
+        $port = ( defined( 'ECHOSERVER_PORT' ) ) ? ECHOSERVER_PORT : $this->port;
+        return apply_filters( 'mif_bpc_websocket_port', $port );
     }
 
 
@@ -186,7 +224,19 @@ class mif_bpc_websocket {
 
     function get_secure_key()
     {
-        return apply_filters( 'mif_bpc_websocket_port', get_option( 'mif_bpc_websocket_url', $this->secure_key ) );
+        $secure_key = ( defined( 'ECHOSERVER_SECURE_KEY' ) ) ? ECHOSERVER_SECURE_KEY : $this->secure_key;
+        return apply_filters( 'mif_bpc_websocket_secure_key', $secure_key );
+    }
+
+
+    //
+    // Получить время задержки между всплывающими сообщениями
+    //
+
+    function get_notification_delay()
+    {
+        $notification_delay = ( defined( 'ECHOSERVER_NOTIFICATION_DELAY' ) ) ? ECHOSERVER_NOTIFICATION_DELAY : $this->notification_delay;
+        return apply_filters( 'mif_bpc_websocket_notification_delay', $notification_delay );
     }
 
 

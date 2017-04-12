@@ -73,7 +73,7 @@ class mif_bpc_notifications {
         echo implode( '', $this->get_float_notifications() );
         echo '</div>';
 
-        $audio = apply_filters( 'mif_bpc_notifications_audio', plugins_url( '../media/notify2.ogg', __FILE__ ) );
+        $audio = apply_filters( 'mif_bpc_notifications_audio', plugins_url( '../media/notify5.ogg', __FILE__ ) );
 
         echo '<audio id="notification_notify" src="' . $audio . '" type="audio/ogg"></audio>';
 
@@ -81,7 +81,7 @@ class mif_bpc_notifications {
 
     function get_float_notifications()
     {
-        $arr = '';
+        $arr = array();
         $user_id = bp_loggedin_user_id(); 
         
         if ( bp_has_notifications( array( 'user_id' => $user_id, 'per_page' => 5, 'is_new' => 1 ) ) ) {
@@ -329,18 +329,6 @@ class mif_bpc_notifications {
 
         }
 
-
-
-        // $out = '';
-        // global $mif_bpc_followers;
-
-
-        // add_filter( 'bp_ajax_querystring', array( $mif_bpc_followers, 'members_param' ), 100, 2 );
-        // bp_get_template_part( 'members/members-loop' ) ;
-        // remove_filter( 'bp_ajax_querystring', array( $mif_bpc_followers, 'members_param' ) );
-
-        // echo $out;
-
     }
 
     function members_param( $members_param, $object )
@@ -430,7 +418,6 @@ class mif_bpc_notifications {
         $title = ( $is_title ) ? $title : false;
 
         $out = '';
-        // $out .= $item_id;
         $out .= '<a href="' . $url . '">';
         $out .= bp_core_fetch_avatar( array( 'item_id' => $item_id, 'object' => $object, 'title' => $title, 'width' => $width ) );
         $out .= '</a>';

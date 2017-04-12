@@ -294,22 +294,24 @@ jQuery( document ).ready( function( jq ) {
 
 function new_notifotation_updated( jq, count )
 {
+	var wrap = jq( '.notifications-info' );
+	var span = jq( '.notifications-info span' );
+
 	if ( count > 0 ) {
 
-		jq( '.notifications-info' ).fadeIn( 'fast' );
+		if ( span.html() != count ) {
 
-		jq( '.notifications-info span' ).fadeOut( 'fast', function() { 
-			jq( '.notifications-info span' ).html( count ); 
-			jq( '.notifications-info span' ).show() 
-		});
+			wrap.fadeIn( 'fast' );
+			span.fadeOut( 'fast', function() { 
+				span.html( count ); 
+				span.show() 
+			});
 
-		// notufy = jq( '#notification_notify' )[0];
-		// notufy.volume = 0.1;
-		// notufy.play();
+		}
 
 	} else {
 
-		jq( '.notifications-info' ).fadeOut();
+		wrap.fadeOut();
 
 	}
 }
