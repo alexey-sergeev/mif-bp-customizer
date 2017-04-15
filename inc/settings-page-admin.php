@@ -106,6 +106,12 @@ class mif_bpc_console_settings_page {
                     </tr>';
 
             $out .= '<tr>
+                    <th>' . __( 'Диалоги', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['dialogues'] . ' value="yes" name="dialogues" id="dialogues"></td>
+                    <td><label for="dialogues">' . __( 'Включить простые и удобные диалоги вместо стандартной системы личных сообщений.', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+
+            $out .= '<tr>
                     <th>' . __( 'Всплывающие сообщения', 'mif-bp-customizer' ) . '</th>
                     <td><input type="checkbox"' . $chk['websocket'] . ' value="yes" name="websocket" id="websocket"></td>
                     <td><label for="websocket">' . __( 'Включить механизм всплывающих сообщений. Требуется настройка эхо-сервера.', 'mif-bp-customizer' ) . '</label></td>

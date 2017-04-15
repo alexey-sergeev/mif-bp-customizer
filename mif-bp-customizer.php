@@ -34,6 +34,7 @@ include_once dirname( __FILE__ ) . '/inc/repost-button-template.php';
 include_once dirname( __FILE__ ) . '/inc/activity-button-customize.php';
 include_once dirname( __FILE__ ) . '/inc/followers.php';
 include_once dirname( __FILE__ ) . '/inc/notifications.php';
+include_once dirname( __FILE__ ) . '/inc/dialogues.php';
 include_once dirname( __FILE__ ) . '/inc/websocket.php';
 
 include_once dirname( __FILE__ ) . '/inc/settings-page-admin.php';
@@ -81,6 +82,7 @@ function get_mif_bpc_options()
                 'activity-button-customize' => true,
                 'followers' => true,
                 'notifications' => true,
+                'dialogues' => true,
                 'websocket' => false,
             );
 

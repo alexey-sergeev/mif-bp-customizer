@@ -1,3 +1,280 @@
+/* Диалоги */
+
+.dialogues-page .members {
+    /*background-color: yellow;*/
+    width: 300px;
+    float: left;
+}
+
+.dialogues-page .members .thread-item {
+    padding: 10px 5px;
+    border-bottom: 1px solid #E3E4E5;
+    /*background-color: #f2f2f2;*/
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+    cursor: pointer;
+}
+
+.dialogues-page .members .thread-item:hover {
+    background-color: #f2f2f2;
+}
+
+.dialogues-page .members .thread-item:after {
+    content: ''; 
+    clear: both;
+    display: block;
+    /*margin-bottom: 0.5em;*/
+}
+
+.dialogues-page .members .thread-item .title {
+    color: #0086b3;
+}
+
+.dialogues-page .members .thread-item .content {
+    margin-left: 10px;
+    width: 220px;
+    float: left;
+}
+
+.dialogues-page .members .thread-item .avatar {
+    float: left;
+}
+
+.dialogues-page .members .thread-item.loader {
+    text-align: center;
+    padding-top: 20px;
+    border-bottom: 0;
+}
+
+.dialogues-page .members span.title {
+    font-size: 13px;
+    line-height: normal;
+}
+
+.dialogues-page span.time-since {
+    display: inline-block;
+    background: #F2F2F2;
+    font-size: 11px;
+    color: #828282;
+    padding: 1px 6px;
+    text-decoration: none;
+    border-radius: 2px;
+}
+
+.dialogues-page .members span.message-excerpt {
+    font-size: 13px;
+    line-height: normal;
+    color:#828282;
+}
+
+.dialogues .members .thread-wrap {
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 130px 0 50px 0;
+    margin-top: -130px;
+}
+
+.dialogues-page {
+    height: 100vh;
+    margin-bottom: -50px;
+}
+
+
+/*.dialogues .members span {
+    float: left;
+}*/
+
+
+.dialogues-page .dialogues-header {
+    padding-top: 30px;
+    height: 80px;
+    box-sizing: border-box;
+}
+
+.dialogues-page .dialogues-header .custom-button a {
+    padding: 8px 12px;
+    bottom: 0;
+}
+
+.dialogues-page .custom-button .dialogues-fix {
+    float: right;
+}
+
+
+.dialogues-page .messages {
+    /*background-color: red;*/
+    margin-left: 300px;
+}
+
+
+@media only screen and (max-width: 768px) {
+
+    .dialogues-page .members {
+        width: auto;
+        float: none;
+    }
+    
+}
+
+/*.fix {
+    position: fixed;
+    top: 0;
+}*/
+
+.fix {
+    overflow: hidden;
+}
+
+
+.dialogues-page .search,
+.dialogues-page .messages-title {
+    border-top: 1px solid #E3E4E5;
+    border-bottom: 1px solid #E3E4E5;
+    padding: 4px 0;
+    background-color: #f8f8f8;
+    /*height: 50px;*/
+    box-sizing: border-box;
+}
+
+.dialogues-page .messages-title {
+    border-left: 1px solid #E3E4E5;
+    height: 50px;
+}
+
+.dialogues-page input[type='text'], 
+.dialogues-page input[type='text']:focus  {
+    box-shadow: none;
+    border: 0;
+    border-radius: 0;
+    /*background: #fff;*/
+    height: 40px;
+    padding: 5px 10px; 
+    box-sizing: border-box;
+    background-color: #f8f8f8;
+}
+
+.dialogues-page input[type="text"]::-webkit-input-placeholder {
+    color: #ccc;
+} 
+
+.dialogues-page input[type="text"]::-moz-placeholder {
+    color: #ccc;
+} 
+    
+.dialogues-page .members input[type='text']  {
+    width: 250px;
+    /*float: left;*/
+}
+
+.dialogues-page .messages-wrap {
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 130px 0 150px 0;
+    margin-top: -130px;
+}
+
+.dialogues-page .messages-wrap .messages-items {
+    height: 100%;
+    border-left: 1px solid #E3E4E5;
+}
+
+
+.dialogues-page .form-wrap {
+    border-left: 1px solid #E3E4E5;
+    margin-top: -150px;
+    background-color: yellow;
+    height: 100px;
+}
+
+.dialogues-page .messages-wrap .new-empty {
+    height: 100%;
+    display: flex;
+
+}
+
+.dialogues-page .messages-wrap .new-empty div {
+    margin: auto;
+    text-align: center;
+}
+
+.dialogues-page .messages-wrap .new-empty div i {
+    color: #d6d6d6;
+}
+
+.dialogues-page .messages-wrap .message-item {
+    padding: 20px 0 0 20px;
+    overflow: hidden;
+    /*clear: both;*/
+}
+
+/*.dialogues-page .messages-wrap .message-item.loader {
+    height: 50vh;
+}*/
+
+.dialogues-page .messages-wrap .message-item div.avatar {
+    float: left;
+}
+
+.dialogues-page .messages-wrap .message-item div.content {
+    margin-left: 60px;
+}
+
+.dialogues-page .messages-wrap .message-item span.message {
+    margin-top: 5px;
+    display: inline-block;
+}
+
+
+
+/* Скроллер */
+
+.scroller-wrap {
+	position: relative;
+	overflow: hidden;
+	/*width: 300px;*/
+	height: 100%;
+	/*margin: 1px auto;
+	background: #fff;
+	border: 1px solid #fc9;*/
+}
+.scroller {
+	height: 100%;
+	overflow-y: scroll;
+}
+.scroller::-webkit-scrollbar {
+    width: 0;
+}
+.scroller__bar {
+	position: absolute;
+    z-index: 1;
+    right: 4px;
+    /*display: none;*/
+    width: 8px;
+    min-height: 50px;
+    border-radius: 3px;
+    background: #AAA;
+    /*opacity: .6;*/
+    opacity: 0;
+    transition: width .2s linear;
+    cursor: pointer;
+}
+.scroller__bar:hover,
+.scroller.scrolling .scroller__bar {
+	opacity: .8;
+    transition-duration: .2s;
+    transition-delay: .2s;
+
+}
+.scroller__bar_state_on {
+	display: block;
+}
+
+.scroller .scroller-container {
+	overflow: hidden;
+}
+
+
+
 /* Всплывающие уведомления */
 
 .float-notification {

@@ -285,13 +285,13 @@ class mif_bpc_notifications {
         $parent_slug = $bp->messages->slug;
 
         $sub_nav = array(  
-                'name' => __( 'Уведомления', 'mif-bp-customizer' ), 
+                'name' => __( 'Уведомления', 'mif-bp-customizer' ),
                 'slug' => 'custom-notifications', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
                 'screen_function' => array( $this, 'screen' ), 
                 'position' => 50,
-                // 'user_has_access'=>  bp_is_my_profile() 
+                'user_has_access'=>  bp_is_my_profile() 
             );
 
         bp_core_new_subnav_item( $sub_nav );
@@ -307,14 +307,8 @@ class mif_bpc_notifications {
     function screen()
     {
         global $bp;
-        // add_action( 'bp_template_title', array( $this, 'title' ) );
         add_action( 'bp_template_content', array( $this, 'body' ) );
         bp_core_load_template( apply_filters( 'bp_core_template_plugin', 'members/single/plugins' ) );
-    }
-
-    function title()
-    {
-        echo __( 'Уведомления', 'mif-bp-customizer' );
     }
 
     function body()
@@ -328,28 +322,7 @@ class mif_bpc_notifications {
             load_template( dirname( __FILE__ ) . '/../templates/notifications-loop.php', false );
 
         }
-
     }
-
-    function members_param( $members_param, $object )
-    {
-        global $bp;
-
-        if ( $bp->current_action == 'subscriptions' ) {
-
-            $members_param = array( 'include' => implode( ',', $this->get_subscriptions_ids() ) );
-
-        } elseif ( $bp->current_action == 'followers' ) {
-
-            $members_param = array( 'include' => implode( ',', $this->get_followers_ids() ) );
-
-        }
-
-        add_filter( 'bp_is_current_component', 'no_friends_page', 10, 2 );
-
-        return apply_filters( 'mif_bpc_followers_members_param', $members_param, $bp->current_action ) ;
-    }    
-
 
 
     //
@@ -358,7 +331,6 @@ class mif_bpc_notifications {
 
     function where_conditions( $where_conditions )
     {
-        // p($where_conditions);
         if ( isset( $where_conditions['is_new'] ) && $where_conditions['is_new'] == 'is_new = 0' ) unset( $where_conditions['is_new'] );
         return $where_conditions;
     }

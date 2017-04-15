@@ -1,8 +1,8 @@
-<?php if ( bp_has_notifications( array( 'per_page' => mif_bpc_get_notifications_per_page(), 'is_new' => 0 ) ) ) : ?>
-
 <p><br />
 
 <?php do_action( 'mif_bpc_before_notification_loop' );  ?>
+
+<?php if ( bp_has_notifications( array( 'per_page' => mif_bpc_get_notifications_per_page(), 'is_new' => 0 ) ) ) : ?>
 
 <form action="" method="post" id="notifications-bulk-management">
 	<table class="custom-notifications">

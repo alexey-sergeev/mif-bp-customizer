@@ -430,46 +430,6 @@ class mif_bpc_followers {
     }
 
 
-    // // 
-    // // Добавить новые кнопки в списке пользователей
-    // // 
-
-    // function add_new_friend_button()
-    // {
-    //     $out = '';
-
-    //     $is_friend = bp_is_friend( bp_get_member_user_id() );
-	// 	if ( empty( $is_friend ) ) return false;
-
-	// 	switch ( $is_friend ) {
-	// 		case 'awaiting_response' :
-    //             $out .= '<a class="button accept" href="' . bp_get_friend_accept_request_link() . '">' . __( 'Принять дружбу', 'mif-bp-customizer' ) . '</a>';
-	// 			break;
-    //     }
-
-    //     echo $out;
-    // }
-
-
-    // // 
-    // // Удалить старые кнопки в списке пользователей
-    // // 
-
-    // function remove_old_friend_button( $button )
-    // {
-
-	// 	switch ( $button['id'] ) {
-	// 		case 'awaiting_response' :
-    //             $button = false;
-	// 			break;
-
-    //     }
-        
-
-    //     return apply_filters( 'mif_bpc_followers_friend_button', $button );
-    // }
-
-
     // 
     // Добавить записи читаемых пользователей в ленту активности
     // 
