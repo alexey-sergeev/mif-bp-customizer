@@ -64,6 +64,18 @@ class mif_bpc_dialogues {
 
         add_action( 'wp_ajax_mif-bpc-dialogues-thread-items-more', array( $this, 'ajax_thread_more_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages', array( $this, 'ajax_messages_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-dialogues-messages-items-more', array( $this, 'ajax_messages_more_helper' ) );
+
+
+        // Обработка текста сообщений
+        add_filter( 'mif_bpc_dialogues_message_item_message', array( $this, 'autop' ) );
+        add_filter( 'mif_bpc_dialogues_message_item_message', 'stripslashes_deep' );
+
+        // add_filter( 'mif_bpc_dialogues_message_item_message', 'wp_filter_kses', 1 );
+        // add_filter( 'mif_bpc_dialogues_message_item_message', 'force_balance_tags', 1 );
+        // add_filter( 'mif_bpc_dialogues_message_item_message', 'wptexturize' );
+        // add_filter( 'mif_bpc_dialogues_message_item_message', 'convert_chars' );
+        // add_filter( 'mif_bpc_dialogues_message_item_message', 'wpautop' );
 
 
         // Разные корректировки
@@ -260,9 +272,11 @@ class mif_bpc_dialogues {
         $out .= '<div class="thread-item" data-thread-id="' . $thread['thread_id'] . '" data-nonce="' . $nonce . '">';
         $out .= '<span class="avatar">' . $avatar . '</span>';
         $out .= '<span class="content">';
-        $out .= '<span class="title">' . $title . '</span><br />';
-        $out .= '<span class="time-since">' . $time_since . '</span><br />';
-        $out .= '<span class="message-excerpt">' . $message_excerpt . '</span>';
+        // $out .= '<span class="title">' . $title . '</span><br />';
+        // $out .= '<span class="time-since">' . $time_since . '</span><br />';
+        $out .= '<span class="title">' . $title . '</span>';
+        $out .= '<div><span class="time-since">' . $time_since . '</span></div>';
+        $out .= '<div><span class="message-excerpt">' . $message_excerpt . '</span></div>';
         $out .= '</span>';
         $out .= '</div>';
 
@@ -286,8 +300,8 @@ class mif_bpc_dialogues {
 
         $page ++;
         $nonce = wp_create_nonce( 'mif-bpc-dialogues-thread-items-more-nonce' );
-        // $arr[] = '<div class="thread-item loader noajax" data-page="' . $page . '" data-nonce="' . $nonce . '"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></div>';
-        $arr[] = '<div class="thread-item loader noajax" data-page="' . $page . '" data-nonce="' . $nonce . '"></div>';
+        // $arr[] = '<div class="thread-item loader ajax-ready" data-page="' . $page . '" data-nonce="' . $nonce . '"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></div>';
+        $arr[] = '<div class="thread-item loader ajax-ready" data-page="' . $page . '" data-nonce="' . $nonce . '"></div>';
 
         return apply_filters( 'mif_bpc_dialogues_get_threads_items', implode( "\n", $arr ), $arr, $page, $user_id );
     }
@@ -302,7 +316,7 @@ class mif_bpc_dialogues {
         check_ajax_referer( 'mif-bpc-dialogues-thread-items-more-nonce' );
 
         $page = (int) $_POST['page'];
-        echo $threads = $this->get_threads_items( $page );
+        echo $this->get_threads_items( $page );
 
         wp_die();
     }
@@ -414,6 +428,18 @@ class mif_bpc_dialogues {
     // }
 
 
+    // 
+    // Преобразует переводы строк в знаки абзаца
+    // 
+    
+    function autop( $text )
+    {
+        $text = preg_replace( '/[\r|\n]+/', "\n", trim( $text ) );
+        $text = preg_replace( '/\n/', '<p>', $text );
+        return $text;
+    }
+
+
     //
     // Получить HTML-блок сообщения
     //
@@ -431,8 +457,12 @@ class mif_bpc_dialogues {
         $title = '<a href="' . $url . '">' . $this->get_username( $message->sender_id ) . '</a>';
         $time_since = apply_filters( 'mif_bpc_dialogues_message_item_time_since', bp_core_time_since( $message->date_sent ) );
 
-        $message_message = preg_replace( '/\n/', '<p>', trim( $message->message ) );
-        $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message_message );
+        // $message_message = preg_replace( '/\n/', '<p>', trim( $message->message ) );
+
+        // $message_message = apply_filters( 'bp_get_the_thread_message_content', $message->message );
+
+        // $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message_message );
+        $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message->message );
 
         $out = '';
 
@@ -442,7 +472,7 @@ class mif_bpc_dialogues {
         $out .= '<div class="avatar">' . $avatar . '</div>';
         $out .= '<div class="content">';
         $out .= '<span class="title">' . $title . '</span> ';
-        $out .= '<span class="time-since">' . $time_since . '</span><br />';
+        $out .= '<span class="time-since">' . $time_since . '</span>';
         $out .= '<span class="message">' . $message_message . '</span>';
         $out .= '</div>';
         $out .= '</div>';
@@ -486,8 +516,8 @@ class mif_bpc_dialogues {
         foreach ( (array) $threads as $message ) $arr[] = $this->message_item( $message );
 
         $page ++;
-        $nonce = wp_create_nonce( 'mif-bpc-dialogues-message-items-more-nonce' );
-        $arr[] = '<div class="message-item loader noajax" data-page="' . $page . '" data-nonce="' . $nonce . '"></div>';
+        $nonce = wp_create_nonce( 'mif-bpc-dialogues-messages-items-more-nonce' );
+        $arr[] = '<div class="message-item loader ajax-ready" data-page="' . $page . '" data-nonce="' . $nonce . '" data-tid="' . $thread_id . '"></div>';
 
         $arr = array_reverse( $arr );
 
@@ -510,9 +540,9 @@ class mif_bpc_dialogues {
         $thread_id = (int) $_POST['thread_id'];
         $page = (int) $_POST['page'];
 
-        echo '<div class="message-scroller-wrap scroller-wrap"><div></div><div class="message-scroller scroller"><div class="message-scroller-container scroller-container">';
+        echo '<div class="messages-scroller-wrap scroller-wrap"><div></div><div class="messages-scroller scroller"><div class="messages-scroller-container scroller-container">';
         echo $this->get_messages_page( $thread_id, $page );
-        echo '</div><div class="message-scroller__bar scroller__bar"></div></div></div>';
+        echo '</div><div class="messages-scroller__bar scroller__bar"></div></div></div>';
         // echo $page;
         // echo $thread_id;
 
@@ -523,6 +553,23 @@ class mif_bpc_dialogues {
 
         wp_die();
     }
+
+
+    //
+    // Загрузка продолжения списка сообщений
+    //
+
+    function ajax_messages_more_helper()
+    {
+        check_ajax_referer( 'mif-bpc-dialogues-messages-items-more-nonce' );
+
+        $thread_id = (int) $_POST['tid'];
+        $page = (int) $_POST['page'];
+        echo $this->get_messages_page( $thread_id, $page );
+
+        wp_die();
+    }
+
 
 
 

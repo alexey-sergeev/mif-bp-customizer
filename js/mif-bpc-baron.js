@@ -112,8 +112,9 @@
 
 	    // Менять класс для сокрыти и отображения полосы прокрутки
 
+// console.log(gData.scroller);
             if (!scrollingTimer && !first) {
-	            $(scroller).addClass('scrolling');
+	            $(gData.scroller).addClass('scrolling');
             }
 
             clearTimeout(scrollingTimer)

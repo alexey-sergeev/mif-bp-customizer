@@ -28,6 +28,11 @@
 
 .dialogues-page .members .thread-item .title {
     color: #0086b3;
+    clear: both;
+}
+
+.dialogues-page .members .thread-item .time-since {
+    clear: both;
 }
 
 .dialogues-page .members .thread-item .content {
@@ -219,9 +224,13 @@
     margin-left: 60px;
 }
 
+.dialogues-page .messages-wrap .message-item div.time-since {
+    clear: both;
+}
+
 .dialogues-page .messages-wrap .message-item span.message {
     margin-top: 5px;
-    display: inline-block;
+    display: block;
 }
 
 
