@@ -2,7 +2,7 @@
 
 <div class="dialogues-page">
 
-    <div class="dialogues-header clearfix"><div class="custom-button"><a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-fix" title="<?php echo __( 'Зафиксировать', 'mif-bp-customizer' ) ?>"><i class="fa fa-thumb-tack" aria-hidden="true"></i></a></div></div>
+    <div class="dialogues-header clearfix"><div class="custom-button"><a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-fix" title="<?php echo __( 'Зафиксировать', 'mif-bp-customizer' ) ?>"><i class="fa fa-chevron-down" aria-hidden="true"></i></a></div></div>
 
     <div class="dialogues-body clearfix">
         <div class="members">
@@ -19,7 +19,13 @@
 
         <div class="messages">
 
-            <div class="messages-title">1</div>
+            <?php // mif_bpc_the_dialogues_dialog(); ?>
+
+            <div class="messages-header">
+                <div class="messages-header-content">
+                <!-- ajaxed -->
+                </div>
+            </div>
 
             <div class="messages-wrap">
 

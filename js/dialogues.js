@@ -23,38 +23,7 @@ jQuery( document ).ready( function( jq ) {
         },
         function( response ) {
 
-            if ( response ) {
-
-                jq( '.messages-items').animate( { 'opacity': 0 }, function() {
-
-                    jq( '.messages-items').html( response );
-
-                    // Увеличить начало списка сообщений, если список слишком короткий
-
-                    var h1 = jq( '.messages-scroller-container' ).height();
-                    var h2 = jq( '.messages-scroller' ).height();
-                    var delta = h2 - h1;
-                    if ( delta > 0 ) jq( '.message-item.loader' ).height( delta );
-
-                    // Пролистать в самый низ
-
-                    jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
-
-                    // Показать
-
-                    jq( '.messages-items').animate( { 'opacity': 1 } );
-
-                    // Активировать кастомный скроллинг
-
-                    show_message_scroller();
-
-                    // Показывать новые сообщения при прокрутке диалога
-
-                    show_load_more_message();
-
-                })
-           
-            }
+            modify_page( response ); 
 
         });
 
@@ -64,62 +33,13 @@ jQuery( document ).ready( function( jq ) {
 
 
     //
-	// Вывести продолжение списка сообщений
-	//
-
-// 	jq( '.messages-wrap' ).on( 'scroll', '.messages-scroller', function() {
-
-// alert('11');
-//         var loader = jq( this ).find( '.loader' );
-//         var container = jq( this ).find( '.scroller-container' );
-//         var loader_top = loader.offset().top;
-//         var scroller_bottom = jq( '.scroller' ).offset().top + ( jq( '.scroller' ).height() * 2 );
-
-//         console.log(loader);
-
-//         if ( loader_top < scroller_bottom && loader.hasClass( 'noajax' ) ) {
-
-//             // loader.removeClass( 'noajax' );
-
-//             // var page = loader.attr( 'data-page' );
-//             // var nonce = loader.attr( 'data-nonce' );
-
-//             // jq.post( ajaxurl, {
-//             //     action: 'mif-bpc-dialogues-thread-items-more',
-//             //     page: page,
-//             //     _wpnonce: nonce,
-//             // },
-//             // function( response ) {
-                
-//             //     if ( response ) {
-
-//             //         loader.remove();
-//             //         container.append( response );
-                    
-//             //     // console.log(container.html());
-                
-//             //     }
-
-//             // });
-            
-
-
-//             // console.log(page);
-//             // console.log(nonce);
-//         }
-        
-//     });
-
-
-    //
 	// Вывести продолжение списка диалогов
 	//
 
 	jq( '.thread-scroller' ).on( 'scroll',  function() {
 
-        // var loader_top = jq( '.loader' ).offset().top;
-        var loader = jq( this ).find( '.loader' );
-        var container = jq( this ).find( '.scroller-container' );
+        var container = jq( '.thread-scroller' );
+        var loader = jq( '.thread-scroller .loader' );
         var loader_top = loader.offset().top;
         var scroller_bottom = jq( '.scroller' ).offset().top + ( jq( '.scroller' ).height() * 2 );
         
@@ -135,23 +55,12 @@ jQuery( document ).ready( function( jq ) {
                 page: page,
                 _wpnonce: nonce,
             },
-            function( response ) {
-                
-                if ( response ) {
+            function( response ) { 
 
-                    loader.remove();
-                    container.append( response );
-                    
-                // console.log(container.html());
-                
-                }
+                modify_page( response ); 
 
             });
-            
 
-
-            // console.log(page);
-            // console.log(nonce);
         }
         
     });
@@ -162,23 +71,12 @@ jQuery( document ).ready( function( jq ) {
 	//
 
 	jq( '.dialogues-page' ).on( 'click', 'a.dialogues-fix', function() {
+
         jq( 'body' ).animate( { scrollTop: jq( '.dialogues-page' ).offset().top }, time * 2, function() { jq( 'body' ).toggleClass( 'fix ') } );
+
         return false;
+
     });
-
-
-    //
-    // Пролистать сообщения в самый низ
-    //
-
-    var h1 = jq( '.message-scroller-container' ).height();
-    var h2 = jq( '.message-scroller' ).height();
-    var delta = h2 - h1;
-
-    if ( delta > 0 ) jq( '.message-item.loader' ).height( delta );
-
-    var msg_scroller = jq( '.message-scroller' );
-    msg_scroller.scrollTop( msg_scroller.height() )
 
 
     // 
@@ -194,26 +92,57 @@ jQuery( document ).ready( function( jq ) {
                 } );
 
 
-    // baron( jq( '.message-scroller-wrap' ), {
-    //                 scroller: '.message-scroller',
-    //                 container: '.message-scroller-container',
-    //                 bar: '.message-scroller__bar',
-    //                 barTop: 0,
-    //                 barOnCls: 'message-scroller__bar_state_on',
-    //                 drag: 50,
-    //             } );
+    // 
+    // Включить авторесайз textarea
+    // 
+
+    autosize( jq( '.form-wrap textarea' ) );
+    message_items_height_correct();
+
+
+    // 
+    // Корректировать размер страницы при изменении размера textarea
+    // 
+
+	jq( '.form-wrap textarea' ).on( 'autosize:resized', function() {
+
+        message_items_height_correct();
+
+    } );
+    
 
 
 });
 
 
 
+
 // 
-// Показывает кастомный скроллинг для сообщений
+// Корректировать высоту страниы в засивимости от высоты формы ввода
 // 
 
-function show_message_scroller()
+function message_items_height_correct()
 {
+        var h_form = jq( '.dialogues-page .form-wrap' ).height();
+        var margin = h_form + 50;
+        var padding = margin + 20;
+
+        jq( '.dialogues-page .form-wrap' ).css( 'margin-top', '-' + margin + 'px' );
+        jq( '.dialogues-page .messages-wrap' ).css( 'padding-bottom', padding + 'px' );
+        jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+        // console.log(margin);
+}
+
+
+// 
+// Инициализировать действия для страницы сообщений
+// 
+
+function messages_actions_init()
+{
+
+    // Показывает кастомный скроллинг для сообщений
+
     baron( jq( '.messages-scroller-wrap' ), {
                     scroller: '.messages-scroller',
                     container: '.messages-scroller-container',
@@ -223,23 +152,16 @@ function show_message_scroller()
                     drag: 50,
                 } );
 
-}
 
-// 
-// Показывать новые сообщения при прокрутке диалога
-// 
+    // Вывести продолжение списка сообщений
 
-function show_load_more_message() {
+    jq( '.messages-scroller' ).on( 'scroll', function() {  
 
-	jq( '.messages-scroller' ).on( 'scroll', function() {  
-
-        var loader = jq( this ).find( '.loader' );
-        var container = jq( this );
+        var loader = jq( '.messages-scroller .loader' );
+        var container = jq( '.messages-scroller' );
         var loader_top = loader.offset().top;
         var container_top = container.offset().top;
         var container_height = container.height();
-
-        // console.log(container_top);
 
         if ( loader_top > container_top -  container_height && loader.hasClass( 'ajax-ready' ) ) {
 
@@ -255,18 +177,158 @@ function show_load_more_message() {
                 tid: tid,
                 _wpnonce: nonce,
             },
-            function( response ) {
-                
-                if ( response ) {
+            function( response ) { 
 
-                    loader.remove();
-                    container.prepend( response );
+                modify_page( response ); 
 
-                }
-
-            })
+            });
 
         }
     
     });
+
 }
+
+
+//
+// Внести изменения на страницу на основе полученных данных
+//
+
+function modify_page( response )
+{
+
+    if ( ! response ) return;
+
+    var data = jQuery.parseJSON( response );
+    
+    // Загрузка продолжения заголовков диалогов
+
+    if ( data['threads_more'] ) {
+
+        jq( '.thread-scroller .loader' ).remove();
+        jq( '.thread-scroller' ).append( data['threads_more'] );
+
+    }
+
+    // Загрузка продолжения списка сообщений
+
+    if ( data['messages_more'] ) {
+
+        jq( '.messages-scroller .loader' ).remove();
+        jq( '.messages-scroller' ).prepend( data['messages_more'] );
+
+    }
+
+    // Загрузка заголовка списка сообщений
+
+    if ( data['messages_header'] ) {
+
+        jq( '.messages-header-content').animate( { 'opacity': 0 }, function() {
+
+            jq( '.messages-header-content').html( data['messages_header'] );
+            jq( '.messages-header-content').animate( { 'opacity': 1 } );
+
+        } )
+    }
+
+    // Загрузка страницы сообщений
+
+    if ( data['messages_page'] ) {
+
+        jq( '.messages-items').animate( { 'opacity': 0 }, function() {
+
+            jq( '.messages-items').html( data['messages_page'] );
+
+            // Увеличить начало списка сообщений, если список слишком короткий
+
+            var h1 = jq( '.messages-scroller-container' ).height();
+            var h2 = jq( '.messages-scroller' ).height();
+            var delta = h2 - h1;
+            if ( delta > 0 ) jq( '.message-item.loader' ).height( delta );
+
+            // Пролистать в самый низ
+
+            jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+
+            // Показать
+
+            jq( '.messages-items').animate( { 'opacity': 1 } );
+
+            // Инициализировать действия со страницей сообщений
+
+            messages_actions_init();
+
+        })
+
+    }
+
+
+
+
+}
+
+
+
+
+// // 
+// // Показывает кастомный скроллинг для сообщений
+// // 
+
+// function show_message_scroller()
+// {
+//     baron( jq( '.messages-scroller-wrap' ), {
+//                     scroller: '.messages-scroller',
+//                     container: '.messages-scroller-container',
+//                     bar: '.messages-scroller__bar',
+//                     barTop: 0,
+//                     barOnCls: 'messages-scroller__bar_state_on',
+//                     drag: 50,
+//                 } );
+
+// }
+
+// // 
+// // Вывести продолжение списка сообщений
+// // 
+
+// function show_load_more_message() {
+
+// 	jq( '.messages-scroller' ).on( 'scroll', function() {  
+
+//         var loader = jq( this ).find( '.loader' );
+//         var container = jq( this );
+//         var loader_top = loader.offset().top;
+//         var container_top = container.offset().top;
+//         var container_height = container.height();
+
+//         // console.log(container_top);
+
+//         if ( loader_top > container_top -  container_height && loader.hasClass( 'ajax-ready' ) ) {
+
+//             loader.removeClass( 'ajax-ready' );
+
+//             var page = loader.attr( 'data-page' );
+//             var nonce = loader.attr( 'data-nonce' );
+//             var tid = loader.attr( 'data-tid' );
+
+//             jq.post( ajaxurl, {
+//                 action: 'mif-bpc-dialogues-messages-items-more',
+//                 page: page,
+//                 tid: tid,
+//                 _wpnonce: nonce,
+//             },
+//             function( response ) {
+                
+//                 if ( response ) {
+
+//                     loader.remove();
+//                     container.prepend( response );
+
+//                 }
+
+//             })
+
+//         }
+    
+//     });
+// }

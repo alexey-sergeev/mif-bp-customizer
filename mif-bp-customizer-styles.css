@@ -96,7 +96,8 @@
     box-sizing: border-box;
 }
 
-.dialogues-page .dialogues-header .custom-button a {
+.dialogues-page .dialogues-header .custom-button a,
+.dialogues-page .dialogues-page .custom-button a {
     padding: 8px 12px;
     bottom: 0;
 }
@@ -108,6 +109,7 @@
 
 .dialogues-page .messages {
     /*background-color: red;*/
+    border-left: 1px solid #E3E4E5;
     margin-left: 300px;
 }
 
@@ -132,7 +134,7 @@
 
 
 .dialogues-page .search,
-.dialogues-page .messages-title {
+.dialogues-page .messages-header {
     border-top: 1px solid #E3E4E5;
     border-bottom: 1px solid #E3E4E5;
     padding: 4px 0;
@@ -141,9 +143,25 @@
     box-sizing: border-box;
 }
 
-.dialogues-page .messages-title {
-    border-left: 1px solid #E3E4E5;
+.dialogues-page .messages-header {
+    /*border-left: 1px solid #E3E4E5;*/
     height: 50px;
+    padding: 0 20px;
+}
+
+.dialogues-page .messages-header-content {
+    height: 50px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.dialogues-page .messages-header-content .title {
+    font-weight: bold;
+}
+
+.dialogues-page .messages-header-content .time-since {
+    background: #ededed;
+    color: #666;
 }
 
 .dialogues-page input[type='text'], 
@@ -168,33 +186,96 @@
     
 .dialogues-page .members input[type='text']  {
     width: 250px;
-    /*float: left;*/
+    font: inherit;
 }
 
 .dialogues-page .messages-wrap {
     height: 100vh;
     box-sizing: border-box;
-    padding: 130px 0 150px 0;
+    padding: 130px 0 142px 0;
     margin-top: -130px;
 }
 
 .dialogues-page .messages-wrap .messages-items {
     height: 100%;
-    border-left: 1px solid #E3E4E5;
+    /*border-left: 1px solid #E3E4E5;*/
 }
 
 
 .dialogues-page .form-wrap {
-    border-left: 1px solid #E3E4E5;
-    margin-top: -150px;
-    background-color: yellow;
-    height: 100px;
+    /*border-left: 1px solid #E3E4E5;*/
+    margin-top: -122px;
+    /*background-color: yellow;*/
+    background-color: #f8f8f8;
+    /*height: 60px;*/
 }
+
+.dialogues-page .form-wrap span {
+    float: left;
+}
+
+.dialogues-page .form-wrap textarea,
+.dialogues-page .form-wrap textarea:focus {
+    box-shadow: none;
+    border: 1px solid #D6D6D6;
+    width: 100%;
+    border-radius: 0;
+    /*line-height: 18px;*/
+    background-color: #fff;
+    padding: 10px;
+    /*line-height: 1.55em;*/
+    /*height: 40px;*/
+    resize: none;
+    font: inherit;
+}
+
+.dialogues-page .form-wrap textarea::-webkit-input-placeholder {
+    color: #ccc;
+} 
+
+.dialogues-page .form-wrap table {
+    width: 100%;
+}
+
+.dialogues-page .form-wrap td.clip,
+.dialogues-page .form-wrap td.send {
+    padding: 14px 0;
+    width: 60px;
+    text-align: center;
+}
+
+.dialogues-page .form-wrap td.clip {
+    vertical-align: top;
+}
+
+.dialogues-page .form-wrap td.send {
+    vertical-align: bottom;
+}
+
+.dialogues-page .form-wrap td.message {
+    padding: 14px 0;
+    vertical-align: bottom;
+}
+
+.dialogues-page .form-wrap a.clip {
+    color: #777;
+    padding: 5px 0;
+    display: inline-block;
+}
+
+.dialogues-page .form-wrap a.button {
+    padding: 8px 12px;
+    margin: 4px;
+}
+
+
+
+
+
 
 .dialogues-page .messages-wrap .new-empty {
     height: 100%;
     display: flex;
-
 }
 
 .dialogues-page .messages-wrap .new-empty div {
