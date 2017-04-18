@@ -65,6 +65,7 @@ class mif_bpc_dialogues {
         add_action( 'wp_ajax_mif-bpc-dialogues-thread-items-more', array( $this, 'ajax_thread_more_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages', array( $this, 'ajax_messages_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages-items-more', array( $this, 'ajax_messages_more_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-dialogues-messages-send', array( $this, 'ajax_messages_send_helper' ) );
 
 
         // Обработка текста сообщений
@@ -259,6 +260,7 @@ class mif_bpc_dialogues {
     function get_message_excerpt( $message )
     {
         $old = $message;
+        $message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message );
         $message = preg_replace( '/[\s]+/s', ' ', $message );
         $message = bp_create_excerpt( $message, 50, array( 'ending' => '...' ) );
 
@@ -596,6 +598,29 @@ class mif_bpc_dialogues {
     }
 
 
+    // 
+    // Выводит форму написания сообщения
+    // 
+
+    function get_messages_form( $thread_id )
+    {
+        
+        
+        $out = '';
+        $out .= '<form>';
+        $out .= '<table><tr>';
+        $out .= '<td class="clip"><a href="11" class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></a></td>';
+        $out .= '<td class="message"><textarea name="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
+        $out .= '<td class="send"><div class="custom-button"><a href="11" class="send button"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></div></td>';
+        $out .= '</tr></table>';
+        $out .= wp_nonce_field( 'mif-bpc-dialogues-messages-send-nonce', 'nonce', true, false );
+        $out .= '<input type="hidden" name="tid" id="tid" value="' . $thread_id . '">';
+        $out .= '</form>';
+
+        return $out;
+    }
+
+
     //
     // Загрузка диалога
     //
@@ -616,6 +641,7 @@ class mif_bpc_dialogues {
         echo json_encode( array( 
                                 'messages_page' => $out,
                                 'messages_header' => $this->get_messages_header( $thread_id ),
+                                'messages_form' => $this->get_messages_form( $thread_id ),
                                 ) );
         // echo $page;
         // echo $thread_id;
@@ -643,6 +669,27 @@ class mif_bpc_dialogues {
 
         wp_die();
     }
+
+
+    //
+    // Отправка сообщения
+    //
+
+    function ajax_messages_send_helper()
+    {
+        check_ajax_referer( 'mif-bpc-dialogues-messages-send-nonce' );
+
+        $thread_id = (int) $_POST['tid'];
+        // $page = (int) $_POST['page'];
+        // echo json_encode( array( 'messages_more' => $this->get_messages_page( $thread_id, $page ) ) );
+
+        echo $thread_id;
+
+        wp_die();
+    }
+
+
+
 
 
 
@@ -693,29 +740,29 @@ $mif_bpc_dialogues->get_messages_header( 7682 );
 }
 
 
-// 
-// Выводит форму написания сообщения
-// 
+// // 
+// // Выводит форму написания сообщения
+// // 
 
-function mif_bpc_the_dialogues_form()
-{
-    $out = '';
-    $out .= '<form>';
-    $out .= '<table><tr>';
-    $out .= '<td class="clip"><a href="11" class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></a></td>';
-    $out .= '<td class="message"><textarea name="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
-    $out .= '<td class="send"><div class="custom-button"><a href="11" class="button"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></div></td>';
-    $out .= '</tr></table>';
+// function mif_bpc_the_dialogues_form()
+// {
+//     $out = '';
+//     $out .= '<form>';
+//     $out .= '<table><tr>';
+//     $out .= '<td class="clip"><a href="11" class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></a></td>';
+//     $out .= '<td class="message"><textarea name="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
+//     $out .= '<td class="send"><div class="custom-button"><a href="11" class="button"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></div></td>';
+//     $out .= '</tr></table>';
 
-        // $out .= '<span class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></span>';
-    // $out .= '<span><textarea name="message" placeholder="' . __( 'Напишите сообщение', 'mif-bp-customizer' ) . '"></textarea></span>';
-    // $out .= '<div class="custom-button"><a href="11" class="button"><i class="fa fa-play" aria-hidden="true"></i></a></div>';
-    $out .= '</form>';
+//         // $out .= '<span class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></span>';
+//     // $out .= '<span><textarea name="message" placeholder="' . __( 'Напишите сообщение', 'mif-bp-customizer' ) . '"></textarea></span>';
+//     // $out .= '<div class="custom-button"><a href="11" class="button"><i class="fa fa-play" aria-hidden="true"></i></a></div>';
+//     $out .= '</form>';
 
 
 
-    echo $out;
-}
+//     echo $out;
+// }
 
 
 

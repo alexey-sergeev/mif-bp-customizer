@@ -79,6 +79,33 @@ jQuery( document ).ready( function( jq ) {
     });
 
 
+    //
+	// Отправить сообщение
+	//
+
+	jq( '.messages-form' ).on( 'click', 'a.send.button', function() {
+
+        var tid = jq( '.messages-form #tid' ).val();
+        var nonce = jq( '.messages-form #nonce' ).val();
+
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-dialogues-messages-send',
+            tid: tid,
+            _wpnonce: nonce,
+        },
+        function( response ) {
+
+            console.log(response);
+            // modify_page( response ); 
+
+        });
+
+        return false;
+
+    });
+
+
     // 
     // Включить кастомный скроллинг
     // 
@@ -96,19 +123,19 @@ jQuery( document ).ready( function( jq ) {
     // Включить авторесайз textarea
     // 
 
-    autosize( jq( '.form-wrap textarea' ) );
-    message_items_height_correct();
+    // autosize( jq( '.messages-form textarea' ) );
+    // message_items_height_correct();
 
 
     // 
     // Корректировать размер страницы при изменении размера textarea
     // 
 
-	jq( '.form-wrap textarea' ).on( 'autosize:resized', function() {
+	// jq( '.messages-form textarea' ).on( 'autosize:resized', function() {
 
-        message_items_height_correct();
+    //     message_items_height_correct();
 
-    } );
+    // } );
     
 
 
@@ -123,11 +150,11 @@ jQuery( document ).ready( function( jq ) {
 
 function message_items_height_correct()
 {
-        var h_form = jq( '.dialogues-page .form-wrap' ).height();
+        var h_form = jq( '.dialogues-page .messages-form' ).height();
         var margin = h_form + 50;
-        var padding = margin + 20;
+        var padding = margin + 30;
 
-        jq( '.dialogues-page .form-wrap' ).css( 'margin-top', '-' + margin + 'px' );
+        jq( '.dialogues-page .messages-form' ).css( 'margin-top', '-' + margin + 'px' );
         jq( '.dialogues-page .messages-wrap' ).css( 'padding-bottom', padding + 'px' );
         jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
         // console.log(margin);
@@ -231,6 +258,31 @@ function modify_page( response )
         } )
     }
 
+    // Загрузка формы списка сообщений
+
+    if ( data['messages_form'] ) {
+
+        jq( '.messages-form-content').animate( { 'opacity': 0 }, function() {
+
+            jq( '.messages-form-content').html( data['messages_form'] );
+            jq( '.messages-form-content').animate( { 'opacity': 1 } );
+
+            jq( '.messages-form-content textarea').focus();
+
+            // Уточнить высоту формы и диалога
+            message_items_height_correct();
+
+            // Увеличивать текстовое поле при появлении новых строк
+            autosize( jq( '.messages-form textarea' ) );
+
+            // Корректировать положение формы и высоту диалога при изменении размера формы
+            jq( '.messages-form textarea' ).on( 'autosize:resized', function() {
+                message_items_height_correct();
+            });
+
+        } )
+    }
+
     // Загрузка страницы сообщений
 
     if ( data['messages_page'] ) {
@@ -266,69 +318,3 @@ function modify_page( response )
 
 
 }
-
-
-
-
-// // 
-// // Показывает кастомный скроллинг для сообщений
-// // 
-
-// function show_message_scroller()
-// {
-//     baron( jq( '.messages-scroller-wrap' ), {
-//                     scroller: '.messages-scroller',
-//                     container: '.messages-scroller-container',
-//                     bar: '.messages-scroller__bar',
-//                     barTop: 0,
-//                     barOnCls: 'messages-scroller__bar_state_on',
-//                     drag: 50,
-//                 } );
-
-// }
-
-// // 
-// // Вывести продолжение списка сообщений
-// // 
-
-// function show_load_more_message() {
-
-// 	jq( '.messages-scroller' ).on( 'scroll', function() {  
-
-//         var loader = jq( this ).find( '.loader' );
-//         var container = jq( this );
-//         var loader_top = loader.offset().top;
-//         var container_top = container.offset().top;
-//         var container_height = container.height();
-
-//         // console.log(container_top);
-
-//         if ( loader_top > container_top -  container_height && loader.hasClass( 'ajax-ready' ) ) {
-
-//             loader.removeClass( 'ajax-ready' );
-
-//             var page = loader.attr( 'data-page' );
-//             var nonce = loader.attr( 'data-nonce' );
-//             var tid = loader.attr( 'data-tid' );
-
-//             jq.post( ajaxurl, {
-//                 action: 'mif-bpc-dialogues-messages-items-more',
-//                 page: page,
-//                 tid: tid,
-//                 _wpnonce: nonce,
-//             },
-//             function( response ) {
-                
-//                 if ( response ) {
-
-//                     loader.remove();
-//                     container.prepend( response );
-
-//                 }
-
-//             })
-
-//         }
-    
-//     });
-// }

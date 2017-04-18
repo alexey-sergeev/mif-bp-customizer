@@ -192,7 +192,7 @@
 .dialogues-page .messages-wrap {
     height: 100vh;
     box-sizing: border-box;
-    padding: 130px 0 142px 0;
+    padding: 130px 0 130px 0;
     margin-top: -130px;
 }
 
@@ -202,20 +202,19 @@
 }
 
 
-.dialogues-page .form-wrap {
-    /*border-left: 1px solid #E3E4E5;*/
-    margin-top: -122px;
-    /*background-color: yellow;*/
+.dialogues-page .messages-form {
+    margin-top: -100px;
     background-color: #f8f8f8;
-    /*height: 60px;*/
+    border-top: 1px solid #E3E4E5;
+    border-bottom: 1px solid #E3E4E5;
 }
 
-.dialogues-page .form-wrap span {
+.dialogues-page .messages-form span {
     float: left;
 }
 
-.dialogues-page .form-wrap textarea,
-.dialogues-page .form-wrap textarea:focus {
+.dialogues-page .messages-form textarea,
+.dialogues-page .messages-form textarea:focus {
     box-shadow: none;
     border: 1px solid #D6D6D6;
     width: 100%;
@@ -229,61 +228,67 @@
     font: inherit;
 }
 
-.dialogues-page .form-wrap textarea::-webkit-input-placeholder {
+.dialogues-page .messages-form textarea::-webkit-input-placeholder {
     color: #ccc;
 } 
 
-.dialogues-page .form-wrap table {
+.dialogues-page .messages-form table {
     width: 100%;
+    border: 0;
+    margin-bottom: 0;
 }
 
-.dialogues-page .form-wrap td.clip,
-.dialogues-page .form-wrap td.send {
+.dialogues-page .messages-form td.clip,
+.dialogues-page .messages-form td.send {
     padding: 14px 0;
     width: 60px;
     text-align: center;
+    border: 0;
 }
 
-.dialogues-page .form-wrap td.clip {
+.dialogues-page .messages-form td.clip {
     vertical-align: top;
 }
 
-.dialogues-page .form-wrap td.send {
+.dialogues-page .messages-form td.send {
     vertical-align: bottom;
 }
 
-.dialogues-page .form-wrap td.message {
+.dialogues-page .messages-form td.message {
     padding: 14px 0;
     vertical-align: bottom;
+    border: 0;
 }
 
-.dialogues-page .form-wrap a.clip {
+.dialogues-page .messages-form a.clip {
     color: #777;
     padding: 5px 0;
     display: inline-block;
 }
 
-.dialogues-page .form-wrap a.button {
+.dialogues-page .messages-form a.button {
     padding: 8px 12px;
     margin: 4px;
 }
 
+.dialogues-page .messages-form .form-empty {
+    height: 48px;
+}
 
 
 
 
-
-.dialogues-page .messages-wrap .new-empty {
+.dialogues-page .messages-wrap .messages-empty {
     height: 100%;
     display: flex;
 }
 
-.dialogues-page .messages-wrap .new-empty div {
+.dialogues-page .messages-wrap .messages-empty div {
     margin: auto;
     text-align: center;
 }
 
-.dialogues-page .messages-wrap .new-empty div i {
+.dialogues-page .messages-wrap .messages-empty div i {
     color: #d6d6d6;
 }
 

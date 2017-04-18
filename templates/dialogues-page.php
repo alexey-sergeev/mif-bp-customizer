@@ -31,7 +31,7 @@
 
                     <div class="messages-items">
 
-                        <div class="new-empty">
+                        <div class="messages-empty">
                             <div>
                                 <i class="fa fa-5x fa-comments-o" aria-hidden="true"></i>
                                 <p><?php echo __( 'Выберите диалог или', 'mif-bp-customizer' ) ?></br />
@@ -43,9 +43,10 @@
 
             </div>
 
-            <div class="form-wrap">
-                <div class="form">
-                    <?php mif_bpc_the_dialogues_form(); ?>
+            <div class="messages-form">
+                <div class="messages-form-content">
+                <div class="form-empty"></div>
+                <?php // mif_bpc_the_dialogues_form(); ?>
                 </div>
             </div>
 
