@@ -49,6 +49,12 @@ class mif_bpc_dialogues {
 
     public $messages_on_page = 10;
 
+    //
+    // Время устаревания сообщения (секунд)
+    //
+
+    public $message_outdate_time = 60;
+
 
 
     function __construct()
@@ -260,8 +266,8 @@ class mif_bpc_dialogues {
     function get_message_excerpt( $message )
     {
         $old = $message;
-        $message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message );
         $message = preg_replace( '/[\s]+/s', ' ', $message );
+        $message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message );
         $message = bp_create_excerpt( $message, 50, array( 'ending' => '...' ) );
 
         return apply_filters( 'mif_bpc_dialogues_message_excerpt', $message, $old );
@@ -481,8 +487,8 @@ class mif_bpc_dialogues {
         // $message_message = apply_filters( 'bp_get_the_thread_message_content', $message->message );
 
         // $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message_message );
-        $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message->message );
 
+        $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message->message );
         $out = '';
 
         // $out .= '<div class="">';
@@ -610,7 +616,7 @@ class mif_bpc_dialogues {
         $out .= '<form>';
         $out .= '<table><tr>';
         $out .= '<td class="clip"><a href="11" class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></a></td>';
-        $out .= '<td class="message"><textarea name="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
+        $out .= '<td class="message"><textarea name="message" id="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
         $out .= '<td class="send"><div class="custom-button"><a href="11" class="send button"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></div></td>';
         $out .= '</tr></table>';
         $out .= wp_nonce_field( 'mif-bpc-dialogues-messages-send-nonce', 'nonce', true, false );
@@ -680,12 +686,79 @@ class mif_bpc_dialogues {
         check_ajax_referer( 'mif-bpc-dialogues-messages-send-nonce' );
 
         $thread_id = (int) $_POST['tid'];
+        $message = esc_html( $_POST['message'] );
         // $page = (int) $_POST['page'];
         // echo json_encode( array( 'messages_more' => $this->get_messages_page( $thread_id, $page ) ) );
 
-        echo $thread_id;
+        $res = $this->send( $message, $thread_id );
+
+        echo $res;
 
         wp_die();
+    }
+
+
+
+    //
+    // Отправить сообщение
+    //
+
+    function send( $message, $thread_id = NULL, $sender_id = NULL, $subject = '' )
+    {
+        global $bp, $wpdb;
+        
+        if ( $sender_id == NULL ) $sender_id = bp_loggedin_user_id();
+
+        // Получить последнее сообщение в диалоге
+
+        $sql = $wpdb->prepare( "SELECT * FROM {$bp->messages->table_name_messages} WHERE thread_id = %d ORDER BY date_sent DESC LIMIT 1", $thread_id );
+        $result = $wpdb->get_row( $sql );
+
+        // Обновлять существующую, или добавлять новую?
+        
+        $update_flag = false;
+        
+        if ( $result && $result->sender_id == $sender_id ) {
+
+            $last_message_data = get_user_meta( $sender_id, 'last_message_data', true );
+            $outdate_time = apply_filters( 'mif_bpc_dialogues_outdate_time', $this->message_outdate_time );
+
+            if ( isset( $last_message_data ) && 
+                    $last_message_data['message_id'] == $result->id && 
+                    timestamp_to_now( $last_message_data['timestamp'] ) < $outdate_time ) $update_flag = true;
+        
+        }
+
+
+        if ( $update_flag ) {
+
+            // Обновить существующую
+
+            $message = $result->message . "\n" . $message;
+            
+            $sql = $wpdb->prepare( "UPDATE {$bp->messages->table_name_messages} SET message = %s WHERE id = %d", $message, $result->id );
+
+            if ( ! $wpdb->query( $sql ) ) return false;
+
+            update_user_meta( $sender_id, 'last_message_data', array( 'message_id' => $result->id, 'timestamp' => time() ) );
+
+        } else {
+
+            // Добавить новую
+
+            $date_sent = bp_core_current_time();
+
+            $sql = $wpdb->prepare( "INSERT INTO {$bp->messages->table_name_messages} ( thread_id, sender_id, subject, message, date_sent ) VALUES ( %d, %d, %s, %s, %s )", $thread_id, $sender_id, $subject, $message, $date_sent );
+
+            if ( ! $wpdb->query( $sql ) ) return false;
+
+            $message_id = $wpdb->get_var( "SELECT LAST_INSERT_ID()" );
+
+            update_user_meta( $sender_id, 'last_message_data', array( 'message_id' => $message_id, 'timestamp' => time() ) );
+
+        }
+
+        return true;
     }
 
 
@@ -722,6 +795,7 @@ function mif_bpc_the_dialogues_threads()
     echo $mif_bpc_dialogues->get_threads_items();
     echo '</div><div class="thread-scroller__bar scroller__bar"></div></div></div>';
 
+
 }
 
 
@@ -734,7 +808,9 @@ function mif_bpc_the_dialogues_dialog()
     global $mif_bpc_dialogues;
 
     // echo $mif_bpc_dialogues->get_messages_page( 7590, 0 );
-$mif_bpc_dialogues->get_messages_header( 7682 );
+    // $mif_bpc_dialogues->get_messages_header( 7682 );
+
+    $mif_bpc_dialogues->send( 'Текcт', 7690 );
 
     // echo '2';
 }

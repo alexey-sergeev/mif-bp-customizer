@@ -85,13 +85,15 @@ jQuery( document ).ready( function( jq ) {
 
 	jq( '.messages-form' ).on( 'click', 'a.send.button', function() {
 
-        var tid = jq( '.messages-form #tid' ).val();
-        var nonce = jq( '.messages-form #nonce' ).val();
-
+        var form = jq( this ).closest( 'form' );
+        var tid = jq( '#tid', form ).val();
+        var nonce = jq( '#nonce', form ).val();
+        var message = jq( '#message', form ).val();
 
         jq.post( ajaxurl, {
             action: 'mif-bpc-dialogues-messages-send',
             tid: tid,
+            message: message,
             _wpnonce: nonce,
         },
         function( response ) {
