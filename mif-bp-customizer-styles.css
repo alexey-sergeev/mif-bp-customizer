@@ -310,6 +310,19 @@
     margin-left: 60px;
 }
 
+.dialogues-page .messages-wrap .message-item div.content p.new i.fa {
+    width: 24px;
+    margin-left: -24px;
+    color: #828282;
+    opacity: 0;
+}
+
+.dialogues-page .messages-wrap .message-item div.content p.new.clock i.fa {
+    opacity: 1;
+    transition-duration: .2s;
+    transition-delay: .5s;
+}
+
 .dialogues-page .messages-wrap .message-item div.time-since {
     clear: both;
 }

@@ -86,20 +86,33 @@ jQuery( document ).ready( function( jq ) {
 	jq( '.messages-form' ).on( 'click', 'a.send.button', function() {
 
         var form = jq( this ).closest( 'form' );
-        var tid = jq( '#tid', form ).val();
+        var thread_id = jq( '#thread_id', form ).val();
+        var last_message_id = jq( '#last_message_id', form ).val();
         var nonce = jq( '#nonce', form ).val();
         var message = jq( '#message', form ).val();
 
+        // Очистить форму
+        jq( '#message', form ).val( '' );
+
+        // Временно вывести новое сообщение и пролистать вниз
+        var rand =  Math.floor( Math.random() * 9999 );
+        jq( '.messages-scroller-container #message-' + last_message_id + ' .content .message' ).append( '<p class="new ' + rand + '"><i class="fa fa-clock-o"></i>' + message + '</p>' );
+        setTimeout( function( rand ){ jq( '.messages-scroller-container .new.' + rand ).addClass( 'clock' ) }, 1000, rand );
+        jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+        
+
+
         jq.post( ajaxurl, {
             action: 'mif-bpc-dialogues-messages-send',
-            tid: tid,
+            thread_id: thread_id,
+            last_message_id: last_message_id,
             message: message,
             _wpnonce: nonce,
         },
         function( response ) {
 
-            console.log(response);
-            // modify_page( response ); 
+            // console.log(response);
+            modify_page( response ); 
 
         });
 
@@ -260,6 +273,14 @@ function modify_page( response )
         } )
     }
 
+    // Обновление заголовка списка сообщений
+
+    if ( data['messages_header_update'] ) {
+
+        jq( '.messages-header-content').html( data['messages_header_update'] );
+
+    }
+
     // Загрузка формы списка сообщений
 
     if ( data['messages_form'] ) {
@@ -294,27 +315,54 @@ function modify_page( response )
             jq( '.messages-items').html( data['messages_page'] );
 
             // Увеличить начало списка сообщений, если список слишком короткий
-
             var h1 = jq( '.messages-scroller-container' ).height();
             var h2 = jq( '.messages-scroller' ).height();
             var delta = h2 - h1;
             if ( delta > 0 ) jq( '.message-item.loader' ).height( delta );
 
             // Пролистать в самый низ
-
             jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
 
             // Показать
-
             jq( '.messages-items').animate( { 'opacity': 1 } );
 
             // Инициализировать действия со страницей сообщений
-
             messages_actions_init();
 
         })
 
     }
+
+    // Отображение новых сообщений
+
+    if ( data['messages_update'] ) {
+
+        var arr = data['messages_update'];
+
+        for ( var key in arr ) {
+
+            if ( jq( '.messages-scroller-container #message-' + key ).length ) {
+                
+                // Элемент существует - заменить его
+                jq( '.messages-scroller-container #message-' + key ).replaceWith( arr[key] );
+
+            } else {
+
+                // Элемент не существует - добавить новый в конец
+                jq( '.messages-scroller-container' ).append( arr[key] );
+
+            }
+
+        }
+
+        // Обновить информацию об ID последнего сообщения
+        jq( '.messages-form #last_message_id' ).val( key );
+
+        // Пролистать в самый низ
+        jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+
+    }
+    
 
 
 
