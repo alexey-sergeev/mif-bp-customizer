@@ -294,7 +294,7 @@ class mif_bpc_dialogues {
 
         $out = '';
 
-        $out .= '<div class="thread-item" data-thread-id="' . $thread['thread_id'] . '" data-nonce="' . $nonce . '">';
+        $out .= '<div class="thread-item" id="thread-item-' . $thread['thread_id'] . '" data-thread-id="' . $thread['thread_id'] . '" data-nonce="' . $nonce . '">';
         $out .= '<span class="avatar">' . $avatar . '</span>';
         $out .= '<span class="content">';
         // $out .= '<span class="title">' . $title . '</span><br />';
@@ -307,7 +307,6 @@ class mif_bpc_dialogues {
 
         return $out;
     }
-
 
 
     //
@@ -333,6 +332,25 @@ class mif_bpc_dialogues {
 
 
     //
+    // Получить новые элементы списка диалогов
+    //
+
+    function get_threads_update( $last_updated = NULL, $user_id = NULL )
+    {
+        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+
+        $threads = $this->get_threads_data( 0, $user_id, $last_updated );
+
+        $arr = array();
+        foreach ( $threads as $key => $thread ) $arr[$key] = $this->thread_item( $thread );
+
+        // $arr = array_reverse( $arr, true );
+
+        return apply_filters( 'mif_bpc_dialogues_get_threads_update', $arr, $user_id );
+    }
+
+
+    //
     // Загрузка продолжения списка диалогов
     //
 
@@ -352,7 +370,7 @@ class mif_bpc_dialogues {
     // Получить данные списка диалогов
     //
 
-    function get_threads_data( $page = 0, $user_id = NULL )
+    function get_threads_data( $page = 0, $user_id = NULL, $last_updated = NULL )
     {
         global $bp, $wpdb;
 
@@ -365,13 +383,55 @@ class mif_bpc_dialogues {
         $user_id_sql = $wpdb->prepare( 'r.user_id = %d', $user_id );
         $pag_sql = $wpdb->prepare( "LIMIT %d, %d", intval( ( $page ) * $this->threads_on_page ), intval( $this->threads_on_page ) );
 
+        // $last_updated = 1493100583;
+
+        if ( isset( $last_updated ) ) {
+
+            $sql = array();
+            $sql['select'] = 'SELECT DISTINCT m.thread_id';
+            $sql['from']   = "FROM {$bp->messages->table_name_messages} m INNER JOIN {$bp->messages->table_name_meta} t ON m.id = t.message_id";
+            $sql['where']  = $wpdb->prepare( "WHERE t.meta_key = 'last_updated' AND t.meta_value >= %d", $last_updated );
+            $new_ids = $wpdb->get_col( implode( ' ', $sql ) );
+
+            $only_news_sql = 'AND m.thread_id IN (' . implode( ',', $new_ids) . ')';
+            $pag_sql = '';
+
+        }
+
+        // p($news_ids);
+        // p(implode( ' ', $sql ));
+
+
+        // if ( $only_news ) {
+
+        //     $last_threads_update = get_user_meta( $user_id, 'mif_bpc_last_threads_update', true );
+        //     $only_news_sql = $wpdb->prepare( "AND date_sent >= %s", $last_threads_update );
+        //     $pag_sql = '';
+
+        // }
+
+        // if ( $page == 0 ) update_user_meta( $user_id, 'mif_bpc_last_threads_update', bp_core_current_time() );
+
+// $results = print_r($last_updated, true);
+// file_put_contents('/tmp/log.txt', $results);
+
+
+
 		$sql = array();
 		$sql['select'] = 'SELECT m.thread_id, MAX(m.date_sent) AS date_sent, MAX(m.id) AS message_id';
 		$sql['from']   = "FROM {$bp->messages->table_name_recipients} r INNER JOIN {$bp->messages->table_name_messages} m ON m.thread_id = r.thread_id";
-		$sql['where']  = "WHERE r.is_deleted = 0 AND {$user_id_sql} {$search_sql}";
+		$sql['where']  = "WHERE r.is_deleted = 0 AND {$user_id_sql} {$only_news_sql} {$search_sql}";
 		$sql['misc']   = "GROUP BY m.thread_id ORDER BY date_sent DESC {$pag_sql}";
 
         $threads = $wpdb->get_results( implode( ' ', $sql ) );
+
+// p($threads);
+
+        // if ( $page == 0 ) update_user_meta( $user_id, 'mif_bpc_last_threads_update', bp_core_current_time() );
+
+// $results = print_r($threads, true);
+// file_put_contents('/tmp/log.txt', $results);
+
 
         $arr = array();
         $thread_ids = array();
@@ -709,6 +769,7 @@ class mif_bpc_dialogues {
 
         $thread_id = (int) $_POST['thread_id'];
         $last_message_id = (int) $_POST['last_message_id'];
+        $threads_update_timestamp = (int) $_POST['threads_update_timestamp'];
         $message = esc_html( $_POST['message'] );
         // $page = (int) $_POST['page'];
         // echo json_encode( array( 'messages_more' => $this->get_messages_page( $thread_id, $page ) ) );
@@ -729,9 +790,11 @@ class mif_bpc_dialogues {
             $arr = array_reverse( $arr, true );
 
             echo json_encode( array( 
-                                    // 'threads_update' => $this->get_messages_header( $thread_id ), 
                                     'messages_header_update' => $this->get_messages_header( $thread_id ),
                                     'messages_update' => $arr,
+                                    'threads_update' => $this->get_threads_update( $threads_update_timestamp ),
+                                    // 'threads_update' => $threads_update_timestamp,
+                                    'threads_update_timestamp' => time(),
                                     ) );
 
         }
@@ -755,6 +818,7 @@ class mif_bpc_dialogues {
 
         $sql = $wpdb->prepare( "SELECT * FROM {$bp->messages->table_name_messages} WHERE thread_id = %d ORDER BY date_sent DESC LIMIT 1", $thread_id );
         $result = $wpdb->get_row( $sql );
+        $message_id = $result->id;
 
         // Обновлять существующую, или добавлять новую?
         
@@ -762,13 +826,16 @@ class mif_bpc_dialogues {
         
         if ( $result && $result->sender_id == $sender_id ) {
 
-            $last_message_data = get_user_meta( $sender_id, 'last_message_data', true );
+            // $last_message_data = get_user_meta( $sender_id, 'mif_bpc_last_message_data', true );
+            $last_updated = bp_messages_get_meta( $message_id, 'last_updated' );
             $outdate_time = apply_filters( 'mif_bpc_dialogues_outdate_time', $this->message_outdate_time );
 
-            if ( isset( $last_message_data ) && 
-                    $last_message_data['message_id'] == $result->id && 
-                    timestamp_to_now( $last_message_data['timestamp'] ) < $outdate_time ) $update_flag = true;
+            // if ( isset( $last_message_data ) && 
+            //         $last_message_data['message_id'] == $result->id && 
+            //         timestamp_to_now( $last_message_data['timestamp'] ) < $outdate_time ) $update_flag = true;
         
+            if ( isset( $last_updated ) && timestamp_to_now( $last_updated ) < $outdate_time ) $update_flag = true;
+
         }
 
 
@@ -776,9 +843,11 @@ class mif_bpc_dialogues {
 
             // Обновить существующую
             $message = $result->message . "\n" . $message;
-            $sql = $wpdb->prepare( "UPDATE {$bp->messages->table_name_messages} SET message = %s WHERE id = %d", $message, $result->id );
+            // $sql = $wpdb->prepare( "UPDATE {$bp->messages->table_name_messages} SET message = %s WHERE id = %d", $message, $result->id );
+            $sql = $wpdb->prepare( "UPDATE {$bp->messages->table_name_messages} SET message = %s WHERE id = %d", $message, $message_id );
             if ( ! $wpdb->query( $sql ) ) return false;
-            update_user_meta( $sender_id, 'last_message_data', array( 'message_id' => $result->id, 'timestamp' => time() ) );
+
+            // update_user_meta( $sender_id, 'mif_bpc_last_message_data', array( 'message_id' => $result->id, 'timestamp' => time() ) );
 
         } else {
 
@@ -786,10 +855,13 @@ class mif_bpc_dialogues {
             $date_sent = bp_core_current_time();
             $sql = $wpdb->prepare( "INSERT INTO {$bp->messages->table_name_messages} ( thread_id, sender_id, subject, message, date_sent ) VALUES ( %d, %d, %s, %s, %s )", $thread_id, $sender_id, $subject, $message, $date_sent );
             if ( ! $wpdb->query( $sql ) ) return false;
+
             $message_id = $wpdb->get_var( "SELECT LAST_INSERT_ID()" );
-            update_user_meta( $sender_id, 'last_message_data', array( 'message_id' => $message_id, 'timestamp' => time() ) );
+            // update_user_meta( $sender_id, 'mif_bpc_last_message_data', array( 'message_id' => $message_id, 'timestamp' => time() ) );
 
         }
+
+        bp_messages_update_meta( $message_id, 'last_updated', time() );
 
         return true;
     }
@@ -828,6 +900,8 @@ function mif_bpc_the_dialogues_threads()
     echo $mif_bpc_dialogues->get_threads_items();
     echo '</div><div class="thread-scroller__bar scroller__bar"></div></div></div>';
 
+    $threads_update_timestamp = time();
+    echo '<input type="hidden" name="threads_update_timestamp" id="threads_update_timestamp" value="' . $threads_update_timestamp . '">';
 
 }
 
@@ -849,30 +923,6 @@ function mif_bpc_the_dialogues_dialog()
     // echo '2';
 }
 
-
-// // 
-// // Выводит форму написания сообщения
-// // 
-
-// function mif_bpc_the_dialogues_form()
-// {
-//     $out = '';
-//     $out .= '<form>';
-//     $out .= '<table><tr>';
-//     $out .= '<td class="clip"><a href="11" class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></a></td>';
-//     $out .= '<td class="message"><textarea name="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
-//     $out .= '<td class="send"><div class="custom-button"><a href="11" class="button"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></div></td>';
-//     $out .= '</tr></table>';
-
-//         // $out .= '<span class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></span>';
-//     // $out .= '<span><textarea name="message" placeholder="' . __( 'Напишите сообщение', 'mif-bp-customizer' ) . '"></textarea></span>';
-//     // $out .= '<div class="custom-button"><a href="11" class="button"><i class="fa fa-play" aria-hidden="true"></i></a></div>';
-//     $out .= '</form>';
-
-
-
-//     echo $out;
-// }
 
 
 

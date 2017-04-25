@@ -90,6 +90,7 @@ jQuery( document ).ready( function( jq ) {
         var last_message_id = jq( '#last_message_id', form ).val();
         var nonce = jq( '#nonce', form ).val();
         var message = jq( '#message', form ).val();
+        var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
 
         // Очистить форму
         jq( '#message', form ).val( '' );
@@ -106,6 +107,7 @@ jQuery( document ).ready( function( jq ) {
             action: 'mif-bpc-dialogues-messages-send',
             thread_id: thread_id,
             last_message_id: last_message_id,
+            threads_update_timestamp: threads_update_timestamp,
             message: message,
             _wpnonce: nonce,
         },
@@ -120,6 +122,13 @@ jQuery( document ).ready( function( jq ) {
 
     });
 
+    jq( '.messages-form' ).keypress( 'a.send.button', function( e ) {
+        if ( e.which == 13 ) {
+            // alert('You pressed enter!');
+            jq( '.messages-form a.send.button' ).trigger( 'click' );
+            return false;
+        }
+    });
 
     // 
     // Включить кастомный скроллинг
@@ -278,6 +287,41 @@ function modify_page( response )
     if ( data['messages_header_update'] ) {
 
         jq( '.messages-header-content').html( data['messages_header_update'] );
+
+    }
+
+    // Обновление списка сообщений
+
+    if ( data['threads_update'] ) {
+
+        var arr = data['threads_update'];
+
+        for ( var key in arr ) {
+
+            var elem = jq( '.thread-scroller-container #thread-item-' + key );
+
+            if ( elem.length ) {
+                
+                // Элемент существует - заменить его
+                elem.remove();
+                jq( '.thread-scroller-container' ).prepend( arr[key] );
+
+            } else {
+
+                // Элемент не существует - добавить новый в начало
+                jq( '.thread-scroller-container' ).prepend( arr[key] );
+
+            }
+
+        }
+
+    }
+
+    // Обновление метки времени списка сообщений
+
+    if ( data['threads_update_timestamp'] ) {
+
+        jq( '#threads_update_timestamp' ).val( data['threads_update_timestamp'] );
 
     }
 
