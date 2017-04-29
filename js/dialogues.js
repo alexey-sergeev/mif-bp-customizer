@@ -24,6 +24,7 @@ jQuery( document ).ready( function( jq ) {
         function( response ) {
 
             modify_page( response ); 
+            setTimeout( function() { jq( '#thread-item-' + thread_id + ' .unread_count' ).fadeOut() }, 600 );
 
         });
 
@@ -80,6 +81,19 @@ jQuery( document ).ready( function( jq ) {
 
 
     //
+	// Обновить диалоги
+	//
+
+	jq( '.dialogues-page' ).on( 'click', 'a.dialogues-refresh', function() {
+
+        dialogues_update_page();
+
+        return false;
+
+    });
+
+
+    //
 	// Отправить сообщение
 	//
 
@@ -92,14 +106,21 @@ jQuery( document ).ready( function( jq ) {
         var message = jq( '#message', form ).val();
         var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
 
+        if ( ! message ) return false;
+
         // Очистить форму
         jq( '#message', form ).val( '' );
 
-        // Временно вывести новое сообщение и пролистать вниз
+        // Временно вывести новое сообщение
         var rand =  Math.floor( Math.random() * 9999 );
-        jq( '.messages-scroller-container #message-' + last_message_id + ' .content .message' ).append( '<p class="new ' + rand + '"><i class="fa fa-clock-o"></i>' + message + '</p>' );
-        setTimeout( function( rand ){ jq( '.messages-scroller-container .new.' + rand ).addClass( 'clock' ) }, 1000, rand );
-        jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+        jq( '.messages-scroller-container #message-' + last_message_id + ' .content .message' ).append( '<p class="sended ' + rand + '"><i class="fa fa-clock-o"></i>' + message + '</p>' );
+        setTimeout( function( rand ){ jq( '.messages-scroller-container .sended.' + rand ).addClass( 'clock' ) }, 1000, rand );
+
+        // Пролистать в самый низ
+        scroll_message_to_bottom();
+
+        // Снять отметки о непрочитанных
+        jq( '.messages-scroller .message-item.new' ).removeClass( 'new' );
         
 
 
@@ -123,11 +144,13 @@ jQuery( document ).ready( function( jq ) {
     });
 
     jq( '.messages-form' ).keypress( 'a.send.button', function( e ) {
+
         if ( e.which == 13 ) {
             // alert('You pressed enter!');
             jq( '.messages-form a.send.button' ).trigger( 'click' );
             return false;
         }
+
     });
 
     // 
@@ -169,7 +192,7 @@ jQuery( document ).ready( function( jq ) {
 
 
 // 
-// Корректировать высоту страниы в засивимости от высоты формы ввода
+// Корректировать высоту страницы в засивимости от высоты формы ввода
 // 
 
 function message_items_height_correct()
@@ -242,6 +265,34 @@ function messages_actions_init()
 
 
 //
+// Обновить страницу диалогов
+//
+
+function dialogues_update_page()
+{
+    var thread_id = jq( '.messages-form #thread_id' ).val();
+    var last_message_id = jq( '.messages-form #last_message_id' ).val();
+    var nonce = jq( '#dialogues_refresh_nonce' ).val();
+    var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
+
+    jq.post( ajaxurl, {
+        action: 'mif-bpc-dialogues-refresh',
+        thread_id: thread_id,
+        last_message_id: last_message_id,
+        threads_update_timestamp: threads_update_timestamp,
+        _wpnonce: nonce,
+    },
+    function( response ) {
+
+        // console.log(response);
+        modify_page( response ); 
+        scroll_threads_to_top();
+
+    });
+}
+
+
+//
 // Внести изменения на страницу на основе полученных данных
 //
 
@@ -256,19 +307,21 @@ function modify_page( response )
 
     if ( data['threads_more'] ) {
 
-        jq( '.thread-scroller .loader' ).remove();
-        jq( '.thread-scroller' ).append( data['threads_more'] );
+        jq( '.thread-scroller-container .loader' ).remove();
+        jq( '.thread-scroller-container' ).append( data['threads_more'] );
 
     }
+
 
     // Загрузка продолжения списка сообщений
 
     if ( data['messages_more'] ) {
 
-        jq( '.messages-scroller .loader' ).remove();
-        jq( '.messages-scroller' ).prepend( data['messages_more'] );
+        jq( '.messages-scroller-container .loader' ).remove();
+        jq( '.messages-scroller-container' ).prepend( data['messages_more'] );
 
     }
+
 
     // Загрузка заголовка списка сообщений
 
@@ -282,6 +335,7 @@ function modify_page( response )
         } )
     }
 
+
     // Обновление заголовка списка сообщений
 
     if ( data['messages_header_update'] ) {
@@ -290,11 +344,13 @@ function modify_page( response )
 
     }
 
+
     // Обновление списка сообщений
 
     if ( data['threads_update'] ) {
 
         var arr = data['threads_update'];
+        var thread_id = jq( '.messages-form #thread_id' ).val();
 
         for ( var key in arr ) {
 
@@ -313,9 +369,14 @@ function modify_page( response )
 
             }
 
+            if ( key == thread_id ) jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );            
+
         }
 
+        scroll_threads_to_top();
+
     }
+
 
     // Обновление метки времени списка сообщений
 
@@ -324,6 +385,7 @@ function modify_page( response )
         jq( '#threads_update_timestamp' ).val( data['threads_update_timestamp'] );
 
     }
+
 
     // Загрузка формы списка сообщений
 
@@ -347,8 +409,15 @@ function modify_page( response )
                 message_items_height_correct();
             });
 
+            // Корректировать положение формы и высоту диалога при изменении размера формы
+            var thread_id = jq( '.messages-form #thread_id' ).val();
+            jq( '.thread-scroller-container .current' ).removeClass( 'current' );
+            jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );
+            // console.log(thread_id);
+
         } )
     }
+
 
     // Загрузка страницы сообщений
 
@@ -365,7 +434,8 @@ function modify_page( response )
             if ( delta > 0 ) jq( '.message-item.loader' ).height( delta );
 
             // Пролистать в самый низ
-            jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+            scroll_message_to_bottom();
+            // jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
 
             // Показать
             jq( '.messages-items').animate( { 'opacity': 1 } );
@@ -376,6 +446,7 @@ function modify_page( response )
         })
 
     }
+
 
     // Отображение новых сообщений
 
@@ -399,16 +470,42 @@ function modify_page( response )
 
         }
 
+
         // Обновить информацию об ID последнего сообщения
         jq( '.messages-form #last_message_id' ).val( key );
 
+
         // Пролистать в самый низ
-        jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+        scroll_message_to_bottom();
+        // jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
 
     }
     
 
+    // // Выделить блок текущего сообщения
+    // var thread_id = jq( '.messages-form #thread_id' ).val();
+    // jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );
+    // console.log(thread_id);
+
+}
 
 
 
+//
+// Пролистать сообщения в самый низ
+//
+
+function scroll_message_to_bottom()
+{
+    jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+}
+
+
+//
+// Пролистать диалоги в самый верх
+//
+
+function scroll_threads_to_top()
+{
+    jq( '.thread-scroller' ).scrollTop( 0 );
 }

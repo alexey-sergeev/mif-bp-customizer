@@ -2,7 +2,10 @@
 
 <div class="dialogues-page">
 
-    <div class="dialogues-header clearfix"><div class="custom-button"><a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-fix" title="<?php echo __( 'Зафиксировать', 'mif-bp-customizer' ) ?>"><i class="fa fa-chevron-down" aria-hidden="true"></i></a></div></div>
+    <div class="dialogues-header clearfix">
+    <div class="custom-button"><a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-fix" title="<?php echo __( 'Зафиксировать', 'mif-bp-customizer' ) ?>"><i class="fa fa-anchor" aria-hidden="true"></i></a></div>
+    <div class="custom-button"><a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-refresh" title="<?php echo __( 'Обновить', 'mif-bp-customizer' ) ?>"><i class="fa fa-refresh" aria-hidden="true"></i></a></div>
+    </div>
 
     <div class="dialogues-body clearfix">
         <div class="members">

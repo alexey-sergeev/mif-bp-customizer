@@ -101,3 +101,21 @@ function no_friends_page( $is_current_component, $component )
 }
 
 
+//
+// Возвращает fa-иконку для файла указанного типа
+//
+
+function get_file_icon( $type )
+{
+    $icon = 'file-o';
+    if ( in_array( $type, array( 'doc', 'docx', 'odt', 'rtf' ) ) ) $icon = 'file-word-o';
+    if ( in_array( $type, array( 'xls', 'xlsx', 'ods' ) ) ) $icon = 'file-excel-o';
+    if ( in_array( $type, array( 'ppt', 'pptx', 'odp' ) ) ) $icon = 'file-powerpoint-o';
+    if ( in_array( $type, array( 'pdf' ) ) ) $icon = 'file-pdf-o';
+    if ( in_array( $type, array( 'txt' ) ) ) $icon = 'file-text-o';
+    if ( in_array( $type, array( 'zip', 'rar', '7z' ) ) ) $icon = 'file-archive-o';
+    if ( in_array( $type, array( 'png', 'gif', 'jpg', 'jpeg' ) ) ) $icon = 'file-image-o';
+    if ( in_array( $type, array( 'mp3', 'ogg', 'wma' ) ) ) $icon = 'file-audio-o';
+
+    return '<i class="fa fa-' . $icon . '"></i>';
+}

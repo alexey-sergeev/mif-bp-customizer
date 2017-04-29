@@ -65,6 +65,10 @@ class mif_bpc_websocket {
         add_action( 'bp_notification_before_delete', array( $this, 'notification_before_delete' ) );
         add_action( 'bp_notification_before_save', array( $this, 'notification_before_save' ) );
 
+        // Обновление списка сообщений
+
+        add_action( 'mif_bpc_dialogues_after_send', array( $this, 'dialogues_after_send' ) );
+
         // JS-скрипты для связки "браузер - эхо-сервер"
 
         add_action( 'wp_print_scripts', array( $this, 'load_js_helper' ) );            				
@@ -97,15 +101,15 @@ class mif_bpc_websocket {
 
 
     // 
-    // Отправляет уведомление клиенту
+    // Отправляет уведомление клиенту о новом уведомлении
     // 
 
     function send_notification( $user_id = NULL, $default_notify = 'no' )
     {
         if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
         
-        $url = $this->get_local_url();
-        $port = $this->get_port();
+        // $url = $this->get_local_url();
+        // $port = $this->get_port();
 
         $notify = ( bp_loggedin_user_id() == $user_id ) ? 'no' : $default_notify;
 
@@ -124,7 +128,7 @@ class mif_bpc_websocket {
         $last_notification = $now + $delay;
         update_user_meta( $user_id, 'last_notification_timestamp', $last_notification );
 
-        $delay = ($delay + 1) * 1000;
+        $delay = ( $delay + 1 ) * 1000;
 
         $args = array(
                     'room' => $this->get_user_room( $user_id ),
@@ -132,8 +136,79 @@ class mif_bpc_websocket {
                     'data' => '1',
                     'notify' => $notify,
                     'delay' => $delay,
-                    'key' => $this->get_secure_key(),
+                    // 'key' => $this->get_secure_key(),
                 );
+
+        $this->curl_echo_server( $args );
+
+        // try {
+
+        //     $conn = curl_init();
+        // 	curl_setopt( $conn, CURLOPT_URL, $url . ':' . $port . '?' . http_build_query( $args ) );
+        // 	curl_setopt( $conn, CURLOPT_NOBODY, 1 );
+        // 	curl_exec( $conn );
+        // 	curl_close( $conn );            
+
+        // } catch ( Exception $e ) {
+
+        //     // Сообщение о том, что эхо-сервер не работает
+
+        //     do_action( 'mif_bpc_echo_server_not_worked' );
+
+        // };
+
+
+    }
+
+
+
+    // 
+    // Отправляет уведомление клиенту о новом сообщении
+    // 
+
+    function dialogues_after_send( $recipients = NULL, $default_notify = 'no'  )
+    {
+        if ( $recipients == NULL ) return;
+
+        foreach ( (array) $recipients as $user_id ) {
+
+            $notify = ( bp_loggedin_user_id() == $user_id ) ? 'no' : $default_notify;
+
+            $args = array(
+                        'room' => $this->get_user_room( $user_id ),
+                        'event' => 'dialogues_update',
+                        'data' => '1',
+                        'notify' => $notify,
+                    );
+
+            $this->curl_echo_server( $args );
+
+            // file_put_contents('/tmp/log.txt', print_r( $args, true));
+        }
+
+
+        // $args = array(
+        //             'event' => 'dialogues_update',
+        //             'recipients' => implode( ',', $recipients ),
+        //         );
+
+
+        // $res = http_build_query( array( 'ddd' => $recipients ) );
+
+    }
+
+
+
+    //
+    // Ппередает сообщение эхо-серверу, чтобы тот сообщил это клиентам
+    //
+
+    function curl_echo_server( $args )
+    {
+        $url = $this->get_local_url();
+        $port = $this->get_port();
+
+        $args['key'] = $this->get_secure_key();
 
         try {
 
@@ -141,7 +216,9 @@ class mif_bpc_websocket {
         	curl_setopt( $conn, CURLOPT_URL, $url . ':' . $port . '?' . http_build_query( $args ) );
         	curl_setopt( $conn, CURLOPT_NOBODY, 1 );
         	curl_exec( $conn );
-        	curl_close( $conn );            
+        	curl_close( $conn );
+
+            $ret = true;
 
         } catch ( Exception $e ) {
 
@@ -149,10 +226,13 @@ class mif_bpc_websocket {
 
             do_action( 'mif_bpc_echo_server_not_worked' );
 
+            $ret = false;
+
         };
 
-
+        return $ret;
     }
+
 
 
     //

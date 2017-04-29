@@ -139,6 +139,16 @@ if ( ! function_exists( 'p' ) ) {
 }
 
 
+if ( ! function_exists( 'f' ) ) {
+
+    function f( $data )
+    {
+        file_put_contents('/tmp/log.txt', print_r( $data, true ) );
+    }
+
+}
+
+
 
 //
 // Удаляем лишние вкладки профиля (сайты, уведомления)
