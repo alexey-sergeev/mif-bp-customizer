@@ -1,3 +1,101 @@
+/* Список пользователей для нового сообщения */
+
+.thread-wrap .member-item {
+    padding: 10px;
+    border-bottom: 1px solid #E3E4E5;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.thread-wrap .member-item:hover {
+    background-color: #f8f8f8;
+}
+
+.thread-wrap .member-item.loader {
+    text-align: center;
+    padding-top: 20px;
+    border-bottom: 0;
+}
+
+.thread-wrap .member-item.loader:hover {
+    background-color: inherit;
+}
+
+.thread-wrap .member-item span.avatar {
+    float: left;
+    margin-right: 10px;
+}
+
+.thread-wrap .member-item span.name {
+    width: 200px;
+    display: inline-block;
+}
+
+.thread-wrap .member-item span.avatar img {
+    display: block;
+}
+
+.thread-wrap .member-item:after {
+    content: ''; 
+    clear: both;
+    display: block;
+}
+
+.thread-wrap .member-item .add {
+    float: right;
+}
+
+.thread-wrap .member-item .add a.button {
+    color: #828282;
+    background-color: inherit;
+    opacity: 0;
+}
+
+.thread-wrap .member-item:hover .add a.button {
+    opacity: 1;
+}
+
+.thread-wrap .member-item .add a.button:hover {
+    background-color: #eee;
+    color: #828282;
+}
+
+
+
+
+/* Форма нового сообщения */
+
+.compose-wrap {
+    margin: 20px;
+}
+
+.compose-wrap div {
+    margin-top: 10px;
+}
+
+.compose-wrap .recipients {
+    min-height: 40px;
+    background-color: #eee;
+}
+
+.compose-wrap .textarea textarea {
+    width: 100%;
+    height: 12rem;
+    font: inherit;
+}
+
+.dialogues-page.compose {
+    height: auto;
+    min-height: 100vh;
+    /*margin-bottom: 0;*/
+}
+
+.dialogues-page.compose .messages-wrap {
+    min-height: 100vh;
+    height: auto;
+}
+
+
 /* Диалоги */
 
 .dialogues-page .attach {
@@ -5,6 +103,7 @@
     display: block;
     padding: 5px 10px;
     margin-top: 1rem;
+    margin-right: 20px;
 }
 
 .dialogues-page .attach .icon {
@@ -45,7 +144,8 @@
 .dialogues-page .members .thread-item.current>div {
     /*background-color: #0185B5;*/
     border-left: 5px solid #0185B5;
-    background-color: #f2f2f2;
+    /*background-color: #f2f2f2;*/
+    background-color: #f8f8f8;
 }
 
 /*.dialogues-page .members .thread-item.current .unread_count {
@@ -56,7 +156,8 @@
 }*/
 
 .dialogues-page .members .thread-item:hover {
-    background-color: #f2f2f2;
+    /*background-color: #f2f2f2;*/
+    background-color: #f8f8f8;
 }
 
 .dialogues-page .members .thread-item:after {
@@ -259,12 +360,14 @@
 
 .dialogues-page .messages-wrap .messages-items {
     height: 100%;
+    /*overflow: auto;*/
     /*border-left: 1px solid #E3E4E5;*/
 }
 
 
 .dialogues-page .messages-form {
     margin-top: -100px;
+    margin-bottom: 50px; 
     background-color: #f8f8f8;
     border-top: 1px solid #E3E4E5;
     border-bottom: 1px solid #E3E4E5;
@@ -353,10 +456,17 @@
     color: #d6d6d6;
 }
 
+.dialogues-page .messages-wrap .remove-window {
+    padding: 4rem;
+    text-align: center;
+}
+
 .dialogues-page .messages-wrap .message-item {
     padding: 15px 0 10px 15px;
     overflow: hidden;
     border-left: 5px solid transparent;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
 }
 
 .dialogues-page .messages-wrap .message-item.alone {
@@ -366,6 +476,14 @@
     margin: 20px 20px 0 20px;
     overflow: visible;
     padding: 0;
+}
+
+.dialogues-page .messages-wrap .message-item.loader {
+    text-align: center;
+}
+
+.dialogues-page .messages-wrap .message-item.loader:hover {
+    background-color: inherit;
 }
 
 .dialogues-page .messages-wrap .message-item.alone span {
@@ -392,6 +510,67 @@
 .dialogues-page .messages-wrap .message-item div.avatar {
     float: left;
 }
+
+/*.dialogues-page .messages-wrap .message-item div.remove {
+    float: right;
+    margin-right: 15px;
+    opacity: 0;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}*/
+
+.dialogues-page div.remove {
+    float: right;
+    margin-right: 15px;
+    opacity: 0;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.dialogues-page .thread-item.unread:hover div.remove {
+    opacity: 0;
+}
+
+.dialogues-page .message-item:hover div.remove,
+.dialogues-page .thread-item:hover div.remove {
+    opacity: 1;
+}
+
+.dialogues-page .thread-item div.remove {
+    margin-right: 0;
+}
+
+.dialogues-page div.remove .custom-button a.button {
+    background-color: inherit;
+    color: #828282;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.dialogues-page div.remove .custom-button a.button:hover {
+    background-color: #eee;
+    color: #828282;
+}
+
+.dialogues-page .messages-wrap .message-item:hover {
+    background-color: #f8f8f8;
+}
+
+/*.dialogues-page .messages-wrap .message-item:hover div.remove {
+    opacity: 1;
+}*/
+
+/*.dialogues-page .messages-wrap .message-item div.remove .custom-button a.button {
+    background-color: inherit;
+    color: #828282;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
+}
+
+.dialogues-page .messages-wrap .message-item div.remove .custom-button a.button:hover {
+    background-color: #eee;
+    color: #828282;
+}*/
 
 .dialogues-page .messages-wrap .message-item div.content {
     margin-left: 60px;

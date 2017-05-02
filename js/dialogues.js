@@ -14,7 +14,7 @@ jQuery( document ).ready( function( jq ) {
 	jq( '.thread-wrap' ).on( 'click', '.thread-item', function() {
 
         var thread_id = jq( this ).attr( 'data-thread-id' );
-        var nonce = jq( this ).attr( 'data-nonce' );
+        var nonce = jq( '#dialogues_thread_nonce' ).val();
 
         jq.post( ajaxurl, {
             action: 'mif-bpc-dialogues-messages',
@@ -24,7 +24,7 @@ jQuery( document ).ready( function( jq ) {
         function( response ) {
 
             modify_page( response ); 
-            setTimeout( function() { jq( '#thread-item-' + thread_id + ' .unread_count' ).fadeOut() }, 600 );
+            setTimeout( function() { jq( '#thread-item-' + thread_id + ' .unread_count' ).fadeOut( function() { jq( '#thread-item-' + thread_id ).removeClass( 'unread' ) } ) }, 600 );
 
         });
 
@@ -43,21 +43,26 @@ jQuery( document ).ready( function( jq ) {
         var loader = jq( '.thread-scroller .loader' );
         var loader_top = loader.offset().top;
         var scroller_bottom = jq( '.scroller' ).offset().top + ( jq( '.scroller' ).height() * 2 );
+        var search = jq( '#dialogues_thread_search' ).val();
         
         if ( loader_top < scroller_bottom && loader.hasClass( 'ajax-ready' ) ) {
-
             loader.removeClass( 'ajax-ready' );
 
             var page = loader.attr( 'data-page' );
             var nonce = loader.attr( 'data-nonce' );
+            var mode = loader.attr( 'data-mode' );
+
+            var action = ( mode == 'members' ) ? 'mif-bpc-dialogues-member-items-more' : 'mif-bpc-dialogues-thread-items-more';
 
             jq.post( ajaxurl, {
-                action: 'mif-bpc-dialogues-thread-items-more',
+                action: action,
                 page: page,
+                s: search,
                 _wpnonce: nonce,
             },
             function( response ) { 
 
+                console.log(response);
                 modify_page( response ); 
 
             });
@@ -81,6 +86,32 @@ jQuery( document ).ready( function( jq ) {
 
 
     //
+	// Новое сообщение
+	//
+
+	jq( '.dialogues-page' ).on( 'click', 'a.dialogues-compose', function() {
+
+        var nonce = jq( '#dialogues_compose_form_nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-dialogues-compose-form',
+            _wpnonce: nonce,
+        },
+        function( response ) {
+
+            // console.log(response);
+            modify_page( response ); 
+            jq( '.dialogues-page' ).addClass( 'compose' );
+            // scroll_threads_to_top();
+
+        });
+
+        return false;
+
+    });
+
+
+    //
 	// Обновить диалоги
 	//
 
@@ -90,6 +121,139 @@ jQuery( document ).ready( function( jq ) {
 
         return false;
 
+    });
+
+
+    //
+	// Группировать диалоги
+	//
+
+	jq( '.dialogues-page' ).on( 'click', 'a.dialogues-join', function() {
+
+        var nonce = jq( '#dialogues_join_nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-dialogues-join',
+            _wpnonce: nonce,
+        },
+        function( response ) {
+
+            // console.log(response);
+            modify_page( response ); 
+            scroll_threads_to_top();
+
+        });
+
+        return false;
+
+    });
+
+
+    //
+	// Удалить сообщение
+	//
+
+	jq( '.dialogues-page' ).on( 'click', 'a.message-remove', function() {
+
+        var nonce = jq( '#dialogues_message_remove_nonce' ).val();
+        var item = jq( this ).closest( '.message-item' );
+        var message_id = item.attr( 'data-message-id' );
+        var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-message-remove',
+            message_id: message_id,
+            threads_update_timestamp: threads_update_timestamp,
+            _wpnonce: nonce,
+        },
+        function( response ) {
+
+            jq( '.messages-items #message-' + message_id ).fadeOut();
+            modify_page( response ); 
+            // console.log( response );
+            // scroll_threads_to_top();
+
+        });
+
+        return false;
+
+    });
+
+
+    //
+	// Удалить диалог (вызов окна)
+	//
+
+	jq( '.thread-wrap' ).on( 'click', '.thread-item a.thread-remove', function() {
+
+        var nonce = jq( '#dialogues_thread_remove_window_nonce' ).val();
+        var item = jq( this ).closest( '.thread-item' );
+        var thread_id = item.attr( 'data-thread-id' );
+        var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-thread-remove-window',
+            thread_id: thread_id,
+            threads_update_timestamp: threads_update_timestamp,
+            _wpnonce: nonce,
+        },
+        function( response ) {
+
+            modify_page( response ); 
+
+        });
+        
+        return false;
+    });
+
+
+    //
+	// Удалить диалог (собственно удаление)
+	//
+
+	jq( '.messages-wrap' ).on( 'click', '.remove-window a.thread-remove', function() {
+
+        var thread_id = jq( '.messages-form #thread_id' ).val();
+        var nonce = jq( '#dialogues_thread_remove_nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-thread-remove',
+            thread_id: thread_id,
+            _wpnonce: nonce,
+        },
+        function( response ) {
+
+            modify_page( response ); 
+            jq( '#thread-item-' + thread_id ).fadeOut();
+            // console.log( response );
+
+        });
+        
+        return false;
+    });
+
+
+    //
+	// Отмена удаления диалога
+	//
+
+	jq( '.messages-wrap' ).on( 'click', '.remove-window a.thread-no-remove', function() {
+
+        var thread_id = jq( '.messages-form #thread_id' ).val();
+        var nonce = jq( '#dialogues_thread_nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-dialogues-messages',
+            thread_id: thread_id,
+            _wpnonce: nonce,
+        },
+        function( response ) {
+
+            modify_page( response ); 
+
+        });
+        
+        return false;
     });
 
 
@@ -146,25 +310,16 @@ jQuery( document ).ready( function( jq ) {
     jq( '.messages-form' ).keypress( 'a.send.button', function( e ) {
 
         if ( e.which == 13 ) {
-            // alert('You pressed enter!');
             jq( '.messages-form a.send.button' ).trigger( 'click' );
             return false;
         }
 
     });
 
-    // 
-    // Включить кастомный скроллинг
-    // 
 
-    baron( jq( '.thread-scroller-wrap' ), {
-                    scroller: '.thread-scroller',
-                    container: '.thread-scroller-container',
-                    bar: '.thread-scroller__bar',
-                    barTop: 0,
-                    barOnCls: 'thread-scroller__bar_state_on',
-                } );
+    // Включить кастомный скроллинг для списка диалогов
 
+    threads_scroll();
 
     // 
     // Включить авторесайз textarea
@@ -190,9 +345,25 @@ jQuery( document ).ready( function( jq ) {
 
 
 
+// 
+// Включить кастомный скроллинг для списка диалогов
+// 
+
+function threads_scroll()
+{
+    baron( jq( '.thread-scroller-wrap' ), {
+                    scroller: '.thread-scroller',
+                    container: '.thread-scroller-container',
+                    bar: '.thread-scroller__bar',
+                    barTop: 0,
+                    barOnCls: 'thread-scroller__bar_state_on',
+                } );
+}
+
+
 
 // 
-// Корректировать высоту страницы в засивимости от высоты формы ввода
+// Корректировать высоту страницы в зависимости от высоты формы ввода
 // 
 
 function message_items_height_correct()
@@ -409,7 +580,7 @@ function modify_page( response )
                 message_items_height_correct();
             });
 
-            // Корректировать положение формы и высоту диалога при изменении размера формы
+            // Выделить блок текущего диалога
             var thread_id = jq( '.messages-form #thread_id' ).val();
             jq( '.thread-scroller-container .current' ).removeClass( 'current' );
             jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );
@@ -480,6 +651,37 @@ function modify_page( response )
         // jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
 
     }
+
+
+    // Загрузка в окно сообщений диалога
+
+    if ( data['messages_window'] ) {
+
+        jq( '.messages-items').animate( { 'opacity': 0 }, function() {
+
+            jq( '.messages-items').html( data['messages_window'] );
+            jq( '.messages-items').animate( { 'opacity': 1 } );
+
+        })
+
+    }
+
+
+    // Загрузка в окно списка диалогов
+
+    if ( data['threads_window'] ) {
+
+        jq( '.thread-scroller-container').animate( { 'opacity': 0 }, function() {
+
+            jq( '.thread-scroller-container').html( data['threads_window'] );
+            // jq( '.thread-scroller-container').animate( { 'opacity': 1 }, function() { threads_scroll() } );
+            jq( '.thread-scroller-container').animate( { 'opacity': 1 } );
+
+        })
+
+    }
+
+
     
 
     // // Выделить блок текущего сообщения
