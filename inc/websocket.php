@@ -170,7 +170,11 @@ class mif_bpc_websocket {
     {
         if ( $recipients == NULL ) return;
 
+        $sender_id = bp_loggedin_user_id();
+
         foreach ( (array) $recipients as $user_id ) {
+
+            if ( $user_id == $sender_id ) continue;
 
             $notify = ( bp_loggedin_user_id() == $user_id ) ? 'no' : $default_notify;
 

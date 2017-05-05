@@ -4,7 +4,8 @@
     padding: 10px;
     border-bottom: 1px solid #E3E4E5;
     transition-duration: .12s;
-    transition-timing-function: ease-out;    
+    transition-timing-function: ease-out;
+    cursor: pointer;
 }
 
 .thread-wrap .member-item:hover {
@@ -31,6 +32,10 @@
     display: inline-block;
 }
 
+.thread-wrap .member-item span.name a {
+    outline: none;
+}
+
 .thread-wrap .member-item span.avatar img {
     display: block;
 }
@@ -49,6 +54,8 @@
     color: #828282;
     background-color: inherit;
     opacity: 0;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
 }
 
 .thread-wrap .member-item:hover .add a.button {
@@ -58,6 +65,93 @@
 .thread-wrap .member-item .add a.button:hover {
     background-color: #eee;
     color: #828282;
+}
+
+.thread-wrap .member-item .m-check {
+    float: right;
+    line-height: 33px;
+    margin-right: 10px;
+}
+
+.thread-wrap .member-item .m-check.checked,
+.thread-wrap .member-item.checked .m-check.unchecked {
+    display: none;
+}
+
+.thread-wrap .member-item.checked .m-check.checked,
+.thread-wrap .member-item .m-check.unchecked {
+    display: block;
+}
+
+.thread-wrap .member-item.checked {
+    background-color: #f8f8f8;
+}
+
+.thread-wrap .member-item.checked .m-check a {
+    color: #e55005;
+}
+
+.thread-wrap .member-item .m-check a {
+    background-color: inherit;
+    color: #828282;
+    opacity: 0;    
+    outline: none;
+}
+
+.thread-wrap .member-item:hover .m-check a,
+.thread-wrap .member-item.checked .m-check a {
+    opacity: 1;
+}
+
+.thread-wrap .member-item .m-remove {
+    display: none;
+}
+
+.messages-wrap .recipients .member-item .m-remove {
+    display: inline-block;
+}
+
+.messages-wrap .recipients .member-item .add,
+.messages-wrap .recipients .member-item .m-check {
+    display: none;
+}
+
+.messages-wrap .recipients .member-item {
+    margin: 2px;
+    background: #f2f2f2;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.messages-wrap .recipients .member-item span {
+    float: left;
+}
+
+.messages-wrap .recipients .member-item span.avatar {
+    margin-right: 5px;
+}
+
+.messages-wrap .recipients .member-item span.avatar img {
+    display: block;
+}
+
+
+.messages-wrap .recipients .member-item span.name {
+    line-height: 33px;
+}
+
+.messages-wrap .recipients .member-item .m-remove div {
+    margin: 4px 4px 0 4px;
+}
+
+.messages-wrap .recipients .member-item .m-remove a {
+    background-color: #f2f2f2;
+    color: #828282;
+}
+
+.messages-wrap .recipients .member-item .m-remove a:hover {
+    background: #414141;
+    color: #fff;
 }
 
 
@@ -75,13 +169,34 @@
 
 .compose-wrap .recipients {
     min-height: 40px;
-    background-color: #eee;
+    margin-bottom: 20px;
+}
+
+.compose-wrap .recipients.warning {
+    border-left: 5px solid #ff3333;
+    background-color: #f2f2f2;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;    
 }
 
 .compose-wrap .textarea textarea {
     width: 100%;
     height: 12rem;
     font: inherit;
+}
+
+.compose-wrap .subject {
+    display: none;
+}
+
+.compose-wrap .subject input[type='text'],
+.compose-wrap .subject input[type='text']:focus {
+    border: 1px solid #D6D6D6;
+    width: 100%;
+}
+
+.compose-wrap .textarea.warning textarea {
+    border: 3px solid #ff3333;
 }
 
 .dialogues-page.compose {
@@ -164,7 +279,6 @@
     content: ''; 
     clear: both;
     display: block;
-    /*margin-bottom: 0.5em;*/
 }
 
 .dialogues-page .members .thread-item .title {
@@ -452,11 +566,14 @@
     text-align: center;
 }
 
-.dialogues-page .messages-wrap .messages-empty div i {
+.dialogues-page .messages-wrap .messages-empty div i,
+.dialogues-page .messages-wrap .remove-window i,
+.dialogues-page .messages-wrap .success-send i {
     color: #d6d6d6;
 }
 
-.dialogues-page .messages-wrap .remove-window {
+.dialogues-page .messages-wrap .remove-window,
+.dialogues-page .messages-wrap .success-send {
     padding: 4rem;
     text-align: center;
 }

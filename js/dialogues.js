@@ -62,7 +62,7 @@ jQuery( document ).ready( function( jq ) {
             },
             function( response ) { 
 
-                console.log(response);
+                // console.log(response);
                 modify_page( response ); 
 
             });
@@ -70,6 +70,117 @@ jQuery( document ).ready( function( jq ) {
         }
         
     });
+
+
+    //
+	// Выбрать пользователя для диалога
+	//
+
+	// jq( '.thread-wrap' ).on( 'click', 'a.member-add', function() {
+	jq( '.thread-wrap' ).on( 'click', '.member-item', function() {
+
+        var item = jq( this ).closest( '.member-item' );
+        var user_id = item.attr( 'data-uid' );
+        var length = jq( '.messages-wrap .recipients .member-item' ).length;
+
+        if ( item.hasClass( 'checked' ) ) {
+
+            jq( '.messages-wrap .recipients .member-' + user_id ).fadeOut( function() { jq( '.messages-wrap .recipients .member-' + user_id ).remove() } );
+            item.removeClass( 'checked' );
+
+            if ( length == 2 ) jq( '.compose-wrap .subject' ).slideUp();
+
+        } else {
+
+            jq( '.messages-wrap .recipients' ).append( item.clone() );
+            jq( '.messages-wrap .recipients' ).removeClass( 'warning' );
+            item.addClass( 'checked' );
+
+            if ( length == 1 ) jq( '.compose-wrap .subject' ).slideDown();
+
+        }
+
+        return false;
+
+    });
+
+
+    //
+	// Удалить пользователя из списка выбранных
+	//
+
+	jq( '.messages-wrap' ).on( 'click', 'a.member-remove', function() {
+
+        var item = jq( this ).closest( '.member-item' );
+        var user_id = item.attr( 'data-uid' );
+        var length = jq( '.messages-wrap .recipients .member-item' ).length;
+
+        jq( this ).closest( '.member-item' ).fadeOut( function() { jq( this ).closest( '.member-item' ).remove() } );
+        jq( '.thread-wrap .member-' + user_id ).removeClass( 'checked' );
+
+        if ( length == 2 ) jq( '.compose-wrap .subject' ).slideUp();
+
+        return false;
+
+    });
+
+
+    //
+	// Отправить новое сообщение
+	//
+
+	jq( '.messages-wrap' ).on( 'submit', '.compose-wrap form', function() {
+
+        var recipients = jq( '.messages-wrap .recipients' );
+        var message = jq( '#message', this ).val();
+        var nonce = jq( '#nonce', this ).val();
+        var email = ( jq( '#email', this ).prop( 'checked' ) ) ? 1 : 0;
+        var subject = jq( '#subject', this ).val();
+        var recipient_ids = [];
+
+        if ( recipients.html().trim() === '' ) {
+
+            jq( '.messages-wrap .recipients' ).addClass( 'warning' );
+
+        } else if ( message.trim() === '' ) {
+
+            jq( '.messages-wrap .textarea' ).addClass( 'warning' );
+
+        } else {
+
+
+            jq( '.messages-wrap .recipients .member-item' ).each( function( i, elem ) { recipient_ids.push( jq( elem ).attr( 'data-uid' ) ); } );
+
+            jq.post( ajaxurl, {
+                action: 'mif-bpc-dialogues-compose-send',
+                _wpnonce: nonce,
+                email: email,
+                message: message,
+                subject: subject,
+                recipient_ids: recipient_ids,
+            },
+            function( response ) {
+
+                modify_page( response ); 
+                jq( '.thread-wrap .member-item' ).removeClass( 'checked' );
+                // console.log(response);
+
+            });
+
+        }
+
+        // jq( this ).closest( '.member-item' ).fadeOut();
+
+        return false;
+
+    });
+
+
+    //
+	// Убрать рамку предупреждения с текстового поля при его выборе
+	//
+
+	jq( '.messages-wrap' ).on( 'focus', '.compose-wrap textarea', function() { jq( '.messages-wrap .textarea' ).removeClass( 'warning' ); } )
 
 
     //
@@ -100,8 +211,9 @@ jQuery( document ).ready( function( jq ) {
         function( response ) {
 
             // console.log(response);
+            
+            // jq( '.dialogues-page' ).addClass( 'compose' );
             modify_page( response ); 
-            jq( '.dialogues-page' ).addClass( 'compose' );
             // scroll_threads_to_top();
 
         });
@@ -445,21 +557,25 @@ function dialogues_update_page()
     var last_message_id = jq( '.messages-form #last_message_id' ).val();
     var nonce = jq( '#dialogues_refresh_nonce' ).val();
     var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
+    var threads_mode = jq( '#threads_mode' ).val();
 
     jq.post( ajaxurl, {
         action: 'mif-bpc-dialogues-refresh',
         thread_id: thread_id,
         last_message_id: last_message_id,
         threads_update_timestamp: threads_update_timestamp,
+        threads_mode: threads_mode,
         _wpnonce: nonce,
     },
     function( response ) {
 
         // console.log(response);
         modify_page( response ); 
-        scroll_threads_to_top();
+        // scroll_threads_to_top();
+        jq( '.dialogues-page' ).removeClass( 'compose' );
 
     });
+
 }
 
 
@@ -666,7 +782,6 @@ function modify_page( response )
 
     }
 
-
     // Загрузка в окно списка диалогов
 
     if ( data['threads_window'] ) {
@@ -678,6 +793,39 @@ function modify_page( response )
             jq( '.thread-scroller-container').animate( { 'opacity': 1 } );
 
         })
+
+        jq( '#threads_mode' ).val( 'threads' );
+        jq( '.dialogues-page' ).removeClass( 'compose' );
+
+    }
+
+    // Форма написания нового сообщения
+
+    if ( data['compose_form'] ) {
+
+        jq( '.messages-items').animate( { 'opacity': 0 }, function() {
+
+            jq( '.dialogues-page' ).addClass( 'compose' );
+            jq( '.messages-items').html( data['compose_form'] );
+            jq( '.messages-items').animate( { 'opacity': 1 } );
+
+        })
+
+    }
+
+    // Список пользователей
+
+    if ( data['compose_members'] ) {
+
+        jq( '.thread-scroller-container').animate( { 'opacity': 0 }, function() {
+
+            jq( '.thread-scroller-container').html( data['compose_members'] );
+            jq( '.thread-scroller-container').animate( { 'opacity': 1 } );
+
+        })
+
+        jq( '#threads_mode' ).val( 'compose' );
+        jq( '.dialogues-page' ).addClass( 'compose' );
 
     }
 
