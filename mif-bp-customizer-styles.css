@@ -219,6 +219,7 @@
     padding: 5px 10px;
     margin-top: 1rem;
     margin-right: 20px;
+    overflow-wrap: break-word;
 }
 
 .dialogues-page .attach .icon {
@@ -422,17 +423,23 @@
 .dialogues-page .messages-header {
     /*border-left: 1px solid #E3E4E5;*/
     height: 50px;
-    padding: 0 20px;
+    padding: 0 10px 0 20px;
+}
+
+.dialogues-page .messages-header .custom-button {
+    float: right;
+    margin-top: 10px;
 }
 
 .dialogues-page .messages-header-content {
-    height: 50px;
+    /*height: 50px;
     display: table-cell;
-    vertical-align: middle;
+    vertical-align: middle;*/
 }
 
 .dialogues-page .messages-header-content .title {
     font-weight: bold;
+    line-height: 50px;
 }
 
 .dialogues-page .messages-header-content .time-since {

@@ -76,7 +76,9 @@ class mif_bpc_dialogues {
         // add_action( 'wp_enqueue_scripts', 'mif_bp_customizer_styles' );
 
         add_action( 'wp_ajax_mif-bpc-dialogues-thread-items-more', array( $this, 'ajax_thread_more_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-dialogues-thread-search', array( $this, 'ajax_thread_search_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-member-items-more', array( $this, 'ajax_member_more_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-dialogues-member-search', array( $this, 'ajax_member_search_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages', array( $this, 'ajax_messages_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages-items-more', array( $this, 'ajax_messages_more_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages-send', array( $this, 'ajax_messages_send_helper' ) );
@@ -197,28 +199,34 @@ class mif_bpc_dialogues {
     function get_thread_title( $thread, $links = false )
     {
         $sender_ids = $thread['user_ids'];
-        // $subject = $thread['subject'];
+        $subject = $thread['subject'];
 
         $arr = array();
-        // $arr[] = count( $sender_ids );
 
-        if ( count( $sender_ids ) > 3 ) {
+        // if ( count( $sender_ids ) > 1 && isset( $subject ) && $subject != 'default' ) {
 
-            $arr[] = $this->get_username( $thread['sender_id'], $links );
-            $sender_ids_without_sender_id = array_merge( $sender_ids, array( $thread['sender_id'] ) );
-            $arr[] = $this->get_username( $sender_ids_without_sender_id[0], $links );
+        //     $title = $subject;
 
-            $title = implode( ', ', $arr );
-            $title .= ' ' . sprintf( __( 'и другие (всего %s)', 'mif-bp-customizer' ), number_format_i18n( count( $sender_ids ) ) );
-            // $title = ( isset( $subject ) ) ? $subject : sprintf( __( 'Получателей: %s', 'mif-bp-customizer' ), number_format_i18n( count( $sender_ids ) ) );
+        // } else {
 
-        } else {
+            if ( count( $sender_ids ) > 3 ) {
 
-            foreach ( (array) $sender_ids as $sender_id ) $arr[] = $this->get_username( $sender_id, $links );
-            $title = implode( ', ', $arr );
+                    $arr[] = $this->get_username( $thread['sender_id'], $links );
+                    $sender_ids_without_sender_id = array_merge( $sender_ids, array( $thread['sender_id'] ) );
+                    $arr[] = $this->get_username( $sender_ids_without_sender_id[0], $links );
 
-        }
+                    $title = implode( ', ', $arr );
+                    $title .= ' ' . sprintf( __( 'и другие (всего %s)', 'mif-bp-customizer' ), number_format_i18n( count( $sender_ids ) ) );
+                    // $title = ( isset( $subject ) ) ? $subject : sprintf( __( 'Получателей: %s', 'mif-bp-customizer' ), number_format_i18n( count( $sender_ids ) ) );
 
+            } else {
+
+                foreach ( (array) $sender_ids as $sender_id ) $arr[] = $this->get_username( $sender_id, $links );
+                $title = implode( ', ', $arr );
+
+            }
+
+        // }
 
         return apply_filters( 'mif_bpc_dialogues_thread_title', $title, $thread );
     }
@@ -245,32 +253,6 @@ class mif_bpc_dialogues {
 
         return apply_filters( 'mif_bpc_dialogues_get_username', $username, $user_id, $links );
     }
-
-
-    // //
-    // // Получить получателей сообщения, кропе самого пользователя
-    // //
-
-    // function get_recipients_ids()
-    // {
-    //     global $messages_template;
-
-    //     $recipients = $messages_template->thread->recipients;
-    //     $user_id = bp_loggedin_user_id();
-
-    //     if ( isset( $recipients[$user_id] ) ) unset( $recipients[$user_id] );
-
-    //     return array_keys( $recipients );
-    // }
-
-    //
-    // Получить время последнего сообщения
-    //
-
-    // function get_last_message_date( $date )
-    // {
-    //     return apply_filters( 'mif_bpc_dialogues_last_message_date', bp_core_time_since( $date ) );
-    // }
 
 
     //
@@ -305,25 +287,18 @@ class mif_bpc_dialogues {
         $title = $this->get_thread_title( $thread );
         $time_since = apply_filters( 'mif_bpc_dialogues_thread_item_time_since', $this->time_since( $thread['date_sent'] ) );
         $message_excerpt = $this->get_message_excerpt( $thread['message'] );
-        // $nonce = wp_create_nonce( 'mif-bpc-dialogues-thread-nonce' );
         $unread_count = $thread['unread_count'];
         $class = ( $unread_count ) ? ' unread' : '';
-        // p($avatar);
         $remove_url = $bp->displayed_user->domain . $bp->messages->slug . '/dialogues/';
 
         $out = '';
 
-        // $out .= '<div class="thread-item' . $class . '" id="thread-item-' . $thread['thread_id'] . '" data-thread-id="' . $thread['thread_id'] . '" data-nonce="' . $nonce . '">';
         $out .= '<div class="thread-item' . $class . '" id="thread-item-' . $thread['thread_id'] . '" data-thread-id="' . $thread['thread_id'] . '">';
         $out .= '<div>';
         $out .= '<span class="avatar">' . $avatar . '</span>';
         $out .= '<span class="content">';
-        // $out .= '<span class="title">' . $title . '</span><br />';
-        // $out .= '<span class="time-since">' . $time_since . '</span><br />';
-        // $out .= $thread['unread_count'];
-        if ($unread_count) $out .= '<span class="unread_count">' . $unread_count . '</span>';
+        if ( $unread_count ) $out .= '<span class="unread_count">' . $unread_count . '</span>';
         $out .= '<div class="remove"><div class="custom-button"><a href="' . $url . '" class="button thread-remove" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div>';
-        // $out .= '<span class="unread_count">' . $unread_count . '</span>';
         $out .= '<span class="title">' . $title . '</span>';
         $out .= '<div><span class="time-since">' . $time_since . '</span></div>';
         $out .= '<div><span class="message-excerpt">' . $message_excerpt . '</span></div>';
@@ -389,6 +364,20 @@ class mif_bpc_dialogues {
     }
 
 
+    //
+    // Поиск диалогов
+    //
+
+    function ajax_thread_search_helper()
+    {
+        check_ajax_referer( 'mif-bpc-dialogues-search-nonce' );
+
+        echo json_encode( array( 'threads_window_update' => $this->get_threads_items() ) );
+
+        wp_die();
+    }
+
+
 
     //
     // Получить данные списка диалогов
@@ -406,6 +395,8 @@ class mif_bpc_dialogues {
         $user_id_sql = $wpdb->prepare( 'r.user_id = %d', $user_id );
         $pag_sql = $wpdb->prepare( "LIMIT %d, %d", intval( ( $page ) * $this->threads_on_page ), intval( $this->threads_on_page ) );
 
+        // Условие для обновления
+        
         if ( isset( $last_updated ) ) {
 
             $sql = array();
@@ -421,8 +412,39 @@ class mif_bpc_dialogues {
                 $pag_sql = '';
 
             }
+        }
+
+        // Условие для поиска
+
+        if ( isset( $_POST['s'] ) ) {
+
+            // Выбрать собеседников всех диалогов
+
+            $recipients = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT r2.user_id FROM {$bp->messages->table_name_recipients} AS r1 INNER JOIN {$bp->messages->table_name_recipients} AS r2 ON r1.thread_id = r2.thread_id WHERE r1.user_id=%d AND r1.is_deleted=0 AND r2.user_id<>%d AND r2.is_deleted=0 ORDER BY r2.user_id", $user_id, $user_id ) );
+
+            // Отобрать только тех, кто подходит по поиску
+
+            $recipients_search_result = new BP_User_Query( array( 'include' => $recipients, 'search_terms' => $_POST['s'] ));
+
+            if ( ! empty( $recipients_search_result->user_ids ) ) {
+                
+                // Выбрать номера диалогов пользователя и тех людей, которые подошли по поиску
+
+                $resipients_ids = implode( ',', $recipients_search_result->user_ids );
+                $threads_arr = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT r1.thread_id FROM {$bp->messages->table_name_recipients} AS r1 INNER JOIN {$bp->messages->table_name_recipients} AS r2 ON r1.thread_id = r2.thread_id WHERE r1.user_id=%d AND r1.is_deleted=0 AND r2.user_id IN ({$resipients_ids}) AND r2.is_deleted=0", $user_id ) );
+
+                // Сформировать требование для поиска диалога
+
+                $search_sql = ( $threads_arr ) ? "AND r.thread_id IN (" . implode( ',', $threads_arr ) . ")" : "AND 1=0";
+
+            } else {
+
+                $search_sql = "AND 1=0";
+
+            }
 
         }
+
 
    		$sql = array();
 		$sql['select'] = 'SELECT m.thread_id, MAX(m.date_sent) AS date_sent, MAX(m.id) AS message_id, r.unread_count';
@@ -432,6 +454,8 @@ class mif_bpc_dialogues {
 		$sql['misc']   = "GROUP BY m.thread_id ORDER BY date_sent DESC {$pag_sql}";
 
         $threads = $wpdb->get_results( implode( ' ', $sql ) );
+
+        if ( empty( $threads) ) return array();
 
         $arr = array();
         $thread_ids = array();
@@ -446,7 +470,6 @@ class mif_bpc_dialogues {
             $arr[(int) $thread->thread_id]['unread_count'] = $thread->unread_count;
 
         }
-
 
         // Для каждого диалога из списка узнать получателей (кроме текущего пользователя)
 
@@ -658,8 +681,8 @@ class mif_bpc_dialogues {
         $url = bp_core_get_user_domain( $message->sender_id );
 
         $avatar_size = apply_filters( 'mif_bpc_dialogues_avatar_message_size', $this->avatar_message_size );
-        $avatar = '<a href="' . $url . '">' . get_avatar( $message->sender_id, $avatar_size ) . '</a>';
-        $title = '<a href="' . $url . '">' . $this->get_username( $message->sender_id ) . '</a>';
+        $avatar = '<a href="' . $url . '" target="blank">' . get_avatar( $message->sender_id, $avatar_size ) . '</a>';
+        $title = '<a href="' . $url . '" target="blank">' . $this->get_username( $message->sender_id ) . '</a>';
         $time_since = apply_filters( 'mif_bpc_dialogues_message_item_time_since', $this->time_since( $message->date_sent ) );
         $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message->message );
         $new = ( $message->new ) ? ' new' : '';
@@ -871,8 +894,8 @@ class mif_bpc_dialogues {
         $out .= '<form>';
         $out .= '<div>' . __( 'Кому:', 'mif-bp-customizer' ) . '</div>';
         $out .= '<div class="recipients"></div>';
-        $out .= '<div class="subject">' . __( 'Тема:', 'mif-bp-customizer' ) . '</div>';
-        $out .= '<div class="subject"><input type="text" name="subject" id="subject"></div>';
+        // $out .= '<div class="subject">' . __( 'Тема:', 'mif-bp-customizer' ) . '</div>';
+        // $out .= '<div class="subject"><input type="text" name="subject" id="subject"></div>';
         $out .= '<div>' . __( 'Сообщение:', 'mif-bp-customizer' ) . '</div>';
         $out .= '<div class="textarea"><textarea name="message" id="message"></textarea></div>';
         $out .= '<div><label><input type="checkbox" value="on" name="email" id="email"> ' . __( 'Оповестить по почте', 'mif-bp-customizer' ) . '</label></div>';
@@ -1000,7 +1023,7 @@ class mif_bpc_dialogues {
 
             echo json_encode( array( 
                             'messages_header' => '<!-- empty -->',
-                            'messages_page' => __( 'Ошибка. Пользователи не существуют', 'mif-bp-customizer' ),
+                            'messages_page' => __( 'Ошибка. Указанные вами пользователи не существуют', 'mif-bp-customizer' ),
                             'threads_window' => $this->get_threads_items(),
                                 ) );
             wp_die();
@@ -1010,7 +1033,7 @@ class mif_bpc_dialogues {
         // Сохранить сообщение
 
         $thread_id = $this->get_thread_id( $recipient_clean_ids );
-        $res = $this->send( $message, $thread_id );
+        $res = $this->send( $message, $thread_id, NULL, $subject );
 
         if ( $res ) {
 
@@ -1143,7 +1166,6 @@ class mif_bpc_dialogues {
         if ( count( $recipient_ids ) == 1 ) {
 
             $recipient_id = $recipient_ids[0];
-
             if ( $recipient_id == $sender_id ) return false;
 
             // Получить идентификатор активного диалога
@@ -1222,9 +1244,11 @@ class mif_bpc_dialogues {
 
         $out = '';
         $out .= '<div class="remove-window">';
+        $out .= '<i class="fa fa-5x  fa-exclamation-circle " aria-hidden="true"></i>';
+        $out .= '<p>';
         $out .=  __( 'Вы хотите <strong>удалить все сообщения</strong> этого диалога.', 'mif-bp-customizer' );
         $out .= '<br />';
-        $out .=  __( 'Будьте внимательны, эту операцию <strong>нельзя будет отменить</strong>.', 'mif-bp-customizer' );
+        $out .=  __( 'Будьте внимательны, эту операцию <strong>нельзя отменить</strong>.', 'mif-bp-customizer' );
         $out .=  '<p><div class="generic-button"><a href="' . $url . '" class="thread-remove">' . __( 'Удалить', 'mif-bp-customizer' ) . '</a></div>';
         $out .=  '<div class="generic-button"><a href="' . $url . '" class="thread-no-remove">' . __( 'Не удалять', 'mif-bp-customizer' ) . '</a></div>';
         $out .= '</div>';
@@ -1266,7 +1290,6 @@ class mif_bpc_dialogues {
     }
 
 
-
     //
     // Форма создания нового сообщения
     //
@@ -1278,11 +1301,29 @@ class mif_bpc_dialogues {
         echo json_encode( array( 
                         'compose_members' => $this->get_members_items(),
                         'compose_form' => $this->get_compose_form(),
-                        'messages_header' => '<strong>' . __( 'Новое сообщение', 'mif-bp-customizer' ) . '</strong>',
+                        'messages_header' => $this->get_compose_header(),
                         'messages_form' => '<div class="form-empty"></div>',
                         ) );
 
         wp_die();
+    }
+
+
+    //
+    // Заголовок формы нового сообщения
+    //
+
+    function get_compose_header()
+    {
+        global $bp;
+
+        $out = '';
+        $url = $bp->displayed_user->domain . $bp->messages->slug . '/dialogues/';
+
+        $out .= '<div class="custom-button"><a href="' .$url . '" class="button dialogues-refresh" title="' . __( 'Отменить', 'mif-bp-customizer' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div>';
+        $out .= '<span class="title">' . __( 'Новое сообщение', 'mif-bp-customizer' ) . '</span>';
+
+        return apply_filters( 'mif_bpc_dialogues_get_compose_header', $out );
     }
 
 
@@ -1298,6 +1339,21 @@ class mif_bpc_dialogues {
         $page = (int) $_POST['page'];
 
         echo json_encode( array( 'threads_more' => $this->get_members_items( $page ) ) );
+
+        wp_die();
+    }
+
+
+
+    //
+    // Поиск пользователей 
+    //
+
+    function ajax_member_search_helper()
+    {
+        check_ajax_referer( 'mif-bpc-dialogues-search-nonce' );
+
+        echo json_encode( array( 'compose_members_update' => $this->get_members_items() ) );
 
         wp_die();
     }
@@ -1336,7 +1392,7 @@ class mif_bpc_dialogues {
 
         $page ++;
         $nonce = wp_create_nonce( 'mif-bpc-dialogues-member-items-more-nonce' );
-        $arr[] = '<div class="member-item loader ajax-ready" data-mode="members" data-page="' . $page . '" data-nonce="' . $nonce . '"></div>';
+        $arr[] = '<div class="member-item loader ajax-ready" data-mode="compose" data-page="' . $page . '" data-nonce="' . $nonce . '"></div>';
 
         return apply_filters( 'mif_bpc_dialogues_get_members_items', implode( "\n", $arr ), $arr, $page );
     }
@@ -1759,6 +1815,9 @@ function mif_bpc_the_dialogues_threads()
     $nonce = wp_create_nonce( 'mif-bpc-dialogues-compose-nonce' );
     echo '<input type="hidden" name="dialogues_compose_nonce" id="dialogues_compose_nonce" value="' . $nonce . '">';
 
+    $nonce = wp_create_nonce( 'mif-bpc-dialogues-search-nonce' );
+    echo '<input type="hidden" name="dialogues_search_nonce" id="dialogues_search_nonce" value="' . $nonce . '">';
+
 }
 
 
@@ -1799,7 +1858,7 @@ function mif_bpc_get_dialogues_default_page()
     $out .= '<div class="messages-empty"><div>';
     $out .= '<i class="fa fa-5x fa-comments-o" aria-hidden="true"></i>';
     $out .= '<p>' . __( 'Выберите диалог или', 'mif-bp-customizer' ) . '<br />';
-    $out .= '<a href="' . $url . '">' . __( 'начните новый', 'mif-bp-customizer' ) . '</a></p>';
+    $out .= '<a href="' . $url . '" class="dialogues-compose">' . __( 'начните новый', 'mif-bp-customizer' ) . '</a></p>';
     $out .= '</div></div>';
 
     return $out;

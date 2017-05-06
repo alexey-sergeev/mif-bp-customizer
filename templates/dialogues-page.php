@@ -23,7 +23,7 @@
     <div class="dialogues-body clearfix">
         <div class="members">
 
-            <div class="search"><input type="text" id="dialogues_thread_search" placeholder="<?php echo __( 'Поиск', 'mif-bp-customizer' ) ?>"></div>
+            <div class="search"><input type="text" id="search" placeholder="<?php echo __( 'Поиск', 'mif-bp-customizer' ) ?>"></div>
 
             <div class="thread-wrap">
 

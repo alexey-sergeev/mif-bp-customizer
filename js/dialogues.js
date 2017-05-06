@@ -43,16 +43,17 @@ jQuery( document ).ready( function( jq ) {
         var loader = jq( '.thread-scroller .loader' );
         var loader_top = loader.offset().top;
         var scroller_bottom = jq( '.scroller' ).offset().top + ( jq( '.scroller' ).height() * 2 );
-        var search = jq( '#dialogues_thread_search' ).val();
+        var search = jq( '#search' ).val();
         
         if ( loader_top < scroller_bottom && loader.hasClass( 'ajax-ready' ) ) {
+
             loader.removeClass( 'ajax-ready' );
 
             var page = loader.attr( 'data-page' );
             var nonce = loader.attr( 'data-nonce' );
             var mode = loader.attr( 'data-mode' );
 
-            var action = ( mode == 'members' ) ? 'mif-bpc-dialogues-member-items-more' : 'mif-bpc-dialogues-thread-items-more';
+            var action = ( mode == 'compose' ) ? 'mif-bpc-dialogues-member-items-more' : 'mif-bpc-dialogues-thread-items-more';
 
             jq.post( ajaxurl, {
                 action: action,
@@ -70,6 +71,31 @@ jQuery( document ).ready( function( jq ) {
         }
         
     });
+
+
+    jq( '.dialogues-page' ).on( 'input', '.search', function() {
+
+        var search = jq( '#search' ).val();
+        var nonce = jq( '#dialogues_search_nonce' ).val();
+        var mode = jq( '#threads_mode' ).val();
+
+        var action = ( mode == 'compose' ) ? 'mif-bpc-dialogues-member-search' : 'mif-bpc-dialogues-thread-search';
+
+        jq.post( ajaxurl, {
+            action: action,
+            s: search,
+            _wpnonce: nonce,
+        },
+        function( response ) { 
+
+        // console.log( search );
+            // console.log(response);
+            modify_page( response ); 
+
+        });
+        
+
+    } )
 
 
     //
@@ -211,16 +237,14 @@ jQuery( document ).ready( function( jq ) {
         function( response ) {
 
             // console.log(response);
-            
-            // jq( '.dialogues-page' ).addClass( 'compose' );
             modify_page( response ); 
-            // scroll_threads_to_top();
 
         });
 
         return false;
 
     });
+
 
 
     //
@@ -397,8 +421,6 @@ jQuery( document ).ready( function( jq ) {
 
         // Снять отметки о непрочитанных
         jq( '.messages-scroller .message-item.new' ).removeClass( 'new' );
-        
-
 
         jq.post( ajaxurl, {
             action: 'mif-bpc-dialogues-messages-send',
@@ -432,26 +454,6 @@ jQuery( document ).ready( function( jq ) {
     // Включить кастомный скроллинг для списка диалогов
 
     threads_scroll();
-
-    // 
-    // Включить авторесайз textarea
-    // 
-
-    // autosize( jq( '.messages-form textarea' ) );
-    // message_items_height_correct();
-
-
-    // 
-    // Корректировать размер страницы при изменении размера textarea
-    // 
-
-	// jq( '.messages-form textarea' ).on( 'autosize:resized', function() {
-
-    //     message_items_height_correct();
-
-    // } );
-    
-
 
 });
 
@@ -799,6 +801,16 @@ function modify_page( response )
 
     }
 
+    // Обновить окно списка диалогов
+
+    if ( data['threads_window_update'] ) {
+
+        jq( '.thread-scroller-container').html( data['threads_window_update'] );
+        jq( '#threads_mode' ).val( 'threads' );
+        jq( '.dialogues-page' ).removeClass( 'compose' );
+
+    }
+
     // Форма написания нового сообщения
 
     if ( data['compose_form'] ) {
@@ -811,24 +823,47 @@ function modify_page( response )
 
         })
 
+        jq( '#threads_mode' ).val( 'compose' );
+
     }
 
     // Список пользователей
 
     if ( data['compose_members'] ) {
 
-        jq( '.thread-scroller-container').animate( { 'opacity': 0 }, function() {
+        jq( '.thread-scroller-container' ).animate( { 'opacity': 0 }, function() {
 
-            jq( '.thread-scroller-container').html( data['compose_members'] );
-            jq( '.thread-scroller-container').animate( { 'opacity': 1 } );
+            jq( '.dialogues-page' ).addClass( 'compose' );
+            jq( '.thread-scroller-container' ).html( data['compose_members'] );
+            jq( '.thread-scroller-container' ).animate( { 'opacity': 1 } );
 
         })
 
         jq( '#threads_mode' ).val( 'compose' );
-        jq( '.dialogues-page' ).addClass( 'compose' );
 
     }
 
+    // Обновить список пользователей
+
+    if ( data['compose_members_update'] ) {
+
+        jq( '.thread-scroller-container' ).html( data['compose_members_update'] );
+        jq( '.dialogues-page' ).addClass( 'compose' );
+        jq( '#threads_mode' ).val( 'compose' );
+
+    }
+
+    // // Заголовок окна создания сообщения
+
+    // if ( data['compose_header'] ) {
+
+    //     jq( '.messages-header' ).animate( { 'opacity': 0 }, function() {
+
+    //         jq( '.messages-header' ).html( data['compose_header'] );
+    //         jq( '.messages-header' ).animate( { 'opacity': 1 } );
+
+    //     } )
+    // }
 
     
 
