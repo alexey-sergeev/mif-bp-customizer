@@ -35,8 +35,6 @@
 
         <div class="messages">
 
-            <?php mif_bpc_the_dialogues_dialog(); ?>
-
             <div class="messages-header">
                 <div class="messages-header-content">
                 <!-- ajaxed -->

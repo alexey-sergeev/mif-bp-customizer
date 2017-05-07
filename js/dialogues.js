@@ -28,8 +28,6 @@ jQuery( document ).ready( function( jq ) {
 
         });
 
-
-
     })
 
 
@@ -63,7 +61,6 @@ jQuery( document ).ready( function( jq ) {
             },
             function( response ) { 
 
-                // console.log(response);
                 modify_page( response ); 
 
             });
@@ -72,6 +69,10 @@ jQuery( document ).ready( function( jq ) {
         
     });
 
+
+    //
+	// Поиск пользователей и диалогов
+	//
 
     jq( '.dialogues-page' ).on( 'input', '.search', function() {
 
@@ -88,8 +89,6 @@ jQuery( document ).ready( function( jq ) {
         },
         function( response ) { 
 
-        // console.log( search );
-            // console.log(response);
             modify_page( response ); 
 
         });
@@ -174,7 +173,6 @@ jQuery( document ).ready( function( jq ) {
 
         } else {
 
-
             jq( '.messages-wrap .recipients .member-item' ).each( function( i, elem ) { recipient_ids.push( jq( elem ).attr( 'data-uid' ) ); } );
 
             jq.post( ajaxurl, {
@@ -194,8 +192,6 @@ jQuery( document ).ready( function( jq ) {
             });
 
         }
-
-        // jq( this ).closest( '.member-item' ).fadeOut();
 
         return false;
 
@@ -236,7 +232,6 @@ jQuery( document ).ready( function( jq ) {
         },
         function( response ) {
 
-            // console.log(response);
             modify_page( response ); 
 
         });
@@ -274,7 +269,6 @@ jQuery( document ).ready( function( jq ) {
         },
         function( response ) {
 
-            // console.log(response);
             modify_page( response ); 
             scroll_threads_to_top();
 
@@ -306,8 +300,6 @@ jQuery( document ).ready( function( jq ) {
 
             jq( '.messages-items #message-' + message_id ).fadeOut();
             modify_page( response ); 
-            // console.log( response );
-            // scroll_threads_to_top();
 
         });
 
@@ -361,7 +353,6 @@ jQuery( document ).ready( function( jq ) {
 
             modify_page( response ); 
             jq( '#thread-item-' + thread_id ).fadeOut();
-            // console.log( response );
 
         });
         
@@ -432,7 +423,6 @@ jQuery( document ).ready( function( jq ) {
         },
         function( response ) {
 
-            // console.log(response);
             modify_page( response ); 
 
         });
@@ -450,6 +440,34 @@ jQuery( document ).ready( function( jq ) {
 
     });
 
+
+    //
+    // Обработка клавиш на странице диалога
+    //
+
+    jq( document ).keydown ( function( e ) {
+
+        if ( e.which == 27 ) {
+
+            var nonce = jq( '#dialogues_refresh_nonce' ).val();
+            var threads_mode = jq( '#threads_mode' ).val();
+
+            jq.post( ajaxurl, {
+                action: 'mif-bpc-dialogues-refresh',
+                _wpnonce: nonce,
+                threads_mode: threads_mode,
+            },
+            function( response ) {
+
+                modify_page( response ); 
+                jq( '.dialogues-page' ).removeClass( 'compose' );
+
+            });
+
+            return false;
+        }
+
+    });
 
     // Включить кастомный скроллинг для списка диалогов
 
@@ -482,14 +500,14 @@ function threads_scroll()
 
 function message_items_height_correct()
 {
-        var h_form = jq( '.dialogues-page .messages-form' ).height();
-        var margin = h_form + 50;
-        var padding = margin + 30;
+    var h_form = jq( '.dialogues-page .messages-form' ).height();
+    var margin = h_form + 50;
+    var padding = margin + 30;
 
-        jq( '.dialogues-page .messages-form' ).css( 'margin-top', '-' + margin + 'px' );
-        jq( '.dialogues-page .messages-wrap' ).css( 'padding-bottom', padding + 'px' );
-        jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
-        // console.log(margin);
+    jq( '.dialogues-page .messages-form' ).css( 'margin-top', '-' + margin + 'px' );
+    jq( '.dialogues-page .messages-wrap' ).css( 'padding-bottom', padding + 'px' );
+    jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
+
 }
 
 
@@ -571,9 +589,7 @@ function dialogues_update_page()
     },
     function( response ) {
 
-        // console.log(response);
         modify_page( response ); 
-        // scroll_threads_to_top();
         jq( '.dialogues-page' ).removeClass( 'compose' );
 
     });
@@ -702,7 +718,6 @@ function modify_page( response )
             var thread_id = jq( '.messages-form #thread_id' ).val();
             jq( '.thread-scroller-container .current' ).removeClass( 'current' );
             jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );
-            // console.log(thread_id);
 
         } )
     }
@@ -724,7 +739,6 @@ function modify_page( response )
 
             // Пролистать в самый низ
             scroll_message_to_bottom();
-            // jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
 
             // Показать
             jq( '.messages-items').animate( { 'opacity': 1 } );
@@ -766,7 +780,6 @@ function modify_page( response )
 
         // Пролистать в самый низ
         scroll_message_to_bottom();
-        // jq( '.messages-scroller' ).scrollTop( jq( '.messages-scroller-container' ).height() );
 
     }
 
@@ -791,7 +804,6 @@ function modify_page( response )
         jq( '.thread-scroller-container').animate( { 'opacity': 0 }, function() {
 
             jq( '.thread-scroller-container').html( data['threads_window'] );
-            // jq( '.thread-scroller-container').animate( { 'opacity': 1 }, function() { threads_scroll() } );
             jq( '.thread-scroller-container').animate( { 'opacity': 1 } );
 
         })
@@ -852,25 +864,6 @@ function modify_page( response )
         jq( '#threads_mode' ).val( 'compose' );
 
     }
-
-    // // Заголовок окна создания сообщения
-
-    // if ( data['compose_header'] ) {
-
-    //     jq( '.messages-header' ).animate( { 'opacity': 0 }, function() {
-
-    //         jq( '.messages-header' ).html( data['compose_header'] );
-    //         jq( '.messages-header' ).animate( { 'opacity': 1 } );
-
-    //     } )
-    // }
-
-    
-
-    // // Выделить блок текущего сообщения
-    // var thread_id = jq( '.messages-form #thread_id' ).val();
-    // jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );
-    // console.log(thread_id);
 
 }
 
