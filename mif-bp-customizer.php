@@ -93,8 +93,6 @@ function get_mif_bpc_options()
 
 
 
-
-
 //
 // Подключаем свой файл CSS
 //
@@ -106,12 +104,40 @@ function mif_bp_customizer_styles()
 {
 	wp_register_style( 'mif-bp-customizer-styles', plugins_url( 'mif-bp-customizer-styles.css', __FILE__ ) );
 	wp_enqueue_style( 'mif-bp-customizer-styles' );
+
 }
 
 
 
 //
-// Перемещае кнопку "Добавить в друзья" на третье место
+// Добавляем папку плагина в число папок, где производится поиск шаблонов
+//
+//
+
+add_filter( 'bp_get_template_stack', 'mif_bpс_template_stack' );
+
+function mif_bpс_template_stack( $stack )
+{
+    array_unshift( $stack, plugin_dir_path( __FILE__ ) . 'templates' );
+    return $stack;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+// Перемещаем кнопку "Добавить в друзья" на третье место
 //
 //
 

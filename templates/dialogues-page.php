@@ -37,7 +37,7 @@
 
             <div class="messages-header">
                 <div class="messages-header-content">
-                <!-- ajaxed -->
+                <?php mif_bpc_the_dialogues_default_header(); ?>
                 </div>
             </div>
 
@@ -53,8 +53,8 @@
 
             <div class="messages-form">
                 <div class="messages-form-content">
-                <div class="form-empty"></div>
-                <?php // mif_bpc_the_dialogues_form(); ?>
+                <!--<div class="form-empty"></div>-->
+                <?php mif_bpc_the_dialogues_default_form(); ?>
                 </div>
             </div>
 

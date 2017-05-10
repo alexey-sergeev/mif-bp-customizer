@@ -495,6 +495,24 @@ function threads_scroll()
 
 
 // 
+// Включить кастомный скроллинг для списка сообщений
+// 
+
+function messages_scroll()
+{
+    baron( jq( '.messages-scroller-wrap' ), {
+                    scroller: '.messages-scroller',
+                    container: '.messages-scroller-container',
+                    bar: '.messages-scroller__bar',
+                    barTop: 0,
+                    barOnCls: 'messages-scroller__bar_state_on',
+                    drag: 50,
+                } );
+}
+
+
+
+// 
 // Корректировать высоту страницы в зависимости от высоты формы ввода
 // 
 
@@ -518,17 +536,9 @@ function message_items_height_correct()
 function messages_actions_init()
 {
 
-    // Показывает кастомный скроллинг для сообщений
+    // Показать кастомный скроллинг для сообщений
 
-    baron( jq( '.messages-scroller-wrap' ), {
-                    scroller: '.messages-scroller',
-                    container: '.messages-scroller-container',
-                    bar: '.messages-scroller__bar',
-                    barTop: 0,
-                    barOnCls: 'messages-scroller__bar_state_on',
-                    drag: 50,
-                } );
-
+    messages_scroll();
 
     // Вывести продолжение списка сообщений
 

@@ -60,8 +60,13 @@ class mif_bpc_dialogues {
     {
        
         // Страница диалогов
-        add_action( 'bp_activity_setup_nav', array( $this, 'dialogues_nav' ) );
-        add_action( 'wp_enqueue_scripts', array( $this, 'load_js_helper' ) );            				
+        // add_action( 'bp_activity_setup_nav', array( $this, 'dialogues_nav' ) );
+        add_action( 'bp_init', array( $this, 'init' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'load_js_helper' ) );   
+
+        add_filter( 'bp_get_template_part', array( $this, 'template' ), 10, 3 );
+        // add_filter( 'bp_get_template_stack', array( $this, 'stack' ) );
+                 				
 
         add_action( 'wp_ajax_mif-bpc-dialogues-thread-items-more', array( $this, 'ajax_thread_more_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-thread-search', array( $this, 'ajax_thread_search_helper' ) );
@@ -93,6 +98,62 @@ class mif_bpc_dialogues {
 
 
     // 
+    // Уточнение меню сообщений
+    // 
+
+    function init()
+    {
+        global $bp;
+// p($bp);
+        // bp_core_remove_subnav_item( 'messages', 'compose' );
+        bp_core_remove_subnav_item( 'messages', 'starred' );
+        bp_core_remove_subnav_item( 'messages', 'sentbox' );
+        bp_core_remove_subnav_item( 'messages', 'inbox' );
+        bp_core_remove_subnav_item( 'messages', 'view' );
+
+        $parent_url = $bp->displayed_user->domain . $bp->messages->slug . '/';
+        $parent_slug = $bp->messages->slug;
+
+        $sub_nav = array(  
+                'name' => __( 'Диалоги', 'mif-bp-customizer' ), 
+                'slug' => 'inbox', 
+                'parent_url' => $parent_url, 
+                'parent_slug' => $parent_slug, 
+                'screen_function' => array( $this, 'screen' ), 
+                'position' => 10,
+                'user_has_access'=>  bp_is_my_profile() 
+            );
+
+        bp_core_new_subnav_item( $sub_nav );
+
+        // $sub_nav = array(  
+        //         'name' => __( 'Новое сообщение', 'mif-bp-customizer' ), 
+        //         'slug' => 'compose', 
+        //         'parent_url' => $parent_url, 
+        //         'parent_slug' => $parent_slug, 
+        //         'screen_function' => array( $this, 'screen' ), 
+        //         'position' => 10,
+        //         'user_has_access'=>  bp_is_my_profile() 
+        //     );
+
+        // bp_core_new_subnav_item( $sub_nav );
+    }
+
+
+    // 
+    // Новый шаблон диалогов
+    // 
+
+    function template( $templates, $slug, $name )
+    {
+        // p($templates);
+        // p($slug);
+        if ( $slug == 'members/single/messages' ) $templates = array( 'dialogues.php' );
+        return $templates;
+    }
+
+
+    // 
     // Страница диалогов
     // 
 
@@ -102,7 +163,6 @@ class mif_bpc_dialogues {
 
         $parent_url = $bp->displayed_user->domain . $bp->messages->slug . '/';
         $parent_slug = $bp->messages->slug;
-
         $sub_nav = array(  
                 'name' => __( 'Диалоги', 'mif-bp-customizer' ), 
                 'slug' => 'dialogues', 
@@ -256,11 +316,12 @@ class mif_bpc_dialogues {
         $time_since = apply_filters( 'mif_bpc_dialogues_thread_item_time_since', $this->time_since( $thread['date_sent'] ) );
         $message_excerpt = $this->get_message_excerpt( $thread['message'] );
         $unread_count = $thread['unread_count'];
-        $class = ( $unread_count ) ? ' unread' : '';
+        $unread = ( $unread_count ) ? ' unread' : '';
+        $current = ( bp_is_current_action( 'view' ) && $thread['thread_id'] == (int) bp_action_variable( 0 ) ) ? ' current' : '';
 
         $out = '';
 
-        $out .= '<div class="thread-item' . $class . '" id="thread-item-' . $thread['thread_id'] . '" data-thread-id="' . $thread['thread_id'] . '">';
+        $out .= '<div class="thread-item' . $unread . $current . '" id="thread-item-' . $thread['thread_id'] . '" data-thread-id="' . $thread['thread_id'] . '">';
         $out .= '<div>';
         $out .= '<span class="avatar">' . $avatar . '</span>';
         $out .= '<span class="content">';
@@ -273,7 +334,7 @@ class mif_bpc_dialogues {
         $out .= '</div>';
         $out .= '</div>';
 
-        return $out;
+        return apply_filters( 'mif_bpc_dialogues_thread_item', $out, $thread );
     }
 
 
@@ -874,6 +935,23 @@ class mif_bpc_dialogues {
     }
 
 
+
+    //
+    // Страница диалога в обертке
+    //
+
+    function get_messages_page_wrapped( $thread_id, $page )
+    {
+        $before = '<div class="messages-scroller-wrap scroller-wrap"><div></div><div class="messages-scroller scroller"><div class="messages-scroller-container scroller-container">';
+        $after = '</div><div class="messages-scroller__bar scroller__bar"></div></div></div>';
+        $page = $this->get_messages_page( $thread_id, $page );
+
+        $out = $before . $page . $after;
+
+        return apply_filters( 'mif_bpc_dialogues_get_messages_page_wrapped', $out, $page, $before, $after );
+    }
+
+
     //
     // Загрузка диалога
     //
@@ -887,9 +965,11 @@ class mif_bpc_dialogues {
 
         $out = '';
 
-        $out .= '<div class="messages-scroller-wrap scroller-wrap"><div></div><div class="messages-scroller scroller"><div class="messages-scroller-container scroller-container">';
-        $out .= $this->get_messages_page( $thread_id, $page );
-        $out .= '</div><div class="messages-scroller__bar scroller__bar"></div></div></div>';
+        // $out .= '<div class="messages-scroller-wrap scroller-wrap"><div></div><div class="messages-scroller scroller"><div class="messages-scroller-container scroller-container">';
+        // $out .= $this->get_messages_page( $thread_id, $page );
+        // $out .= '</div><div class="messages-scroller__bar scroller__bar"></div></div></div>';
+
+        $out .= $this->get_messages_page_wrapped( $thread_id, $page );
 
         $arr = array( 
                     'messages_page' => $out,
@@ -1679,17 +1759,82 @@ class mif_bpc_dialogues {
     }
 
 
+
+    //
+    // Страница по умолчанию
+    //
+
     function get_dialogues_default_page()
     {
         $out = '';
 
-        $out .= '<div class="messages-empty"><div>';
-        $out .= '<i class="fa fa-5x fa-comments-o" aria-hidden="true"></i>';
-        $out .= '<p>' . __( 'Выберите диалог или', 'mif-bp-customizer' ) . '<br />';
-        $out .= '<a href="' . $this->get_dialogues_url() . '" class="dialogues-compose">' . __( 'начните новый', 'mif-bp-customizer' ) . '</a></p>';
-        $out .= '</div></div>';
+        if ( bp_is_current_action( 'view' ) ) {
+
+            $thread_id = (int) bp_action_variable( 0 );
+            $out .= $this->get_messages_page_wrapped( $thread_id );
+            $out .= '<script>window.onload = function(){ messages_scroll(); scroll_message_to_bottom(); }</script>';
+            // p($thread_id);
+
+        } else {
+
+            $out .= '<div class="messages-empty"><div>';
+            $out .= '<i class="fa fa-5x fa-comments-o" aria-hidden="true"></i>';
+            $out .= '<p>' . __( 'Выберите диалог или', 'mif-bp-customizer' ) . '<br />';
+            $out .= '<a href="' . $this->get_dialogues_url() . '" class="dialogues-compose">' . __( 'начните новый', 'mif-bp-customizer' ) . '</a></p>';
+            $out .= '</div></div>';
+
+        }
 
         return apply_filters( 'mif_bpc_dialogues_get_dialogues_default_page', $out );;
+    }
+
+
+
+    //
+    // Заголовок по умолчанию
+    //
+
+    function get_dialogues_default_header()
+    {
+        $out = '';
+
+        if ( bp_is_current_action( 'view' ) ) {
+
+            $thread_id = (int) bp_action_variable( 0 );
+            $out .= $this->get_messages_header( $thread_id );
+
+        } else {
+
+            $out .= '<!-- empty -->';
+
+        }
+
+        return apply_filters( 'mif_bpc_dialogues_get_dialogues_default_header', $out );;
+    }
+
+
+
+    //
+    // Форма по умолчанию
+    //
+
+    function get_dialogues_default_form()
+    {
+        $out = '';
+
+        if ( bp_is_current_action( 'view' ) ) {
+
+            $thread_id = (int) bp_action_variable( 0 );
+            $out .= $this->get_messages_form( $thread_id );
+            $out .= '<script>window.onload = function(){ message_items_height_correct(); }</script>';
+
+        } else {
+
+            $out .= '<div class="form-empty"></div>';
+
+        }
+
+        return apply_filters( 'mif_bpc_dialogues_get_dialogues_default_header', $out );;
     }
 
 
@@ -1765,6 +1910,28 @@ function mif_bpc_the_dialogues_default_page()
 {
     global $mif_bpc_dialogues;
     echo $mif_bpc_dialogues->get_dialogues_default_page();
+}
+
+
+//
+// Выводит заголовок по умолчанию
+//
+
+function mif_bpc_the_dialogues_default_header()
+{
+    global $mif_bpc_dialogues;
+    echo $mif_bpc_dialogues->get_dialogues_default_header();
+}
+
+
+//
+// Выводит форму по умолчанию
+//
+
+function mif_bpc_the_dialogues_default_form()
+{
+    global $mif_bpc_dialogues;
+    echo $mif_bpc_dialogues->get_dialogues_default_form();
 }
 
 
