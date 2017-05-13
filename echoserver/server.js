@@ -75,6 +75,14 @@ var app = http.createServer( function( req, res ) {
 			}
 
 
+			// Уведомление о вводе нового сообщения
+
+			if ( data['event'] == 'dialogues_write' ) {
+
+				socket.emit( 'sendNotification', data );
+				console.log( 'Info 008: Emited event ' + data['event'] + ' to room ' + data['room'] );
+
+			}
 
 		}
 
@@ -129,6 +137,14 @@ io.sockets.on( 'connection', function( socket ) {
 
 				socket.broadcast.to( data['room'] ).emit( data['event'], { notify: data['notify'], data: data['data'] } );
 				console.log( 'Info 007: Sevrer notification to room ' + data['room'] + ' success. Event: ' + data['event'] + ', data: ' + data['data'] + ', notify: ' + data['notify'] );
+
+			}
+		
+
+			if ( data['event'] == 'dialogues_write' ) {
+
+				socket.broadcast.to( data['room'] ).emit( data['event'], { thread_id: data['thread_id'], sender_id: data['sender_id'] } );
+				console.log( 'Info 009: Sevrer notification to room ' + data['room'] + ' success. Event: ' + data['event'] + ', thread_id: ' + data['thread_id'] + ', sender_id: ' + data['sender_id'] );
 
 			}
 		

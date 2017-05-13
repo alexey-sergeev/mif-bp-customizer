@@ -1,3 +1,45 @@
+/* Сообщение, что кто-то пишет письмо */
+
+.messages-wrap .writing {
+    margin-left: 20px;
+    color: #ccc;
+    display: none;
+}
+
+.messages-wrap .writing.show {
+    display: block;
+}
+
+.messages-wrap .writing span {
+    width: 4px;
+    height: 4px;
+    display: inline-block;
+    background-color: #f8f8f8;
+    border-radius: 2px;
+    margin: 2px 4px 2px 0;
+    animation-name: blink;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+
+.messages-wrap .writing span.s1 {
+     animation-delay: 0;
+}
+
+.messages-wrap .writing span.s2 {
+     animation-delay: 0.33s;
+}
+
+.messages-wrap .writing span.s3 {
+     animation-delay: 0.66s;
+}
+
+
+@keyframes blink {
+    from { background-color: #aaa; }
+    to { background-color: #f8f8f8; }
+}
+
 /* Список пользователей для нового сообщения */
 
 .thread-wrap .member-item {
@@ -719,6 +761,8 @@
 
 .dialogues-page .messages-wrap .message-item span.message {
     margin-top: 5px;
+    margin-right: 20px;
+    word-wrap: break-word;
     display: block;
 }
 

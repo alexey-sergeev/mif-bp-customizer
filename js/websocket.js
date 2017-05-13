@@ -21,21 +21,6 @@ jQuery( document ).ready( function( jq ) {
         if ( typeof float_notification_update == 'function') float_notification_update( jq );
         notify_alarm( data );
         
-        // console.log(data);
-
-        // var date = new Date();
-        // var hour = date.getHours();
-
-        // // Выводить звук, если это разрешено и сейчас подходящее время
-
-        // if ( data['notify'] == 'yes' && hour >= 8 && hour < 22 ) {
-
-        //     notufy = jq( '#notification_notify' )[0];
-        //     notufy.volume = 0.1;
-        //     notufy.play();
-
-        // }
-
     });
 
 
@@ -46,6 +31,14 @@ jQuery( document ).ready( function( jq ) {
         if ( typeof dialogues_update_page == 'function') dialogues_update_page();
         notify_alarm( data );
 
+    });
+
+
+    // Информация о том, что кто-то пишет сообщение
+
+    socket.on( 'dialogues_write', function( data ) {
+
+        if ( typeof writing_notification_show == 'function') writing_notification_show( data['thread_id'], data['sender_id'] );
         // console.log(data);
 
     });

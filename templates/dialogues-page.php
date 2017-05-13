@@ -27,7 +27,7 @@
 
             <div class="thread-wrap">
 
-                <?php mif_bpc_the_dialogues_threads(); ?>
+                <?php mif_bpc_the_dialogues_default_threads(); ?>
 
             </div>
 

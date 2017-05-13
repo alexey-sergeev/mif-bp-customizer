@@ -65,9 +65,10 @@ class mif_bpc_websocket {
         add_action( 'bp_notification_before_delete', array( $this, 'notification_before_delete' ) );
         add_action( 'bp_notification_before_save', array( $this, 'notification_before_save' ) );
 
-        // Обновление списка сообщений
+        // Обновление и уведомления дислогов
 
         add_action( 'mif_bpc_dialogues_after_send', array( $this, 'dialogues_after_send' ) );
+        add_action( 'mif_bpc_dialogues_write_notification', array( $this, 'dialogues_write_notification' ), 10, 3 );
 
         // JS-скрипты для связки "браузер - эхо-сервер"
 
@@ -141,23 +142,6 @@ class mif_bpc_websocket {
 
         $this->curl_echo_server( $args );
 
-        // try {
-
-        //     $conn = curl_init();
-        // 	curl_setopt( $conn, CURLOPT_URL, $url . ':' . $port . '?' . http_build_query( $args ) );
-        // 	curl_setopt( $conn, CURLOPT_NOBODY, 1 );
-        // 	curl_exec( $conn );
-        // 	curl_close( $conn );            
-
-        // } catch ( Exception $e ) {
-
-        //     // Сообщение о том, что эхо-сервер не работает
-
-        //     do_action( 'mif_bpc_echo_server_not_worked' );
-
-        // };
-
-
     }
 
 
@@ -187,24 +171,43 @@ class mif_bpc_websocket {
 
             $this->curl_echo_server( $args );
 
-            // file_put_contents('/tmp/log.txt', print_r( $args, true));
         }
+        
+    }
 
 
-        // $args = array(
-        //             'event' => 'dialogues_update',
-        //             'recipients' => implode( ',', $recipients ),
-        //         );
 
+    // 
+    // Отправляет уведомление клиенту о том, что пользователь вводит сообщение
+    // 
 
-        // $res = http_build_query( array( 'ddd' => $recipients ) );
+    function dialogues_write_notification( $thread_id = NULL, $recipients = NULL, $sender_id = NULL )
+    {
+        if ( $thread_id == NULL ) return;
+        if ( $recipients == NULL ) return;
+        if ( $sender_id == NULL ) $sender_id = bp_loggedin_user_id();
 
+        foreach ( (array) $recipients as $user_id ) {
+
+            if ( $user_id == $sender_id ) continue;
+
+            $args = array(
+                        'room' => $this->get_user_room( $user_id ),
+                        'event' => 'dialogues_write',
+                        'thread_id' => $thread_id,
+                        'sender_id' => $sender_id,
+                    );
+
+            $this->curl_echo_server( $args );
+
+        }
+        
     }
 
 
 
     //
-    // Ппередает сообщение эхо-серверу, чтобы тот сообщил это клиентам
+    // Передает сообщение эхо-серверу, чтобы тот сообщил это клиентам
     //
 
     function curl_echo_server( $args )

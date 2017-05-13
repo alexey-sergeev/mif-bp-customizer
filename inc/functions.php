@@ -119,3 +119,37 @@ function get_file_icon( $type )
 
     return '<i class="fa fa-' . $icon . '"></i>';
 }
+
+
+
+//
+// Возвращает имя пользователя так, как это делается в цикле BP
+//
+
+function mif_bpc_get_member_name( $user_id ) 
+{
+    if ( empty( $user_id ) ) return false;
+
+    $user = get_user_by( 'id', $user_id );
+
+    $name_stack = array(
+                    'display_name' => $user->display_name,
+                    'user_nicename' => $user->user_nicename,
+                    'user_login' => $user->user_login
+                    );
+
+    $name = '';
+
+    foreach ( $name_stack as $source ) {
+
+        if ( ! empty( $source ) ) {
+
+            $name = $source;
+            break;
+
+        }
+
+    }
+
+    return apply_filters( 'bp_get_member_name', $name );
+}

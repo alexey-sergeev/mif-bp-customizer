@@ -7,6 +7,11 @@ jQuery( document ).ready( function( jq ) {
 
     var time = 200;
 
+    // Переменные для уведомлений о том, что пользователь пишет сообщение
+
+    var recently_flag = false;
+    var write_notification_timeout;
+
     //
 	// Показать диалог
 	//
@@ -25,6 +30,7 @@ jQuery( document ).ready( function( jq ) {
 
             modify_page( response ); 
             setTimeout( function() { jq( '#thread-item-' + thread_id + ' .unread_count' ).fadeOut( function() { jq( '#thread-item-' + thread_id ).removeClass( 'unread' ) } ) }, 600 );
+            recently_flag = false;
 
         });
 
@@ -92,7 +98,45 @@ jQuery( document ).ready( function( jq ) {
             modify_page( response ); 
 
         });
-        
+
+    } )
+
+
+    //
+	// Уведомление о вводе сообщения
+	//
+
+    jq( '.dialogues-page' ).on( 'input', '#message', function() {
+
+        if ( ! recently_flag ) {
+
+            var nonce = jq( '#dialogues_write_notification_nonce' ).val();
+            var thread_id = jq( '.messages-form #thread_id' ).val();
+
+            jq.post( ajaxurl, {
+                action: 'mif-bpc-dialogues-write-notification',
+                thread_id: thread_id,
+                _wpnonce: nonce,
+            },
+            function( response ) { 
+
+                // console.log(response);
+                // modify_page( response ); 
+
+            });
+
+            // console.log(thread_id);
+            recently_flag = true;
+            clearTimeout( write_notification_timeout );
+            write_notification_timeout = setTimeout( function(){ recently_flag = false }, 5000 );
+
+        }
+
+        // var search = jq( '#search' ).val();
+        // var mode = jq( '#threads_mode' ).val();
+
+        // var action = ( mode == 'compose' ) ? 'mif-bpc-dialogues-member-search' : 'mif-bpc-dialogues-thread-search';
+
 
     } )
 
@@ -174,7 +218,7 @@ jQuery( document ).ready( function( jq ) {
         } else {
 
             jq( '.messages-wrap .recipients .member-item' ).each( function( i, elem ) { recipient_ids.push( jq( elem ).attr( 'data-uid' ) ); } );
-
+            
             jq.post( ajaxurl, {
                 action: 'mif-bpc-dialogues-compose-send',
                 _wpnonce: nonce,
@@ -191,6 +235,7 @@ jQuery( document ).ready( function( jq ) {
 
             });
 
+            recently_flag = false;
         }
 
         return false;
@@ -300,6 +345,7 @@ jQuery( document ).ready( function( jq ) {
 
             jq( '.messages-items #message-' + message_id ).fadeOut();
             modify_page( response ); 
+            // console.log( response );
 
         });
 
@@ -406,6 +452,10 @@ jQuery( document ).ready( function( jq ) {
         var rand =  Math.floor( Math.random() * 9999 );
         jq( '.messages-scroller-container #message-' + last_message_id + ' .content .message' ).append( '<p class="sended ' + rand + '"><i class="fa fa-clock-o"></i>' + message + '</p>' );
         setTimeout( function( rand ){ jq( '.messages-scroller-container .sended.' + rand ).addClass( 'clock' ) }, 1000, rand );
+
+        // Установить обычную высоту текстового поля
+        jq( '#message', form ).css( {'height': 'auto'} );
+        message_items_height_correct();
 
         // Пролистать в самый низ
         scroll_message_to_bottom();
@@ -577,35 +627,6 @@ function messages_actions_init()
 }
 
 
-//
-// Обновить страницу диалогов
-//
-
-function dialogues_update_page()
-{
-    var thread_id = jq( '.messages-form #thread_id' ).val();
-    var last_message_id = jq( '.messages-form #last_message_id' ).val();
-    var nonce = jq( '#dialogues_refresh_nonce' ).val();
-    var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
-    var threads_mode = jq( '#threads_mode' ).val();
-
-    jq.post( ajaxurl, {
-        action: 'mif-bpc-dialogues-refresh',
-        thread_id: thread_id,
-        last_message_id: last_message_id,
-        threads_update_timestamp: threads_update_timestamp,
-        threads_mode: threads_mode,
-        _wpnonce: nonce,
-    },
-    function( response ) {
-
-        modify_page( response ); 
-        jq( '.dialogues-page' ).removeClass( 'compose' );
-
-    });
-
-}
-
 
 //
 // Внести изменения на страницу на основе полученных данных
@@ -667,24 +688,25 @@ function modify_page( response )
         var arr = data['threads_update'];
         var thread_id = jq( '.messages-form #thread_id' ).val();
 
+
         for ( var key in arr ) {
 
-            var elem = jq( '.thread-scroller-container #thread-item-' + key );
+            var elem = jq( '.thread-scroller-container #thread-item-' + arr[key]['id'] );
 
             if ( elem.length ) {
                 
                 // Элемент существует - заменить его
                 elem.remove();
-                jq( '.thread-scroller-container' ).prepend( arr[key] );
+                jq( '.thread-scroller-container' ).prepend( arr[key]['item'] );
 
             } else {
 
                 // Элемент не существует - добавить новый в начало
-                jq( '.thread-scroller-container' ).prepend( arr[key] );
+                jq( '.thread-scroller-container' ).prepend( arr[key]['item'] );
 
             }
 
-            if ( key == thread_id ) jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );            
+            if ( arr[key]['id'] == thread_id ) jq( '.thread-scroller-container #thread-item-' + thread_id ).addClass( 'current' );            
 
         }
 
@@ -698,6 +720,21 @@ function modify_page( response )
     if ( data['threads_update_timestamp'] ) {
 
         jq( '#threads_update_timestamp' ).val( data['threads_update_timestamp'] );
+
+    }
+
+
+    // Обновление количества непрочитанных сообщений
+
+    if ( data['threads_unread_count'] ) {
+
+        var current_unread_count = jq( '#user-messages .count' ).html();
+        
+        if ( current_unread_count != data['threads_unread_count'] ) {
+
+            jq( '#user-messages .count' ).html( data['threads_unread_count'] );
+   
+        }
 
     }
 
@@ -787,6 +824,8 @@ function modify_page( response )
         // Обновить информацию об ID последнего сообщения
         jq( '.messages-form #last_message_id' ).val( key );
 
+        // Убрать уведомление, что пользователь набирает сообщение
+        jq( '.messages-wrap .writing' ).removeClass( 'show' )
 
         // Пролистать в самый низ
         scroll_message_to_bottom();
@@ -896,4 +935,51 @@ function scroll_message_to_bottom()
 function scroll_threads_to_top()
 {
     jq( '.thread-scroller' ).scrollTop( 0 );
+}
+
+
+//
+// Показать сообщение о том, что пользователь набирает сообщение
+//
+
+var write_show_timeout = [];
+
+function writing_notification_show( thread, user )
+{
+    // console.log(thread)
+    var slug = '.thread-' + thread + '.user-' + user;
+    jq( slug ).addClass( 'show' );
+
+    clearTimeout( write_show_timeout[slug] );
+    write_show_timeout[slug] = setTimeout( function(){ jq( slug ).removeClass( 'show' ) }, 6000 );
+}
+
+
+//
+// Обновить страницу диалогов
+//
+
+function dialogues_update_page()
+{
+    var thread_id = jq( '.messages-form #thread_id' ).val();
+    var last_message_id = jq( '.messages-form #last_message_id' ).val();
+    var nonce = jq( '#dialogues_refresh_nonce' ).val();
+    var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
+    var threads_mode = jq( '#threads_mode' ).val();
+
+    jq.post( ajaxurl, {
+        action: 'mif-bpc-dialogues-refresh',
+        thread_id: thread_id,
+        last_message_id: last_message_id,
+        threads_update_timestamp: threads_update_timestamp,
+        threads_mode: threads_mode,
+        _wpnonce: nonce,
+    },
+    function( response ) {
+
+        modify_page( response ); 
+        jq( '.dialogues-page' ).removeClass( 'compose' );
+
+    });
+
 }

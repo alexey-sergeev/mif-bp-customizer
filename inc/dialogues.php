@@ -59,14 +59,16 @@ class mif_bpc_dialogues {
     function __construct()
     {
        
-        // Страница диалогов
-        // add_action( 'bp_activity_setup_nav', array( $this, 'dialogues_nav' ) );
-        add_action( 'bp_init', array( $this, 'init' ) );
+        // Настройка страницы диалогов
+        add_action( 'bp_init', array( $this, 'dialogues_nav' ) );
+        add_action( 'bp_screens', array( $this, 'compose_screen' ) );
+        add_filter( 'messages_template_view_message', array( $this, 'view_screen' ) );
+        add_filter( 'bp_get_total_unread_messages_count', array( $this, 'total_unread_messages_count' ) );
+        add_filter( 'bp_get_send_private_message_link', array( $this, 'message_link' ) );
+
         add_action( 'wp_enqueue_scripts', array( $this, 'load_js_helper' ) );   
 
-        add_filter( 'bp_get_template_part', array( $this, 'template' ), 10, 3 );
-        // add_filter( 'bp_get_template_stack', array( $this, 'stack' ) );
-                 				
+        // Ajax-события
 
         add_action( 'wp_ajax_mif-bpc-dialogues-thread-items-more', array( $this, 'ajax_thread_more_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-thread-search', array( $this, 'ajax_thread_search_helper' ) );
@@ -75,6 +77,7 @@ class mif_bpc_dialogues {
         add_action( 'wp_ajax_mif-bpc-dialogues-messages', array( $this, 'ajax_messages_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages-items-more', array( $this, 'ajax_messages_more_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-messages-send', array( $this, 'ajax_messages_send_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-dialogues-write-notification', array( $this, 'ajax_write_notification_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-compose-send', array( $this, 'ajax_compose_send_helper' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-refresh', array( $this, 'ajax_dialogues_refresh' ) );
         add_action( 'wp_ajax_mif-bpc-dialogues-join', array( $this, 'ajax_dialogues_join' ) );
@@ -97,19 +100,65 @@ class mif_bpc_dialogues {
     }
 
 
+
     // 
-    // Уточнение меню сообщений
+    // Настройка страницы прямого создания сообщения
     // 
 
-    function init()
+    function compose_screen()
+    {
+        if ( ! bp_is_messages_component() || ! bp_is_current_action( 'compose' ) ) return false;
+
+    	// $username = bp_action_variable( 0 );
+        // p(bp_core_get_userid_from_nicename( $username ) );
+        // p( $username );
+
+        $this->screen();
+    }
+
+
+
+    // 
+    // Настройка кнопки прямого создания сообщения
+    // 
+
+    function message_link()
+    {
+        return bp_loggedin_user_domain() . bp_get_messages_slug() . '/compose/' . bp_core_get_username( bp_displayed_user_id() );
+    }
+
+
+    // 
+    // Настройка страницы прямого просмотра диалога
+    // 
+
+    function view_screen( $template )
+    {
+        if ( $template == 'members/single/home' ) {
+
+            $template = 'members/single/plugins';
+            add_action( 'bp_template_content', array( $this, 'body' ) );
+
+        }
+
+        return apply_filters( 'mif_bpc_dialogues_view_screen', $template );
+    }
+
+
+    // 
+    // Уточнение меню вкладки сообщений
+    // 
+
+    function dialogues_nav()
     {
         global $bp;
-// p($bp);
-        // bp_core_remove_subnav_item( 'messages', 'compose' );
+
+        bp_core_remove_subnav_item( 'messages', 'compose' );
+        bp_core_remove_subnav_item( 'messages', 'compose' );
         bp_core_remove_subnav_item( 'messages', 'starred' );
         bp_core_remove_subnav_item( 'messages', 'sentbox' );
         bp_core_remove_subnav_item( 'messages', 'inbox' );
-        bp_core_remove_subnav_item( 'messages', 'view' );
+        // bp_core_remove_subnav_item( 'messages', 'view' );
 
         $parent_url = $bp->displayed_user->domain . $bp->messages->slug . '/';
         $parent_slug = $bp->messages->slug;
@@ -126,56 +175,8 @@ class mif_bpc_dialogues {
 
         bp_core_new_subnav_item( $sub_nav );
 
-        // $sub_nav = array(  
-        //         'name' => __( 'Новое сообщение', 'mif-bp-customizer' ), 
-        //         'slug' => 'compose', 
-        //         'parent_url' => $parent_url, 
-        //         'parent_slug' => $parent_slug, 
-        //         'screen_function' => array( $this, 'screen' ), 
-        //         'position' => 10,
-        //         'user_has_access'=>  bp_is_my_profile() 
-        //     );
-
-        // bp_core_new_subnav_item( $sub_nav );
     }
 
-
-    // 
-    // Новый шаблон диалогов
-    // 
-
-    function template( $templates, $slug, $name )
-    {
-        // p($templates);
-        // p($slug);
-        if ( $slug == 'members/single/messages' ) $templates = array( 'dialogues.php' );
-        return $templates;
-    }
-
-
-    // 
-    // Страница диалогов
-    // 
-
-    function dialogues_nav()
-    {
-        global $bp;
-
-        $parent_url = $bp->displayed_user->domain . $bp->messages->slug . '/';
-        $parent_slug = $bp->messages->slug;
-        $sub_nav = array(  
-                'name' => __( 'Диалоги', 'mif-bp-customizer' ), 
-                'slug' => 'dialogues', 
-                'parent_url' => $parent_url, 
-                'parent_slug' => $parent_slug, 
-                'screen_function' => array( $this, 'screen' ), 
-                'position' => 10,
-                'user_has_access'=>  bp_is_my_profile() 
-            );
-
-        bp_core_new_subnav_item( $sub_nav );
-       
-    }
 
 
     //
@@ -208,8 +209,10 @@ class mif_bpc_dialogues {
 
     function load_js_helper()
     {
-        // Плагин красивого скроллинга        
+        // Плагин красивого скроллинга
         wp_enqueue_script( 'mif_bpc_baron_core', plugins_url( '../js/mif-bpc-baron.js', __FILE__ ) );
+
+        // Плагин авторесайза формы
         wp_enqueue_script( 'mif_bpc_autosize', plugins_url( '../js/plugins/autosize.js', __FILE__ ) );
 
         wp_enqueue_script( 'mif_bpc_dialogues_helper', plugins_url( '../js/dialogues.js', __FILE__ ) );
@@ -370,7 +373,9 @@ class mif_bpc_dialogues {
         $threads = $this->get_threads_data( 0, $user_id, $last_updated );
 
         $arr = array();
-        foreach ( $threads as $key => $thread ) $arr[$key] = $this->thread_item( $thread );
+        foreach ( $threads as $key => $thread ) $arr[] = array( 'id' => $key, 'item' => $this->thread_item( $thread ) );
+
+        $arr = array_reverse( $arr );
 
         return apply_filters( 'mif_bpc_dialogues_get_threads_update', $arr, $user_id );
     }
@@ -535,6 +540,33 @@ class mif_bpc_dialogues {
         }
 
         return apply_filters( 'mif_bpc_dialogues_get_threads_data', $arr, $page, $user_id );
+    }
+
+
+    //
+    // Rоличество непрочитанных сообщений (фильтр)
+    //
+
+    function total_unread_messages_count( $count )
+    {
+        return $this->get_unread_count();
+    }
+
+
+    //
+    // Получить количество непрочитанных сообщений
+    //
+
+    function get_unread_count( $user_id = NULL )
+    {
+        global $bp, $wpdb;
+        
+        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+
+        $sql = $wpdb->prepare( "SELECT COUNT(DISTINCT r.thread_id) AS count FROM {$bp->messages->table_name_recipients} AS r INNER JOIN {$bp->messages->table_name_messages} AS m ON m.thread_id=r.thread_id WHERE user_id=%d  AND is_deleted=0 AND unread_count>0", $user_id );
+        $count = $wpdb->get_var( $sql );
+
+        return apply_filters( 'mif_bpc_dialogues_get_unread_messages_count', $count );
     }
 
 
@@ -850,8 +882,7 @@ class mif_bpc_dialogues {
 
         // Проверка прав пользователя на просмотр этих сообщений
 
-        //
-        // return false;
+        if ( ! $this->is_access( $thread_id ) ) return false;
 
         $where_sql = $wpdb->prepare( 'm.thread_id = %d AND r.user_id <> (%d)', $thread_id, $user_id );
 
@@ -914,14 +945,25 @@ class mif_bpc_dialogues {
     // Выводит форму создания нового сообщения
     // 
 
-    function get_compose_form()
+    function get_compose_form( $recipient_ids = array() )
     {
+        $recipients = '';
+
+        if ( ! empty( $recipient_ids ) ) {
+
+            $recipient_items = array();
+            foreach ( (array) $recipient_ids as $recipient_id ) $recipient_items[] = $this->member_item( $recipient_id );
+
+            $recipients = implode( "\n", $recipient_items );
+
+        }
+
         $out = '';
         $out .= '<div>';
         $out .= '<div class="compose-wrap">';
         $out .= '<form>';
         $out .= '<div>' . __( 'Кому:', 'mif-bp-customizer' ) . '</div>';
-        $out .= '<div class="recipients"></div>';
+        $out .= '<div class="recipients">' . $recipients . '</div>';
         $out .= '<div>' . __( 'Сообщение:', 'mif-bp-customizer' ) . '</div>';
         $out .= '<div class="textarea"><textarea name="message" id="message"></textarea></div>';
         $out .= '<div><label><input type="checkbox" value="on" name="email" id="email"> ' . __( 'Оповестить по почте', 'mif-bp-customizer' ) . '</label></div>';
@@ -940,13 +982,23 @@ class mif_bpc_dialogues {
     // Страница диалога в обертке
     //
 
-    function get_messages_page_wrapped( $thread_id, $page )
+    function get_messages_page_wrapped( $thread_id, $page = 0 )
     {
         $before = '<div class="messages-scroller-wrap scroller-wrap"><div></div><div class="messages-scroller scroller"><div class="messages-scroller-container scroller-container">';
         $after = '</div><div class="messages-scroller__bar scroller__bar"></div></div></div>';
         $page = $this->get_messages_page( $thread_id, $page );
 
-        $out = $before . $page . $after;
+        $recipients = $this->get_recipients_of_thread( $thread_id, bp_loggedin_user_id() );
+
+        $writing = '';
+        foreach ( (array) $recipients as $recipient_id ) {
+
+            $name = mif_bpc_get_member_name( $recipient_id );
+            $writing .= '<div class="writing thread-' . $thread_id . ' user-' . $recipient_id . '"><span class="s1"></span><span class="s2"></span><span class="s3"></span> ' . $name . ' ' . __( 'печатает', 'mif-bp-customizer' ) . '</div>';
+
+        }
+
+        $out = $before . $page . $after . $writing;
 
         return apply_filters( 'mif_bpc_dialogues_get_messages_page_wrapped', $out, $page, $before, $after );
     }
@@ -975,6 +1027,7 @@ class mif_bpc_dialogues {
                     'messages_page' => $out,
                     'messages_header' => $this->get_messages_header( $thread_id ),
                     'messages_form' => $this->get_messages_form( $thread_id ),
+                    'threads_unread_count' => $this->get_unread_count(),
                     );
         $arr = apply_filters( 'mif_bpc_dialogues_ajax_messages_helper', $arr, $thread_id, $page );
 
@@ -1041,6 +1094,24 @@ class mif_bpc_dialogues {
 
 
     //
+    // Отправка уведомления о том, что пользователь вводит сообщение
+    //
+
+    function ajax_write_notification_helper()
+    {
+        check_ajax_referer( 'mif-bpc-dialogues-write-notification-nonce' );
+
+        $thread_id = (int) $_POST['thread_id'];
+        $sender_id = bp_loggedin_user_id();
+        $recipients = $this->get_recipients_of_thread( $thread_id, $sender_id );
+
+        do_action( 'mif_bpc_dialogues_write_notification', $thread_id, $recipients, $sender_id );
+
+        wp_die();
+    }
+
+
+    //
     // Отправка сообщения (форма нового сообщения)
     //
 
@@ -1097,6 +1168,7 @@ class mif_bpc_dialogues {
                         'messages_form' => $this->get_messages_form( $thread_id ),
                         'threads_window' => $this->get_threads_items(),
                         );
+
             $arr = apply_filters( 'mif_bpc_dialogues_ajax_compose_send_helper', $arr, $thread_id, $message, $recipient_ids, $subject, $email_status );
 
             echo json_encode( $arr );
@@ -1181,7 +1253,6 @@ class mif_bpc_dialogues {
             $arr = apply_filters( 'mif_bpc_dialogues_ajax_message_remove', $arr, $message_id, $user_id, $threads_update_timestamp );
 
             echo json_encode( $arr );
-
         };
 
         wp_die();
@@ -1238,7 +1309,7 @@ class mif_bpc_dialogues {
         $this->delete_thread( $thread_id );
 
         $arr = array( 
-                    'messages_window' => $this->get_dialogues_default_page(),
+                    'messages_window' => $this->get_dialogues_default_page( true ),
                     'messages_header' => '<!-- ajaxed -->',
                     'messages_form' => '<div class="form-empty"></div>',
                     );
@@ -1345,12 +1416,24 @@ class mif_bpc_dialogues {
 
         $arr = array();
 
+        if ( bp_is_current_action( 'compose' ) ) {
+
+            $recipient_id = bp_core_get_userid_from_nicename( bp_action_variable( 0 ) );
+            if ( $item = $this->member_item( $recipient_id, true ) ) {
+
+                if ( $page == 1 ) $arr[] = $item;
+                $args['exclude'] = array( $user_id, $recipient_id );
+            }
+
+        }
+
         if ( bp_has_members( $args ) ) {
 
             while ( bp_members() ) {
 
                 bp_the_member(); 
-                $arr[] = $this->member_item( bp_get_member_user_id(), bp_get_member_link(), bp_get_member_name() );
+                // $arr[] = $this->member_item( bp_get_member_user_id(), bp_get_member_link(), bp_get_member_name() );
+                $arr[] = $this->member_item( bp_get_member_user_id() );
 
             }; 
 
@@ -1369,15 +1452,22 @@ class mif_bpc_dialogues {
     // Получить блок пользователя
     //
 
-    function member_item( $user_id, $user_url, $name )
+    function member_item( $user_id, $checked = false )
     {
+        if ( empty( $user_id ) ) return;
+
+        $user_url = bp_core_get_user_domain( $user_id );
+        $name = mif_bpc_get_member_name( $user_id );
+
         $out = '';
 
         $avatar_size = apply_filters( 'mif_bpc_dialogues_avatar_member_size', $this->avatar_member_size );
         $avatar = get_avatar( $user_id, $avatar_size );
         $url = $this->get_dialogues_url();
 
-        $out .= '<div class="member-item member-' . $user_id . '" data-uid="' . $user_id . '">';
+        $checked_class = ( $checked ) ? ' checked' : '';
+
+        $out .= '<div class="member-item member-' . $user_id . $checked_class . '" data-uid="' . $user_id . '">';
         $out .= '<div class="m-check checked"><a href="' . $url . '" class="member-add" title="' . __( 'Добавить', 'mif-bp-customizer' ) . '"><i class="fa fa-circle" aria-hidden="true"></i></a></div>';
         $out .= '<div class="m-check unchecked"><a href="' . $url . '" class="member-add" title="' . __( 'Добавить', 'mif-bp-customizer' ) . '"><i class="fa fa-circle-thin" aria-hidden="true"></i></a></div>';
         $out .= '<span class="avatar"><a href="' . $user_url . '" target="blank">' . $avatar . '</a></span>';
@@ -1385,7 +1475,7 @@ class mif_bpc_dialogues {
         $out .= '<span class="m-remove"><div class="custom-button"><a href="' . $url . '" class="button member-remove" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></span>';
         $out .= '</div>';
 
-        return $out;
+        return apply_filters( 'mif_bpc_dialogues_member_item', $out, $user_id );
     }
 
 
@@ -1399,12 +1489,12 @@ class mif_bpc_dialogues {
         check_ajax_referer( 'mif-bpc-dialogues-join-nonce' );
 
 
-        if ( $this->threads_joining() ) {
+        if ( $msg = $this->threads_joining() ) {
 
             $arr = array();
             $arr['threads_update'] = $this->get_threads_update();
             $arr['threads_update_timestamp'] = time();
-            $arr['messages_window'] = $this->dialogues_join_success_page();
+            $arr['messages_window'] = $this->dialogues_join_success_page( $msg );
 
             $arr = apply_filters( 'mif_bpc_dialogues_ajax_dialogues_join', $arr );
 
@@ -1420,13 +1510,14 @@ class mif_bpc_dialogues {
     // Страницу с сообщением о успешной группировке диалогов
     // 
 
-    function dialogues_join_success_page()
+    function dialogues_join_success_page( $msg )
     {
         $out = '';
 
         $out .= '<div class="messages-empty"><div>';
         $out .= '<i class="fa fa-5x fa-compress" aria-hidden="true"></i>';
-        $out .= '<p><strong>' . __( 'Группировка выполнена успешно', 'mif-bp-customizer' ) . '</strong>';
+        // $out .= '<p><strong>' . __( 'Группировка выполнена успешно', 'mif-bp-customizer' ) . '</strong>';
+        $out .= '<p><strong>' . $msg . '</strong>';
         $out .= '<p>' . __( 'Выберите диалог или', 'mif-bp-customizer' ) . '<br />';
         $out .= '<a href="' . $this->get_dialogues_url() . '" class="dialogues-compose">' . __( 'начните новый', 'mif-bp-customizer' ) . '</a></p>';
         $out .= '</div></div>';
@@ -1473,9 +1564,11 @@ class mif_bpc_dialogues {
         } else {
 
             $arr['messages_header'] = '<!-- empty -->'; 
-            $arr['messages_window'] = $this->get_dialogues_default_page(); 
+            $arr['messages_window'] = $this->get_dialogues_default_page( true ); 
 
         }
+
+        $arr['threads_unread_count'] = $this->get_unread_count();
 
         $arr = apply_filters( 'mif_bpc_dialogues_ajax_dialogues_refresh', $arr, $thread_id, $last_message_id, $threads_update_timestamp, $threads_mode );
 
@@ -1583,13 +1676,37 @@ class mif_bpc_dialogues {
 
         // Узнать id получателей сообщения и отправить им уведомление (локальное уведомление, эхо-сервер, почта или др.)
 
-        $sql = $wpdb->prepare( "SELECT user_id FROM {$bp->messages->table_name_recipients} WHERE thread_id = %d AND user_id <> %d", $thread_id, $sender_id );
-        $recipients = $wpdb->get_col( $sql );
+        $recipients = $this->get_recipients_of_thread( $thread_id, $sender_id );
+        // $sql = $wpdb->prepare( "SELECT user_id FROM {$bp->messages->table_name_recipients} WHERE thread_id = %d AND user_id <> %d", $thread_id, $sender_id );
+        // $recipients = $wpdb->get_col( $sql );
 
         do_action( 'mif_bpc_dialogues_after_send', $recipients, $thread_id, $sender_id, $message, $email_status );
 
         return apply_filters( 'mif_bpc_dialogues_send', true, $recipients, $thread_id, $sender_id, $message, $email_status, $ret );
     }
+
+
+
+
+    //
+    // ID участников диалога (кроме отправителя, если он указан )
+    //
+
+    function get_recipients_of_thread( $thread_id, $sender_id = NULL )
+    {
+        global $bp, $wpdb;
+
+        if ( isset( $sender_id ) ) {
+            $sql = $wpdb->prepare( "SELECT user_id FROM {$bp->messages->table_name_recipients} WHERE thread_id = %d AND user_id <> %d", $thread_id, $sender_id );
+        } else {
+            $sql = $wpdb->prepare( "SELECT user_id FROM {$bp->messages->table_name_recipients} WHERE thread_id = %d", $thread_id );
+        }
+
+        $recipients = $wpdb->get_col( $sql );
+
+        return apply_filters( 'mif_bpc_dialogues_get_recipients_of_thread', $recipients, $thread_id, $sender_id );
+    }
+
 
 
     //
@@ -1688,7 +1805,7 @@ class mif_bpc_dialogues {
             
         }
 
-        $ret = true;
+        $ret = __( 'Все диалоги уже сгруппированы', 'mif-bp-customizer' );
 
         foreach ( (array) $arr as $threads_arr ) {
 
@@ -1705,6 +1822,7 @@ class mif_bpc_dialogues {
 
                 // Если обновление прошло успешно, то удалить старые номера диалогов в таблице диалогов
                 $sql = "DELETE FROM {$bp->messages->table_name_recipients} WHERE thread_id IN ({$threads_list})";
+                $ret = __( 'Группировка выполнена успешно', 'mif-bp-customizer' );
                 $ret2 = $wpdb->query( $sql );
 
                 
@@ -1734,6 +1852,32 @@ class mif_bpc_dialogues {
 
 
     //
+    // Список диалогов или пользователей
+    //
+
+    function get_dialogues_default_threads( $ajax = false )
+    {
+        $out = '';
+
+        $out .= '<div class="thread-scroller-wrap scroller-wrap"><div class="thread-scroller scroller"><div class="thread-scroller-container scroller-container">';
+        
+        if( bp_is_current_action( 'compose' ) && ! $ajax ) {
+
+            $out .= $this->get_members_items();
+
+        } else {
+
+            $out .= $this->get_threads_items();
+
+        }
+
+        $out .= '</div><div class="thread-scroller__bar scroller__bar"></div></div></div>';
+        
+        return apply_filters( 'mif_bpc_dialogues_get_dialogues_default_threads', $out );
+    }
+
+
+    //
     // Скрытые поля для AJAX-запросов
     //
 
@@ -1743,7 +1887,9 @@ class mif_bpc_dialogues {
 
         $threads_update_timestamp = time();
         $out .= '<input type="hidden" id="threads_update_timestamp" value="' . $threads_update_timestamp . '">';
-        $out .= '<input type="hidden" id="threads_mode" value="threads">';
+        
+        $threads_mode = ( bp_is_current_action( 'compose' ) ) ? 'compose' : 'threads';
+        $out .= '<input type="hidden" id="threads_mode" value="' . $threads_mode . '">';
 
         $out .= '<input type="hidden" id="dialogues_refresh_nonce" value="' . wp_create_nonce( 'mif-bpc-dialogues-refresh-nonce' ) . '">';
         $out .= '<input type="hidden" id="dialogues_join_nonce" value="' . wp_create_nonce( 'mif-bpc-dialogues-join-nonce' ) . '">';
@@ -1754,6 +1900,7 @@ class mif_bpc_dialogues {
         $out .= '<input type="hidden" id="dialogues_compose_form_nonce" value="' . wp_create_nonce( 'mif-bpc-dialogues-compose-form-nonce' ) . '">';
         $out .= '<input type="hidden" id="dialogues_compose_nonce" value="' . wp_create_nonce( 'mif-bpc-dialogues-compose-nonce' ) . '">';
         $out .= '<input type="hidden" id="dialogues_search_nonce" value="' . wp_create_nonce( 'mif-bpc-dialogues-search-nonce' ) . '">';
+        $out .= '<input type="hidden" id="dialogues_write_notification_nonce" value="' . wp_create_nonce( 'mif-bpc-dialogues-write-notification-nonce' ) . '">';
 
         return apply_filters( 'mif_bpc_dialogues_get_hidden_fields', $out );
     }
@@ -1764,16 +1911,20 @@ class mif_bpc_dialogues {
     // Страница по умолчанию
     //
 
-    function get_dialogues_default_page()
+    function get_dialogues_default_page( $ajax = false )
     {
         $out = '';
 
-        if ( bp_is_current_action( 'view' ) ) {
+        if ( bp_is_current_action( 'view' ) && ! $ajax  ) {
 
             $thread_id = (int) bp_action_variable( 0 );
             $out .= $this->get_messages_page_wrapped( $thread_id );
-            $out .= '<script>window.onload = function(){ messages_scroll(); scroll_message_to_bottom(); }</script>';
-            // p($thread_id);
+            $out .= '<script>addEventListener( "load", function(){ messages_actions_init(); scroll_message_to_bottom(); } )</script>';
+
+        } elseif( bp_is_current_action( 'compose' ) && ! $ajax ) {
+
+            $recipient_id = bp_core_get_userid_from_nicename( bp_action_variable( 0 ) );
+            $out .= $this->get_compose_form( array( $recipient_id ) );
 
         } else {
 
@@ -1794,16 +1945,20 @@ class mif_bpc_dialogues {
     // Заголовок по умолчанию
     //
 
-    function get_dialogues_default_header()
+    function get_dialogues_default_header( $ajax = false )
     {
         $out = '';
 
-        if ( bp_is_current_action( 'view' ) ) {
+        if ( bp_is_current_action( 'view' ) && ! $ajax ) {
 
             $thread_id = (int) bp_action_variable( 0 );
             $out .= $this->get_messages_header( $thread_id );
 
-        } else {
+        } elseif( bp_is_current_action( 'compose' ) && ! $ajax ) {
+
+            $out .= $this->get_compose_header();
+
+        }else {
 
             $out .= '<!-- empty -->';
 
@@ -1818,15 +1973,15 @@ class mif_bpc_dialogues {
     // Форма по умолчанию
     //
 
-    function get_dialogues_default_form()
+    function get_dialogues_default_form( $ajax = false )
     {
         $out = '';
 
-        if ( bp_is_current_action( 'view' ) ) {
+        if ( bp_is_current_action( 'view' ) && ! $ajax ) {
 
             $thread_id = (int) bp_action_variable( 0 );
             $out .= $this->get_messages_form( $thread_id );
-            $out .= '<script>window.onload = function(){ message_items_height_correct(); }</script>';
+            $out .= '<script>addEventListener( "load", function(){ message_items_height_correct(); } )</script>';
 
         } else {
 
@@ -1858,46 +2013,17 @@ function mif_bpc_the_dialogues_url()
 // Выводит список диалогов
 // 
 
-function mif_bpc_the_dialogues_threads()
+function mif_bpc_the_dialogues_default_threads()
 {
     global $mif_bpc_dialogues;
 
-    echo '<div class="thread-scroller-wrap scroller-wrap"><div class="thread-scroller scroller"><div class="thread-scroller-container scroller-container">';
-    echo $mif_bpc_dialogues->get_threads_items();
-    echo '</div><div class="thread-scroller__bar scroller__bar"></div></div></div>';
-
+    echo $mif_bpc_dialogues->get_dialogues_default_threads();
     echo $mif_bpc_dialogues->get_hidden_fields();
 
-    // $threads_update_timestamp = time();
-    // echo '<input type="hidden" name="threads_update_timestamp" id="threads_update_timestamp" value="' . $threads_update_timestamp . '">';
-    // echo '<input type="hidden" name="threads_mode" id="threads_mode" value="threads">';
+    // echo '<div class="thread-scroller-wrap scroller-wrap"><div class="thread-scroller scroller"><div class="thread-scroller-container scroller-container">';
+    // echo $mif_bpc_dialogues->get_threads_items();
+    // echo '</div><div class="thread-scroller__bar scroller__bar"></div></div></div>';
 
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-refresh-nonce' );
-    // echo '<input type="hidden" name="dialogues_refresh_nonce" id="dialogues_refresh_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-join-nonce' );
-    // echo '<input type="hidden" name="dialogues_join_nonce" id="dialogues_join_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-message-remove-nonce' );
-    // echo '<input type="hidden" name="dialogues_message_remove_nonce" id="dialogues_message_remove_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-thread-remove-window-nonce' );
-    // echo '<input type="hidden" name="dialogues_thread_remove_window_nonce" id="dialogues_thread_remove_window_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-thread-remove-nonce' );
-    // echo '<input type="hidden" name="dialogues_thread_remove_nonce" id="dialogues_thread_remove_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-thread-nonce' );
-    // echo '<input type="hidden" name="dialogues_thread_nonce" id="dialogues_thread_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-compose-form-nonce' );
-    // echo '<input type="hidden" name="dialogues_compose_form_nonce" id="dialogues_compose_form_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-compose-nonce' );
-    // echo '<input type="hidden" name="dialogues_compose_nonce" id="dialogues_compose_nonce" value="' . $nonce . '">';
-
-    // $nonce = wp_create_nonce( 'mif-bpc-dialogues-search-nonce' );
-    // echo '<input type="hidden" name="dialogues_search_nonce" id="dialogues_search_nonce" value="' . $nonce . '">';
 
 }
 
