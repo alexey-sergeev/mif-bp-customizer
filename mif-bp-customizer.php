@@ -14,6 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 include_once dirname( __FILE__ ) . '/classes/members-page.php';
+// include_once dirname( __FILE__ ) . '/classes/class-attachment.php';
 // include_once dirname( __FILE__ ) . '/classes/socket-io-client.php';
 
 
@@ -36,6 +37,7 @@ include_once dirname( __FILE__ ) . '/inc/followers.php';
 include_once dirname( __FILE__ ) . '/inc/notifications.php';
 include_once dirname( __FILE__ ) . '/inc/dialogues.php';
 include_once dirname( __FILE__ ) . '/inc/websocket.php';
+include_once dirname( __FILE__ ) . '/inc/docs.php';
 
 include_once dirname( __FILE__ ) . '/inc/settings-page-admin.php';
 include_once dirname( __FILE__ ) . '/inc/banned-users-admin.php';
@@ -84,6 +86,7 @@ function get_mif_bpc_options()
                 'notifications' => true,
                 'dialogues' => true,
                 'websocket' => false,
+                'docs' => true,
             );
 
     foreach ( $default as $key => $value ) $args[$key] = get_option( $key, $default[$key] );

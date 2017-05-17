@@ -1,3 +1,123 @@
+/* Форма загрузки документов */
+
+.drop-box {
+    clear: both;
+    /*padding: 1em;*/
+    margin: 1rem 0;
+    border: 3px dashed #eaeaea;
+    /*height: 5rem;*/
+    /*width: 100%;*/
+    transition-duration: .12s;
+    transition-timing-function: ease-out;
+}
+
+.drop-box.active {
+    border: 3px dashed #0185B5;
+}
+
+.drop-box p {
+    padding-left: 20px;
+    line-height: 80px;
+    margin: 0;
+}
+
+.drop-box input[type="file"] {
+    width: 100%;
+    height: 5rem;
+    /*position: relative;*/
+    float: left;
+    margin-top: -80px;
+    opacity: 0;
+}
+
+.upload-form input[type="text"] {
+    width: 80%;
+}
+
+.upload-form .button {
+    margin-top: 1rem;
+    text-align: center;
+    /*z-index: 0;*/
+}
+
+.link-box {
+    display: none;
+}
+
+.show-link-box:focus {
+    /*border-bottom: 1px dotted;*/
+    outline: none;
+}
+
+/* Создание и настройка папок */
+
+.new-folder .docs-content {
+    border: 1px solid #E3E4E5;
+    padding: 10px 20px;
+}
+
+.new-folder .docs-content input[type="text"],
+.new-folder .docs-content textarea {
+    width: 80%;
+}
+
+.new-folder .docs-content textarea {
+    min-height: 6rem;
+}
+
+/* Документы */
+
+.file {
+    float: left;
+    width: 8rem;
+    height: 8rem;
+    border: 1px solid #aaa;
+    margin: .5rem 1rem .5rem 0;
+    position: relative;
+    background-color: #f2f2f2;
+}
+
+.file .name {
+    display: inline-block;
+    background-color: rgba(255,255,255,0.75);
+    width: 100%;
+    max-height: 67%;
+    text-align: center;
+    font-size: 90%;
+    position: absolute;
+    bottom: 0;
+    overflow: hidden;
+    word-wrap: break-word;
+    line-height: normal;
+    color: #545557;
+}
+
+.file.folder .name {
+    font-weight: bold;
+}
+
+.file .logo {
+    position: absolute;
+    width: 100%;
+    line-height: 8rem;
+    text-align: center;
+    color: #0185B5;
+    /*color: #aaa;*/
+}
+
+.file.loading {
+    /*background-color: red;*/
+}
+
+.file.loading .logo {
+    z-index: 9999;
+}
+
+.template {
+    display: none;
+}
+
+
 /* Сообщение, что кто-то пишет письмо */
 
 .messages-wrap .writing {

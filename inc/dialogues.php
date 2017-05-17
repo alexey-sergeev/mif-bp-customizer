@@ -108,11 +108,6 @@ class mif_bpc_dialogues {
     function compose_screen()
     {
         if ( ! bp_is_messages_component() || ! bp_is_current_action( 'compose' ) ) return false;
-
-    	// $username = bp_action_variable( 0 );
-        // p(bp_core_get_userid_from_nicename( $username ) );
-        // p( $username );
-
         $this->screen();
     }
 

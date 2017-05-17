@@ -105,19 +105,33 @@ function no_friends_page( $is_current_component, $component )
 // Возвращает fa-иконку для файла указанного типа
 //
 
-function get_file_icon( $type )
+function get_file_icon( $file, $class = '' )
 {
-    $icon = 'file-o';
-    if ( in_array( $type, array( 'doc', 'docx', 'odt', 'rtf' ) ) ) $icon = 'file-word-o';
-    if ( in_array( $type, array( 'xls', 'xlsx', 'ods' ) ) ) $icon = 'file-excel-o';
-    if ( in_array( $type, array( 'ppt', 'pptx', 'odp' ) ) ) $icon = 'file-powerpoint-o';
-    if ( in_array( $type, array( 'pdf' ) ) ) $icon = 'file-pdf-o';
-    if ( in_array( $type, array( 'txt' ) ) ) $icon = 'file-text-o';
-    if ( in_array( $type, array( 'zip', 'rar', '7z' ) ) ) $icon = 'file-archive-o';
-    if ( in_array( $type, array( 'png', 'gif', 'jpg', 'jpeg' ) ) ) $icon = 'file-image-o';
-    if ( in_array( $type, array( 'mp3', 'ogg', 'wma' ) ) ) $icon = 'file-audio-o';
+    $default = 'file-o';
+    $icon = $default;
 
-    return '<i class="fa fa-' . $icon . '"></i>';
+    $ext = end( explode( ".", $file ) );
+
+    if ( in_array( $ext, array( 'doc', 'docx', 'odt', 'rtf' ) ) ) $icon = 'file-word-o';
+    if ( in_array( $ext, array( 'xls', 'xlsx', 'ods' ) ) ) $icon = 'file-excel-o';
+    if ( in_array( $ext, array( 'ppt', 'pptx', 'odp' ) ) ) $icon = 'file-powerpoint-o';
+    if ( in_array( $ext, array( 'pdf' ) ) ) $icon = 'file-pdf-o';
+    if ( in_array( $ext, array( 'txt' ) ) ) $icon = 'file-text-o';
+    if ( in_array( $ext, array( 'zip', 'rar', '7z' ) ) ) $icon = 'file-archive-o';
+    if ( in_array( $ext, array( 'png', 'gif', 'jpg', 'jpeg' ) ) ) $icon = 'file-image-o';
+    if ( in_array( $ext, array( 'mp3', 'ogg', 'wma' ) ) ) $icon = 'file-audio-o';
+    if ( in_array( $ext, array( 'html', 'htm', 'css', 'cpp', 'pas', 'js' ) ) ) $icon = 'file-code-o';
+
+    if ( $icon == $default ) {
+
+        $arr = explode( ':', $file );
+        if ( in_array( $arr[0], array( 'http', 'https' ) ) ) $icon = 'globe';
+
+    }
+
+    if ( $class ) $class = ' ' . $class;
+
+    return '<i class="fa fa-' . $icon . $class . '"></i>';
 }
 
 

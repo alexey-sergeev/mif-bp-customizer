@@ -113,7 +113,7 @@ class mif_bpc_notifications {
         $icon = ( isset( $icons[$type] ) ) ? $icons[$type] : $icons['default'];
 
         global $bp;
-        $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
+        $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
         $id = bp_get_the_notification_id();
 
         $out .= '<div id="div-notification-' . $id . '">';
@@ -286,7 +286,7 @@ class mif_bpc_notifications {
 
         $sub_nav = array(  
                 'name' => __( 'Уведомления', 'mif-bp-customizer' ),
-                'slug' => 'custom-notifications', 
+                'slug' => 'notifications', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
                 'screen_function' => array( $this, 'screen' ), 
@@ -456,7 +456,7 @@ function mif_bpc_notification_is_new_button()
     $id = bp_get_the_notification_id();
 
     global $bp;
-    $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
+    $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
     
     $button1 = '<div class="custom-button"><a href="' . $url . '" class="notification-to-not-new" id="notification-tonotnew-' . $id . '" title="' . __( 'Отметить как прочитанное', 'mif-bp-customizer' ) . '"><i class="fa fa-circle" aria-hidden="true"></i></a></div>';
 
@@ -476,7 +476,7 @@ function mif_bpc_notification_delete_button()
     $id = bp_get_the_notification_id();
     
     global $bp;
-    $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/delete/?id=' . $id, 'mif_bpc_notification_delete' );
+    $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/delete/?id=' . $id, 'mif_bpc_notification_delete' );
 
     $button = '<div class="custom-button"><a href="' . $url . '" class="button notification-delete" id="notification-delete-' . $id . '" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-trash-o" aria-hidden="true"></i></a></div>';
     
@@ -511,7 +511,7 @@ function mif_bpc_the_notification_load_more( $page = 2, $none = false )
 {
     global $bp;
     
-    $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/load-more/?page=' . $page, 'mif_bpc_notifications_load_more' );
+    $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/load-more/?page=' . $page, 'mif_bpc_notifications_load_more' );
 
     $total_count = buddypress()->notifications->query_loop->total_notification_count;
 
@@ -545,7 +545,7 @@ function mif_bpc_get_notifications_info()
     global $bp;
 
     $count = mif_bpc_new_notifications_count();
-    $url = $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/';
+    $url = $bp->displayed_user->domain . $bp->messages->slug . '/notifications/';
     $none = ( $count > 0 ) ? '' : ' style="display: none;"';
 
     $out = '<div class="notifications-info"' . $none . '><a href="' . $url . '">' . __( 'Новых уведомлений', 'mif-bp-customizer' ) . ': <span>' . $count . '</span></a></div>';
@@ -595,7 +595,7 @@ function mif_bpc_get_notifications_per_page()
 
 function mif_bpc_the_notification_bulk_url( $mode = 'delete' )
 {
-    echo wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/custom-notifications/' . $mode, 'mif_bpc_notifications_bulk_' . $mode );
+    echo wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/' . $mode, 'mif_bpc_notifications_bulk_' . $mode );
 }
 
 

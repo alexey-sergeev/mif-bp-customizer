@@ -118,6 +118,12 @@ class mif_bpc_console_settings_page {
                     </tr>';
 
             $out .= '<tr>
+                    <th>' . __( 'Документы', 'mif-bp-customizer' ) . '</th>
+                    <td><input type="checkbox"' . $chk['docs'] . ' value="yes" name="docs" id="docs"></td>
+                    <td><label for="docs">' . __( 'Загрузка файлов и документов', 'mif-bp-customizer' ) . '</label></td>
+                    </tr>';
+
+            $out .= '<tr>
                     <th>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</th>
                     <td><input type="checkbox"' . $chk['custom-background'] . ' value="yes" name="custom-background" id="custom-background"></td>
                     <td><label for="custom-background">' . __( 'Разрешить использовать пользовательское изображение в качестве фона для профиля пользователя или группы.', 'mif-bp-customizer' ) . '</label></td>
