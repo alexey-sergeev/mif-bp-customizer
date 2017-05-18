@@ -89,10 +89,15 @@ jQuery( document ).ready( function( jq ) {
 
                     item.removeClass( 'loading' );
                     // jq( '.logo', item ).html( response );
-                    jq( item ).replaceWith( response );
+                    item.replaceWith( response );
                     // console.log( response );
 
-                }
+                },
+                error: function( response ) {
+
+                    item.addClass( 'error' );
+
+                },
             } );
 
         });
@@ -141,14 +146,115 @@ jQuery( document ).ready( function( jq ) {
             },
             function( response ) { 
 
-                item.removeClass( 'loading' );
-                jq( item ).replaceWith( response );
+                if ( response ) {
 
-                jq( 'input[name="link"]', form ).val( '' );
-                jq( 'input[name="descr"]', form ).val( '' );
+                    item.removeClass( 'loading' );
+                    item.replaceWith( response );
+
+                    jq( 'input[name="link"]', form ).val( '' );
+                    jq( 'input[name="descr"]', form ).val( '' );
+
+                } else {
+
+                    item.addClass( 'error' );
+
+                }
 
             });
         }
+
+
+        return false;
+
+    } )
+
+
+
+	//
+	// Продолжить список документов
+	//
+
+	jq( '.collection' ).on( 'click', 'button', function() {
+
+        var form = jq( this ).closest( 'form' );
+        var data = new FormData( form.get(0) );
+        data.append( 'action', 'mif-bpc-docs-collection-more' );
+
+        // console.log( data );
+
+        jq.ajax( {
+            url: ajaxurl,
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: data,
+            success: function( response ) {
+
+                jq( '.collection .more' ).remove();
+
+                var elements = jq( response ).hide();
+                // elements.hide();    
+                jq( '.collection' ).append( elements );
+                elements.fadeIn();
+
+
+                // jq( '.docs-folder-settings').animate( { 'opacity': 0 }, function() {
+
+                //     jq( '.docs-folder-settings').html( response );
+                //     jq( '.docs-folder-settings').animate( { 'opacity': 1 } );
+
+                // } )
+                
+                // console.log( response );
+
+            }
+        } );
+
+
+        // var form = jq( this ).closest( 'form' );
+        // var page = jq( 'input[name="page"]', form ).val();
+        // var folder_id = jq( 'input[name="folder_id"]', form ).val();
+        // var nonce = jq( 'input[name="nonce"]', form ).val();
+
+        // jq( '.collection .more' ).addClass( 'processing' );
+
+        // // Отправить Ajax-запрос
+
+        // jq.post( ajaxurl, {
+        //     action: 'mif-bpc-docs-docs-collection-more',
+        //     page: page,
+        //     folder_id: folder_id,
+        //     _wpnonce: nonce,
+        // },
+        // function( response ) { 
+
+        //     jq( '.collection .more' ).remove();
+
+        //     var elements = jq( response );
+        //     elements.hide();    
+        //     jq( '.docs-collection' ).append( elements );
+        //     elements.fadeIn();
+
+
+        //     // jq( '.docs-collection' ).append( response );
+
+        //     console.log(response);
+
+        //     // if ( response ) {
+
+        //     //     item.removeClass( 'loading' );
+        //     //     item.replaceWith( response );
+
+        //     //     jq( 'input[name="link"]', form ).val( '' );
+        //     //     jq( 'input[name="descr"]', form ).val( '' );
+
+        //     // } else {
+
+        //     //     item.addClass( 'error' );
+
+        //     // }
+
+        // });
 
 
         return false;
@@ -164,12 +270,10 @@ jQuery( document ).ready( function( jq ) {
 	jq( '.docs-page' ).on( 'submit', 'form#new-folder', function() {
 
         var form = jq( this );
-        // var nonce = jq( 'input[name="nonce"]', form ).val();
-        // var name = jq( 'input[name="nonce"]', form ).val();
         var data = new FormData( this );
         data.append( 'action', 'mif-bpc-docs-new-folder' );
 
-        console.log( data );
+        // console.log( data );
 
         jq.ajax( {
             url: ajaxurl,
@@ -186,7 +290,7 @@ jQuery( document ).ready( function( jq ) {
 
                 } )
                 
-                console.log( response );
+                // console.log( response );
 
             }
         } );

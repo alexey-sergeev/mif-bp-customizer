@@ -1,3 +1,15 @@
+/* Страница документа */
+
+.docs-page-doc .content {
+    width: 75%;
+    float: left;
+}
+
+.docs-page-doc .meta {
+    width: 25%;
+    float: left;
+}
+
 /* Форма загрузки документов */
 
 .drop-box {
@@ -105,8 +117,13 @@
     /*color: #aaa;*/
 }
 
-.file.loading {
-    /*background-color: red;*/
+.file.loading.error {
+    background-color: rgba(255,0,0,0.25);
+}
+
+.file.loading.error .fa-spin {
+    color: red;
+    animation: none;
 }
 
 .file.loading .logo {
@@ -117,6 +134,32 @@
     display: none;
 }
 
+
+.collection .more {
+    text-align: center;
+    height: 5rem;
+    clear: both;
+}
+
+.collection .more button {
+    margin-top: 1.5rem;
+    display: inline-block;
+}
+
+.collection .more i {
+    margin-top: 1.5rem;
+    display: none;
+}
+
+.collection .more.processing button {
+    margin-top: 1rem;
+    display: none;
+}
+
+.collection .more.processing i {
+    margin-top: 1rem;
+    display: inline-block;
+}
 
 /* Сообщение, что кто-то пишет письмо */
 

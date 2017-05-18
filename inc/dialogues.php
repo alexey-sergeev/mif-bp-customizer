@@ -668,53 +668,55 @@ class mif_bpc_dialogues {
     
     function time_since( $time )
     {
+        return mif_bpc_time_since( $time, true );
 
-        $month = array( 
-            '01' => __( 'января', 'mif-bp-customizer' ),
-            '02' => __( 'февраля', 'mif-bp-customizer' ),
-            '03' => __( 'марта', 'mif-bp-customizer' ),
-            '04' => __( 'апреля', 'mif-bp-customizer' ),
-            '05' => __( 'мая', 'mif-bp-customizer' ),
-            '06' => __( 'июня', 'mif-bp-customizer' ),
-            '07' => __( 'июля', 'mif-bp-customizer' ),
-            '08' => __( 'августа', 'mif-bp-customizer' ),
-            '09' => __( 'сентября', 'mif-bp-customizer' ),
-            '10' => __( 'октября', 'mif-bp-customizer' ),
-            '11' => __( 'ноября', 'mif-bp-customizer' ),
-            '12' => __( 'декабря', 'mif-bp-customizer' ),
-        );
 
-        $out = '';
-        $now = date( 'Y-m-d H:i:s' );
-        $yesterday = date( 'Y-m-d H:i:s', time() - 86400 );
+        // $month = array( 
+        //     '01' => __( 'января', 'mif-bp-customizer' ),
+        //     '02' => __( 'февраля', 'mif-bp-customizer' ),
+        //     '03' => __( 'марта', 'mif-bp-customizer' ),
+        //     '04' => __( 'апреля', 'mif-bp-customizer' ),
+        //     '05' => __( 'мая', 'mif-bp-customizer' ),
+        //     '06' => __( 'июня', 'mif-bp-customizer' ),
+        //     '07' => __( 'июля', 'mif-bp-customizer' ),
+        //     '08' => __( 'августа', 'mif-bp-customizer' ),
+        //     '09' => __( 'сентября', 'mif-bp-customizer' ),
+        //     '10' => __( 'октября', 'mif-bp-customizer' ),
+        //     '11' => __( 'ноября', 'mif-bp-customizer' ),
+        //     '12' => __( 'декабря', 'mif-bp-customizer' ),
+        // );
 
-        if ( get_date_from_gmt( $time, 'Y-m-d' ) == get_date_from_gmt( $now, 'Y-m-d' ) ) {
+        // $out = '';
+        // $now = date( 'Y-m-d H:i:s' );
+        // $yesterday = date( 'Y-m-d H:i:s', time() - 86400 );
 
-            // Если сегодня, то вывести время и минуты
-            $out = get_date_from_gmt( $time, 'H:i' );
+        // if ( get_date_from_gmt( $time, 'Y-m-d' ) == get_date_from_gmt( $now, 'Y-m-d' ) ) {
 
-        } elseif ( get_date_from_gmt( $time, 'Y-m-d' ) == get_date_from_gmt( $yesterday, 'Y-m-d' ) ) {
+        //     // Если сегодня, то вывести время и минуты
+        //     $out = get_date_from_gmt( $time, 'H:i' );
 
-            // Если вчера, то вывести время, минуты и сообщение, что это вчера
-            $out = get_date_from_gmt( $time, 'H:i' ) . ', ' . __( 'вчера', 'mif-bp-customizer' );
+        // } elseif ( get_date_from_gmt( $time, 'Y-m-d' ) == get_date_from_gmt( $yesterday, 'Y-m-d' ) ) {
 
-        } elseif ( get_date_from_gmt( $time, 'Y' ) == get_date_from_gmt( $now, 'Y' ) ) {
+        //     // Если вчера, то вывести время, минуты и сообщение, что это вчера
+        //     $out = get_date_from_gmt( $time, 'H:i' ) . ', ' . __( 'вчера', 'mif-bp-customizer' );
 
-            // Если этом году, то вывести время, минуты, день и месяц
-            $out = get_date_from_gmt( $time, 'H:i, j ' );
-            $out .= $month[get_date_from_gmt( $time, 'm' )];
+        // } elseif ( get_date_from_gmt( $time, 'Y' ) == get_date_from_gmt( $now, 'Y' ) ) {
+
+        //     // Если этом году, то вывести время, минуты, день и месяц
+        //     $out = get_date_from_gmt( $time, 'H:i, j ' );
+        //     $out .= $month[get_date_from_gmt( $time, 'm' )];
             
-        } else {
+        // } else {
 
-            // В остальных случаях вывести время, минуты, день с ведущими нулями, номер месяца и год
-            $out = get_date_from_gmt( $time, 'H:i, j ' );
-            $out .= $month[get_date_from_gmt( $time, 'm' )];
-            $out .= get_date_from_gmt( $time, ' Y ' ) . __( 'года', 'mif-bp-customizer' );
-            $out = get_date_from_gmt( $time, 'H:i, d.m.Y' );
+        //     // В остальных случаях вывести время, минуты, день с ведущими нулями, номер месяца и год
+        //     $out = get_date_from_gmt( $time, 'H:i, j ' );
+        //     $out .= $month[get_date_from_gmt( $time, 'm' )];
+        //     $out .= get_date_from_gmt( $time, ' Y ' ) . __( 'года', 'mif-bp-customizer' );
+        //     $out = get_date_from_gmt( $time, 'H:i, d.m.Y' );
             
-        }
+        // }
             
-        return $out;
+        // return $out;
     }
 
 

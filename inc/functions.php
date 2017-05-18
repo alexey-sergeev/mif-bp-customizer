@@ -167,3 +167,71 @@ function mif_bpc_get_member_name( $user_id )
 
     return apply_filters( 'bp_get_member_name', $name );
 }
+
+
+
+//
+// Возвращает короткую и понятную метку времени
+// 
+// $time - время в формате MySQL по GMT (2017-05-17 23:02:50)
+//
+
+function mif_bpc_time_since( $time, $reverse = false )
+{
+
+    $month = array( 
+        '01' => __( 'января', 'mif-bp-customizer' ),
+        '02' => __( 'февраля', 'mif-bp-customizer' ),
+        '03' => __( 'марта', 'mif-bp-customizer' ),
+        '04' => __( 'апреля', 'mif-bp-customizer' ),
+        '05' => __( 'мая', 'mif-bp-customizer' ),
+        '06' => __( 'июня', 'mif-bp-customizer' ),
+        '07' => __( 'июля', 'mif-bp-customizer' ),
+        '08' => __( 'августа', 'mif-bp-customizer' ),
+        '09' => __( 'сентября', 'mif-bp-customizer' ),
+        '10' => __( 'октября', 'mif-bp-customizer' ),
+        '11' => __( 'ноября', 'mif-bp-customizer' ),
+        '12' => __( 'декабря', 'mif-bp-customizer' ),
+    );
+
+    $out = '';
+    $now = date( 'Y-m-d H:i:s' );
+    $yesterday = date( 'Y-m-d H:i:s', time() - 86400 );
+
+    if ( get_date_from_gmt( $time, 'Y-m-d' ) == get_date_from_gmt( $now, 'Y-m-d' ) ) {
+
+        // Если сегодня, то вывести время и минуты
+        // $out = get_date_from_gmt( $time, 'H:i' );
+        $arr[0] = get_date_from_gmt( $time, 'H:i' );
+
+    } elseif ( get_date_from_gmt( $time, 'Y-m-d' ) == get_date_from_gmt( $yesterday, 'Y-m-d' ) ) {
+
+        // Если вчера, то вывести время, минуты и сообщение, что это вчера
+        // $out = get_date_from_gmt( $time, 'H:i' ) . ', ' . __( 'вчера', 'mif-bp-customizer' );
+        $arr[0] = __( 'вчера', 'mif-bp-customizer' );
+        $arr[1] = get_date_from_gmt( $time, 'H:i' );
+
+    } elseif ( get_date_from_gmt( $time, 'Y' ) == get_date_from_gmt( $now, 'Y' ) ) {
+
+        // Если этом году, то вывести время, минуты, день и месяц
+        $arr[0] = get_date_from_gmt( $time, 'j ' ) . $month[get_date_from_gmt( $time, 'm' )];
+        $arr[1] = get_date_from_gmt( $time, 'H:i' );
+        // $out = get_date_from_gmt( $time, 'H:i, j ' );
+        // $out .= $month[get_date_from_gmt( $time, 'm' )];
+        
+    } else {
+
+        // В остальных случаях вывести время, минуты, день с ведущими нулями, номер месяца и год
+        // // $out = get_date_from_gmt( $time, 'H:i, j ' );
+        // // $out .= $month[get_date_from_gmt( $time, 'm' )];
+        // // $out .= get_date_from_gmt( $time, ' Y ' ) . __( 'года', 'mif-bp-customizer' );
+        // $out = get_date_from_gmt( $time, 'H:i, d.m.Y' );
+        $arr[0] = get_date_from_gmt( $time, 'd.m.Y' );
+        $arr[1] = get_date_from_gmt( $time, 'H:i' );
+        
+    }
+
+    if ( $reverse ) $arr = array_reverse( $arr );
+
+    return apply_filters( 'bp_get_member_name', implode( ', ', $arr ), $time );
+}

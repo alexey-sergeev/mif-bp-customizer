@@ -32,7 +32,7 @@ class mif_bpc_docs {
     // Документов на одной странице
     //
 
-    public $docs_on_page = 24;
+    public $docs_on_page = 18;
 
     //
     // Ярлык системы документов
@@ -46,6 +46,13 @@ class mif_bpc_docs {
 
     public $path = 'docs';
 
+    //
+    // Размер аватарки пользователя
+    //
+
+    public $avatar_size = 50;
+
+
 
     function __construct()
     {
@@ -55,11 +62,15 @@ class mif_bpc_docs {
 
         // Настройка страницы документов
         add_action( 'bp_activity_setup_nav', array( $this, 'nav' ) );
-        add_action( 'bp_screens', array( $this, 'doc_page_init' ) );
+        add_action( 'bp_screens', array( $this, 'doc_page' ) );
 
         // Ajax-события
         add_action( 'wp_ajax_mif-bpc-docs-upload-files', array( $this, 'ajax_upload_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-network-link-files', array( $this, 'ajax_network_link_helper' ) );
+        
+        add_action( 'wp_ajax_mif-bpc-docs-collection-more', array( $this, 'ajax_collection_more_helper' ) );
+
+
         add_action( 'wp_ajax_mif-bpc-docs-new-folder', array( $this, 'ajax_new_folder_helper' ) );
 
         // add_action( 'bp_init', array( $this, 'dialogues_nav' ) );
@@ -212,9 +223,6 @@ class mif_bpc_docs {
     function body()
     {
         $tpl_file = 'docs-page.php';
-        // if ( bp_is_current_action( 'new-folder' ) ) $tpl_file = 'docs-folder-settings.php';
-
-        // if ( is_int( bp_current_action() ) ) $tpl_file = 'docs-folder.php';
 
         if ( $template = locate_template( $tpl_file ) ) {
             load_template( $template, false );
@@ -226,16 +234,30 @@ class mif_bpc_docs {
 
 
     // 
-    // Настройка страницы просмотра файлов или папки
+    // Страница просмотра отдельного документа
     // 
 
-    function doc_page_init()
+    function doc_page()
     {
         if ( bp_current_component() != 'docs' || ! is_numeric( bp_current_action() ) ) return false;
-        
-        p( 'ook' );
-        
-        $this->screen();
+
+        // bp_core_load_template( 'members/docs-page-doc' );
+    	global $wp_query;
+
+        $tpl_file = 'docs-page-doc.php';
+
+        status_header( 200 );
+		$wp_query->is_page     = true;
+		$wp_query->is_singular = true;
+		$wp_query->is_404      = false;
+
+        if ( $template = locate_template( $tpl_file ) ) {
+            load_template( $template, false );
+        } else {
+            load_template( dirname( __FILE__ ) . '/../templates/' . $tpl_file, false );
+        }
+
+        exit();
     }
 
 
@@ -313,6 +335,35 @@ class mif_bpc_docs {
             echo __( 'Ошибка', 'mif-bp-customizer' );
 
         }
+
+        wp_die();
+    }
+
+
+
+    // 
+    // Ajax-помощник загрузки страницы документов
+    // 
+
+    function ajax_collection_more_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-collection-more-nonce' );
+
+        $page = (int) $_POST['page'];
+
+        if ( isset( $_POST['folder_id'] ) ) {
+
+            $folder_id = (int) $_POST['folder_id'];
+            echo $this->get_docs_collection( $folder_id, $page );
+
+        } else {
+
+            $item_id = (int) $_POST['item_id'];
+            $mode = $_POST['mode'];
+            echo $this->get_folders( $page, $item_id, $mode );
+            f($_POST);
+        }
+        
 
         wp_die();
     }
@@ -470,11 +521,17 @@ class mif_bpc_docs {
     // Все папки пользователя или группы
     // 
 
-    function get_folders( $page = 0, $item_id = NULL, $mode = 'member' )
+    function get_folders( $page = 1, $item_id = NULL, $mode = 'member' )
     {
-        $args = array(
-            'numberposts' => $this->folders_on_page,
-            'author' => bp_displayed_user_id(),
+        if ( ! in_array( $mode, array( 'member', 'group' ) ) ) return;
+
+        $item_id = bp_displayed_user_id();
+
+        $args['member'] = array(
+            // 'numberposts' => $this->folders_on_page,
+            'posts_per_page' => $this->folders_on_page,
+            'paged' => $page,
+            'author' => $item_id,
             // 'category'    => 0,
             'orderby'     => 'date',
             'order'       => 'DESC',
@@ -485,20 +542,43 @@ class mif_bpc_docs {
             'post_type'   => 'mif-bpc-folder',
         );
 
-        $folders = get_posts( $args );
+        $out = '';
+        if ( $page === 1 ) $out .= '<div class="collection clearfix">';
+
+        $folders = get_posts( $args['member'] );
 
         if ( $folders ) {
 
             $arr = array();
             foreach( $folders as $folder ) $arr[] = $this->get_folder_item( $folder );
 
-            $out = implode( "\n", $arr );
+            $out .= implode( "\n", $arr );
+
+            if ( count( $folders ) == $this->folders_on_page ) {
+
+                // $out .= '<form><div class="more">
+                // <button>' . __( 'Показать ещё', 'mif-bp-customizer' ) . '</button>
+                // <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
+                // $out .= '<input type="hidden" name="nonce" value="' . wp_create_nonce( 'mif-bpc-docs-folders-more-nonce' ) . '">';
+                // $out .= '<input type="hidden" name="item_id" value="' . $item_id . '">';
+                // $out .= '<input type="hidden" name="mode" value="' . $mode . '">';
+                // $next_page = (int) $page + 1;
+                // $out .= '<input type="hidden" name="page" value="' . $next_page . '">';
+                // $out .= '</form>';
+
+                $out .= $this->get_more_button( $page, array( 'mode' => $mode, 'item_id' => $item_id ) );
+
+            }
+
+            // $out .= '111';
         
         } else {
 
-            $out = __( 'Папки не обнаружены', 'mif-bp-customizer' );
+            if ( $page === 1 ) $out = __( 'Папки не обнаружены', 'mif-bp-customizer' );
 
         }
+
+        if ( $page === 1 ) $out .= '</div>';
 
         return apply_filters( 'mif_bpc_docs_get_folders', $out, $page, $item_id, $mode, $arr );
     }
@@ -509,17 +589,18 @@ class mif_bpc_docs {
     // Все документы, расположенные в папке
     // 
 
-    function get_docs_collection( $folder_id, $page = 0 )
+    function get_docs_collection( $folder_id, $page = 1 )
     {
         if ( ! $this->is_access( $folder_id, 'read' ) ) {
 
             $out = __( 'Доступ ограничен', 'mif-bp-customizer' );   
-            return apply_filters( 'mif_bpc_docs_get_docs_access_denied', $out, $folder_id );
+            return apply_filters( 'mif_bpc_docs_get_docs_collection_access_denied', $out, $folder_id );
 
         }
 
         $args = array(
-            'numberposts' => $this->docs_on_page,
+            // 'numberposts' => $this->docs_on_page,
+            'posts_per_page' => $this->docs_on_page,
             // 'author' => bp_displayed_user_id(),
             // 'category'    => 0,
             'orderby'     => 'date',
@@ -529,10 +610,12 @@ class mif_bpc_docs {
             // 'meta_key'    => '',
             // 'meta_value'  =>'',
             'post_type'   => 'mif-bpc-doc',
-            'post_parent' => $folder_id
+            'post_parent' => $folder_id,
+            'paged' => $page,
         );
 
-        $out = '<div class="docs-collection response-box clearfix">';
+        $out = '';
+        if ( $page === 1 ) $out .= '<div class="collection response-box clearfix">';
 
         $docs = get_posts( $args );
 
@@ -542,16 +625,56 @@ class mif_bpc_docs {
             foreach( $docs as $doc ) $arr[] = $this->get_doc_item( $doc );
 
             $out .= implode( "\n", $arr );
+
+            if ( count( $docs ) == $this->docs_on_page ) {
+
+                // $out .= '<form><div class="more">
+                // <button>' . __( 'Показать ещё', 'mif-bp-customizer' ) . '</button>
+                // <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
+                // $out .= '<input type="hidden" name="nonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-more-nonce' ) . '">';
+                // $out .= '<input type="hidden" name="folder_id" value="' . $folder_id . '">';
+                // $next_page = (int) $page + 1;
+                // $out .= '<input type="hidden" name="page" value="' . $next_page . '">';
+                // $out .= '</form>';
+
+                $out .= $this->get_more_button( $page, array( 'folder_id' => $folder_id ) );
+
+            }
         
         } else {
 
-            $out .= __( 'Документы не обнаружены', 'mif-bp-customizer' );
+            if ( $page === 1 ) $out .= __( 'Документы не обнаружены', 'mif-bp-customizer' );
+            
 
         }
 
-        $out .= '</div>';
+        if ( $page === 1 ) $out .= '</div>';
 
-        return apply_filters( 'mif_bpc_docs_get_folders', $out, $page, $item_id, $mode, $arr );
+        return apply_filters( 'mif_bpc_docs_get_docs_collection', $out, $page, $folder_id );
+    }
+
+
+
+    // 
+    // Выводит кнопку "Показать ещё"
+    // 
+
+    function get_more_button( $page, $args = array() )
+    {
+        $out = '';
+
+        $out .= '<form><div class="more">
+        <button>' . __( 'Показать ещё', 'mif-bp-customizer' ) . '</button>
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
+        $out .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-more-nonce' ) . '">';
+
+        foreach ( $args as $key => $value ) $out .= '<input type="hidden" name="' . $key . '" value="' . $value . '">';
+
+        $next_page = (int) $page + 1;
+        $out .= '<input type="hidden" name="page" value="' . $next_page . '">';
+        $out .= '</form>';
+
+        return apply_filters( 'mif_bpc_docs_get_more_button', $out, $page, $args );
     }
 
 
@@ -575,8 +698,9 @@ class mif_bpc_docs {
             if ( is_numeric( $doc ) ) $doc = get_post( $doc );
 
             $name = $doc->post_title;
-            $type = ( preg_match( '/^http/', $doc->post_content ) ) ? $doc->post_content : $doc->post_title;
-            $logo = $this->get_file_logo( $type );
+            // $type = ( preg_match( '/^http/', $doc->post_content ) ) ? $doc->post_content : $doc->post_title;
+            // $logo = $this->get_file_logo( $type );
+            $logo = $this->get_file_logo( $doc );
             $loading = '';
             $a1 = '<a href="' . $this->get_docs_url() . '/' . $doc->ID . '/">';
             $a2 = '</a>';
@@ -712,28 +836,27 @@ class mif_bpc_docs {
         } elseif ( $ca == 'folder' && is_numeric( $param ) ) {
 
             // Отобразить страницу папки
-            // $out .= 'folder ' . $param;
             $out .= $this->get_folder_content( $param );
 
-        } elseif ( is_numeric( $ca ) ) {
+        // } elseif ( is_numeric( $ca ) ) {
 
-            // Отобразить страницу документа
-            $out .= 'doc ' . $ca;
+        //     // Отобразить страницу документа
+        //     $out .= 'doc ' . $ca;
 
-            // $item = get_post( $ca );
+        //     // $item = get_post( $ca );
             
-            // if ( isset( $item ) && $item->post_type == 'mif-bpc-doc' ) {
+        //     // if ( isset( $item ) && $item->post_type == 'mif-bpc-doc' ) {
 
-            //     $out .= 'doc';
+        //     //     $out .= 'doc';
 
-            // } elseif ( isset( $item ) && $item->post_type == 'mif-bpc-folder' ) {
+        //     // } elseif ( isset( $item ) && $item->post_type == 'mif-bpc-folder' ) {
 
 
-            // } else {
+        //     // } else {
 
-            //     $out .= 'none';
+        //     //     $out .= 'none';
 
-            // }
+        //     // }
 
         } else {
 
@@ -780,15 +903,155 @@ class mif_bpc_docs {
     }
 
 
+
     // 
     // Логотип файла
     // 
 
-    function get_file_logo( $file = 'none' )
+    function get_file_logo( $doc )
     {
-        // $ext = end( explode( ".", $file ) );
-        return apply_filters( 'mif_bpc_docs_get_file_logo', get_file_icon( $file, 'fa-3x' ), $file );
+        $type = ( preg_match( '/^http/', $doc->post_content ) ) ? $doc->post_content : $doc->post_title;
+        return apply_filters( 'mif_bpc_docs_get_file_logo', get_file_icon( $type, 'fa-3x' ), $doc );
     }
+
+
+
+    //
+    // Получает данные документа, отображаемого на экране
+    //
+
+    function get_doc_data()
+    {
+        if ( bp_current_component() != 'docs' || ! is_numeric( bp_current_action() ) ) return false;
+        // if ( ! $this->is_access( $folder_id, 'read' ) ) return false;
+
+        $doc_id = bp_current_action();
+        $doc_data = get_post( $doc_id );
+
+        return apply_filters( 'mif_bpc_docs_get_doc_data', $doc_data, $doc_id );
+    }
+
+
+    //
+    // Выводит документ на страницу документа
+    //
+
+    function get_doc()
+    {
+        $out = '';
+
+        $doc = $this->get_doc_data();
+        if ( empty( $doc ) ) return;
+
+        $logo = $this->get_file_logo( $doc );
+
+        $out .= '<p>' . $logo;
+        $out .= '<p>' . $doc->post_title;
+        $out .= '<p>' . $doc->post_content;
+
+        return apply_filters( 'mif_bpc_docs_get_doc', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит владельца документа
+    //
+
+    function get_owner()
+    {
+        $out = '';
+
+        $doc = $this->get_doc_data();
+        if ( empty( $doc ) ) return;
+
+        $avatar = get_avatar( $doc->post_author, apply_filters( 'mif_bpc_docs_avatar_size', $this->avatar_size ) );
+        // $title = bp_core_get_user_displayname( $doc->post_author );
+        $title = mif_bpc_get_member_name( $doc->post_author );
+
+        $out .= '<div class="owner"><a href="' . bp_core_get_user_domain( $doc->post_author ) . '" target="blank"><span>' . $avatar . '</span><span>' . $title . '</span></a></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_owner', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит папку документа
+    //
+
+    function get_folder()
+    {
+        $out = '';
+
+        $doc = $this->get_doc_data();
+        if ( empty( $doc ) ) return;
+
+        $folder = get_post( $doc->post_parent );
+        if ( empty( $folder ) ) return;
+
+        $folder_url = $this->get_docs_url() . '/folder/' . $folder->ID . '/';
+
+        $out .= '<div class="folder"><span class="one">' . __( 'Папка', 'mif-bp-customizer' ) . ':</span> <span class="two"><a href="' . $folder_url . '">' . $folder->post_title . '</a></span></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_folder', $out, $doc, $folder );
+    }
+
+
+
+    //
+    // Выводит группу документа
+    //
+
+    function get_group()
+    {
+        return apply_filters( 'mif_bpc_docs_get_group', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит время размещения документа
+    //
+
+    function get_date()
+    {
+        $out = '';
+
+        $doc = $this->get_doc_data();
+        if ( empty( $doc ) ) return;
+
+        $txt = ( $doc->post_date_gmt == $doc->post_modified_gmt ) ? __( 'Опубликовано', 'mif-bp-customizer' ) : __( 'Изменено', 'mif-bp-customizer' );
+
+        $out .= '<div class="date"><span class="one">' . $txt . ':</span> <span class="two">' . mif_bpc_time_since( $doc->post_modified_gmt ) . '</span></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_date', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит ссылку на следующий документ
+    //
+
+    function get_next()
+    {
+        return apply_filters( 'mif_bpc_docs_get_next', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит ссылку на предыдущий документ
+    //
+
+    function get_prev()
+    {
+        return apply_filters( 'mif_bpc_docs_get_prev', $out, $doc );
+    }
+
+
+
 
 
     //
@@ -866,5 +1129,91 @@ function mif_bpc_the_docs_content()
     global $mif_bpc_docs;
     echo $mif_bpc_docs->get_docs_content();
 }
+
+
+
+//
+// Выводит документ на страницу документа
+//
+
+function mif_bpc_docs_the_doc()
+{
+    global $mif_bpc_docs;
+    echo $mif_bpc_docs->get_doc();
+}
+
+
+
+//
+// Выводит владельца документа
+//
+
+function mif_bpc_docs_the_owner()
+{
+    global $mif_bpc_docs;
+    echo $mif_bpc_docs->get_owner();
+}
+
+
+
+//
+// Выводит папку документа
+//
+
+function mif_bpc_docs_the_folder()
+{
+    global $mif_bpc_docs;
+    echo $mif_bpc_docs->get_folder();
+}
+
+
+
+//
+// Выводит группу документа
+//
+
+function mif_bpc_docs_the_group()
+{
+    global $mif_bpc_docs;
+    echo $mif_bpc_docs->get_group();
+}
+
+
+
+//
+// Выводит время размещения документа
+//
+
+function mif_bpc_docs_the_date()
+{
+    global $mif_bpc_docs;
+    echo $mif_bpc_docs->get_date();
+}
+
+
+
+//
+// Выводит ссылку на следующий документ
+//
+
+function mif_bpc_docs_the_next()
+{
+    global $mif_bpc_docs;
+    echo $mif_bpc_docs->get_next();
+}
+
+
+
+//
+// Выводит ссылку на предыдущий документ
+//
+
+function mif_bpc_docs_the_prev()
+{
+    global $mif_bpc_docs;
+    echo $mif_bpc_docs->get_prev();
+}
+
+
 
 ?>
