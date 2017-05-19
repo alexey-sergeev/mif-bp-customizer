@@ -171,16 +171,57 @@ jQuery( document ).ready( function( jq ) {
 
 
 	//
-	// Продолжить список документов
+	// Удалить или восстановить документ
 	//
 
-	jq( '.collection' ).on( 'click', 'button', function() {
+	jq( '.collection' ).on( 'click', '.doc-remove', function() {
+
+        var item = jq( this ).closest( '.file' );
+        var doc_id = jq( this ).attr( 'data-doc-id' );
+        var nonce = jq( '#docs-collection-nonce' ).val();
+        var restore = ( jq( this ).hasClass( 'restore' ) ) ? 1 : 0;
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-docs-remove-doc',
+            doc_id: doc_id,
+            restore: restore,
+            _wpnonce: nonce,
+        },
+        function( response ) { 
+
+            if ( response == '' ) {
+
+                item.addClass( 'error' );
+                setTimeout( function() { item.removeClass( 'error' ); }, 1000 );
+
+            } else {
+
+                item.replaceWith( response );
+                folder_statusbar_info_update();
+
+            }
+
+        });
+
+
+        return false;
+
+    } )
+
+
+
+	//
+	// Продолжить список документов или папок
+	//
+
+	jq( '.docs-content' ).on( 'click', '.collection button', function() {
 
         var form = jq( this ).closest( 'form' );
-        var data = new FormData( form.get(0) );
-        data.append( 'action', 'mif-bpc-docs-collection-more' );
-
-        // console.log( data );
+        var data = new FormData( form.get( 0 ) );
+        var trashed = ( jq( '#show-remove-docs' ).prop( 'checked' ) ) ? 1 : 0;
+        data.append( 'trashed', trashed );
+        // data.append( 'action', 'mif-bpc-docs-collection-more' );
+        data.append( 'action', 'mif-bpc-docs-doc-collection-show' );
 
         jq.ajax( {
             url: ajaxurl,
@@ -193,69 +234,44 @@ jQuery( document ).ready( function( jq ) {
                 jq( '.collection .more' ).remove();
 
                 var elements = jq( response ).hide();
-                // elements.hide();    
                 jq( '.collection' ).append( elements );
                 elements.fadeIn();
-
-
-                // jq( '.docs-folder-settings').animate( { 'opacity': 0 }, function() {
-
-                //     jq( '.docs-folder-settings').html( response );
-                //     jq( '.docs-folder-settings').animate( { 'opacity': 1 } );
-
-                // } )
-                
-                // console.log( response );
 
             }
         } );
 
+        return false;
 
-        // var form = jq( this ).closest( 'form' );
-        // var page = jq( 'input[name="page"]', form ).val();
-        // var folder_id = jq( 'input[name="folder_id"]', form ).val();
-        // var nonce = jq( 'input[name="nonce"]', form ).val();
-
-        // jq( '.collection .more' ).addClass( 'processing' );
-
-        // // Отправить Ajax-запрос
-
-        // jq.post( ajaxurl, {
-        //     action: 'mif-bpc-docs-docs-collection-more',
-        //     page: page,
-        //     folder_id: folder_id,
-        //     _wpnonce: nonce,
-        // },
-        // function( response ) { 
-
-        //     jq( '.collection .more' ).remove();
-
-        //     var elements = jq( response );
-        //     elements.hide();    
-        //     jq( '.docs-collection' ).append( elements );
-        //     elements.fadeIn();
+    } )
 
 
-        //     // jq( '.docs-collection' ).append( response );
 
-        //     console.log(response);
+	//
+	// Показать удаленные
+	//
 
-        //     // if ( response ) {
+	jq( '.statusbar' ).on( 'change', '#show-remove-docs', function() {
 
-        //     //     item.removeClass( 'loading' );
-        //     //     item.replaceWith( response );
+        var nonce = jq( '#docs-collection-nonce' ).val();
+        var folder_id = jq( '#docs-folder-id' ).val();
+        var trashed = ( jq( '#show-remove-docs' ).prop( 'checked' ) ) ? 1 : 0;
+        
 
-        //     //     jq( 'input[name="link"]', form ).val( '' );
-        //     //     jq( 'input[name="descr"]', form ).val( '' );
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-docs-doc-collection-show',
+            folder_id: folder_id,
+            trashed: trashed,
+            _wpnonce: nonce,
+        },
+        function( response ) { 
 
-        //     // } else {
+            var elements = jq( response ).hide();
+            // var elements = jq( response );
+            jq( '.collection' ).replaceWith( elements );
+            elements.fadeIn();
+            // jq( '.collection' ).html( response );
 
-        //     //     item.addClass( 'error' );
-
-        //     // }
-
-        // });
-
+        });
 
         return false;
 
@@ -299,6 +315,33 @@ jQuery( document ).ready( function( jq ) {
 
 	} );
 
+   
+
+
+    //
+    // Обновляет статусную строку папки
+    //
+
+    function folder_statusbar_info_update()
+    {
+        var nonce = jq( '#docs-collection-nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-docs-folder-statusbar-info',
+            _wpnonce: nonce,
+        },
+        function( response ) { 
+
+            jq( '.statusbar .info' ).html( response );
+            // console.log( response );
+
+        });
+
+    }
+
+    // Запустить обновление срузу после загрузки страницы
+
+    folder_statusbar_info_update();
 
 });
 

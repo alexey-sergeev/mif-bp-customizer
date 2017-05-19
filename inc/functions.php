@@ -235,3 +235,36 @@ function mif_bpc_time_since( $time, $reverse = false )
 
     return apply_filters( 'bp_get_member_name', implode( ', ', $arr ), $time );
 }
+
+
+//
+// Красивое оформление размера файла
+//
+
+
+function mif_bpc_format_file_size( $size = 0 ) 
+{
+    if ( $size == 0 ) return 0;
+
+    $arr = array(
+        __( 'Б', 'mif-bp-customizer' ),
+        __( 'Кб', 'mif-bp-customizer' ),
+        __( 'Мб', 'mif-bp-customizer' ),
+        __( 'Гб', 'mif-bp-customizer' ),
+        __( 'Тб', 'mif-bp-customizer' ),
+        __( 'Пб', 'mif-bp-customizer' ),
+        );
+
+    $i = 0;
+
+    while ( $size >= 1024 ) {
+
+        $size = $size / 1024;
+        $i++;
+
+    }
+
+    $ret = round( $size, 2 ) . ' ' . $arr[$i];
+
+    return apply_filters( 'mif_bpc_format_file_size', $ret, $size );
+}

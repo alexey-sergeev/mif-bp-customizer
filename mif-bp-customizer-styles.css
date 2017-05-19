@@ -1,3 +1,42 @@
+/* Статусная строка папки */
+
+.docs-page .statusbar {
+    border: 1px solid #E3E4E5;
+    background-color: #f8f8f8;
+    padding: 0.5rem;
+    margin-top: 1rem;
+}
+
+.docs-page .statusbar .info {
+    font-size: 90%;
+    /*font-weight: bold;*/
+}
+
+.docs-page .statusbar .info .two {
+    margin-right: 1rem;
+    background-color: #999;
+    padding: 1px 6px;
+    border-radius: 2px;
+    color: #fff;
+}
+
+.docs-page .statusbar .tools {
+    float: right;
+}
+
+
+.docs-page .statusbar .tools .one {
+    vertical-align: middle;
+    margin-right: 0.25rem;
+}
+
+.docs-page .statusbar .tools .two {
+    background-color: #999;
+    padding: 1px 6px;
+    border-radius: 2px;
+    color: #fff;
+}
+
 /* Страница документа */
 
 .docs-page-doc .content {
@@ -9,6 +48,108 @@
     width: 25%;
     float: left;
 }
+
+/*.docs-page-doc h2 {
+    margin: 0 0 2rem 0;
+}*/
+
+.docs-page-doc .content img {
+    max-width: 100%;
+}
+
+.docs-page-doc .content .doc {
+    margin: 0 1.5rem 1.5rem 0;
+}
+
+.docs-page-doc .content .doc .file {
+    float: left;
+    margin: 0 1.5rem 0 0;
+}
+
+.docs-page-doc .content .doc .image {
+    margin: 0 0 1.5rem 0;
+}
+
+.docs-page-doc .content .doc .item {
+    border: 1px solid #aaa;
+    background-color: #f2f2f2;
+    width: 5rem;
+    height: 5rem;
+    text-align: center;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.docs-page-doc .content .doc .name {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.docs-page-doc .content .doc .item i {
+    line-height: 5rem;
+}
+
+.docs-page-doc .content .doc .mobile {
+    display: none;
+}
+
+.docs-page-doc .content .name {
+    /*font-weight: bold;*/
+    /*margin-bottom: 1rem;*/
+}
+
+
+/*.docs-page-doc .content .doc .logo {
+    width: 150px;
+    height: 150px;
+    text-align: center;
+    display: block;
+}
+
+.docs-page-doc .content .doc .logo i {
+    line-height: 150px;
+}*/
+
+
+.docs-page-doc .meta div {
+    margin-bottom: 1rem;
+}
+
+.docs-page-doc .meta .name,
+.docs-page-doc .meta .folder {
+    font-weight: bold;
+}
+
+.docs-page-doc .meta .date {
+    padding: 0.5rem 1rem;
+    font-size: 90%;
+    background-color: #f2f2f2;
+    border-radius: 2px;
+    color: #474747;
+    display: inline-block;
+}
+
+.docs-page-doc .meta .owner .one {
+    float: left;
+    margin-right: 0.5rem;
+}
+
+.docs-page-doc .meta .owner img.avatar {
+    border: 1px solid #E7E7E7;
+    padding: 3px;
+    display: block;
+}
+
+.docs-page-doc .meta .prev,
+.docs-page-doc .meta .next {
+    float: left;
+    font-weight: bold;
+    margin-right: 1rem;
+    margin-top: 1rem;
+}
+
+
+
 
 /* Форма загрузки документов */
 
@@ -79,7 +220,7 @@
 
 /* Документы */
 
-.file {
+.docs-page .file {
     float: left;
     width: 8rem;
     height: 8rem;
@@ -87,13 +228,14 @@
     margin: .5rem 1rem .5rem 0;
     position: relative;
     background-color: #f2f2f2;
+    overflow: hidden;
 }
 
-.file .name {
+.docs-page .file .name {
     display: inline-block;
     background-color: rgba(255,255,255,0.75);
     width: 100%;
-    max-height: 67%;
+    max-height: 5.5rem;
     text-align: center;
     font-size: 90%;
     position: absolute;
@@ -102,13 +244,56 @@
     word-wrap: break-word;
     line-height: normal;
     color: #545557;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;
+    padding: 0 0.25rem;
+    box-sizing: border-box;
 }
 
-.file.folder .name {
+.docs-page .file:hover .name {
+    padding-bottom: 0.5rem;
+    max-height: 6rem;
+}
+
+.docs-page .file.folder .name {
     font-weight: bold;
 }
 
-.file .logo {
+.docs-page .file .button.left {
+    left: 0;
+}
+
+.docs-page .file .button.right {
+    right: 0;
+}
+
+.docs-page .file .button.doc-download i.fa-arrow-up {
+    transform: rotate(45deg);
+}
+
+.docs-page .file .button {
+    background-color: inherit;
+    color: #828282;
+    padding: 4px 8px;
+    margin: 0;
+    font-size: 12px;
+    position: absolute;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;
+    opacity: 0;
+}
+
+.docs-page .file:hover .button {
+    opacity: 1;
+}
+
+.docs-page .file .button:hover {
+    /*background-color: #e0e0e0;*/
+    background-color: rgba(255,255,255,0.75);    
+    color: #545557;
+}
+
+.docs-page .file .logo {
     position: absolute;
     width: 100%;
     line-height: 8rem;
@@ -117,16 +302,20 @@
     /*color: #aaa;*/
 }
 
-.file.loading.error {
+.docs-page .file.trash {
+    background-color: #FFFFBF;
+}
+
+.docs-page .file.error {
     background-color: rgba(255,0,0,0.25);
 }
 
-.file.loading.error .fa-spin {
+.docs-page .file.error .logo .fa {
     color: red;
     animation: none;
 }
 
-.file.loading .logo {
+.docs-page .file.loading .logo {
     z-index: 9999;
 }
 
