@@ -484,8 +484,10 @@ jQuery( document ).ready( function( jq ) {
     jq( '.messages-form' ).keypress( 'a.send.button', function( e ) {
 
         if ( e.which == 13 ) {
+
             jq( '.messages-form a.send.button' ).trigger( 'click' );
             return false;
+            
         }
 
     });
@@ -495,7 +497,8 @@ jQuery( document ).ready( function( jq ) {
     // Обработка клавиш на странице диалога
     //
 
-    jq( document ).keydown ( function( e ) {
+    // jq( document ).keydown ( function( e ) {
+    jq( '.dialogues-page' ).keydown ( function( e ) {
 
         if ( e.which == 27 ) {
 

@@ -24,6 +24,9 @@
     float: right;
 }
 
+.docs-page .statusbar .tools .item {
+    margin-left: 0.25rem;
+}
 
 .docs-page .statusbar .tools .one {
     vertical-align: middle;
@@ -31,10 +34,22 @@
 }
 
 .docs-page .statusbar .tools .two {
+    cursor: pointer;
     background-color: #999;
-    padding: 1px 6px;
+    padding: 2px 6px;
     border-radius: 2px;
     color: #fff;
+    transition-duration: .12s;
+    transition-timing-function: ease-out;
+}
+
+.docs-page .statusbar .tools .two:hover {
+    background-color: #414141;
+}
+
+.docs-page .statusbar .tools .two a {
+    color: #fff;
+    outline: none;
 }
 
 /* Страница документа */
@@ -204,19 +219,30 @@
 
 /* Создание и настройка папок */
 
-.new-folder .docs-content {
+.folder-settings {
     border: 1px solid #E3E4E5;
     padding: 10px 20px;
 }
 
-.new-folder .docs-content input[type="text"],
-.new-folder .docs-content textarea {
+.folder-settings input[type="text"],
+.folder-settings textarea {
     width: 80%;
 }
 
-.new-folder .docs-content textarea {
+.folder-settings textarea {
     min-height: 6rem;
 }
+
+.remove-box {
+    display: none;
+}
+
+.folder-settings .trash input[type="text"],
+.folder-settings .trash textarea {
+    width: 80%;
+}
+
+
 
 /* Документы */
 
@@ -259,11 +285,11 @@
     font-weight: bold;
 }
 
-.docs-page .file .button.left {
+.docs-page .file .left {
     left: 0;
 }
 
-.docs-page .file .button.right {
+.docs-page .file .right {
     right: 0;
 }
 
@@ -271,12 +297,14 @@
     transform: rotate(45deg);
 }
 
-.docs-page .file .button {
+.docs-page .file .button,
+.docs-page .file .count {
     background-color: inherit;
     color: #828282;
     padding: 4px 8px;
     margin: 0;
     font-size: 12px;
+    line-height: 18px;
     position: absolute;
     transition-duration: .12s;
     transition-timing-function: ease-out;
@@ -302,8 +330,25 @@
     /*color: #aaa;*/
 }
 
+.docs-page .file .count {
+    /*padding: 3px 8px;*/
+    background: #fff;
+    /*color: #828282;*/
+    font-weight: bold;
+    opacity: 1;
+    /*border-radius: 15px;*/
+    line-height: 18px;
+    min-width: 9px;
+    text-align: center;
+    /*font-size: 90%;*/
+}
+
 .docs-page .file.trash {
     background-color: #FFFFBF;
+}
+
+.docs-page .file.private {
+    background-color: #D0FFD0;
 }
 
 .docs-page .file.error {
@@ -311,7 +356,7 @@
 }
 
 .docs-page .file.error .logo .fa {
-    color: red;
+    color: #f00;
     animation: none;
 }
 
@@ -1767,81 +1812,20 @@ div.activity-meta a.disable-activity-type:hover {
 }
 
 
+/* Диалоговые окна и другое */
 
-
-
-
-
-
-
-
-
-/* Убираем уменьшение элементов активности для mini-сообщений */
-
-/*.activity-list li.mini {
-    font-size: inherit!important;
+div.message {
+    background: #f8f8f8;
+    padding: 0.25rem 1rem;
+    margin-bottom: 1rem;
 }
 
-.activity-list li.mini .activity-avatar img.FB_profile_pic, #buddypress .activity-list li.mini .activity-avatar img.avatar {
-     height: inherit!important; 
-     margin-left: inherit!important;
-     width: inherit!important;
-}*/
-
-/*#buddypress div#message, #buddypress div.message, .bp-cover-image-status, .bp-avatar-status {
-    margin: 1em 0;
-    padding: 2em;
-    text-decoration: none;
-    background-color: #efefef;
-    border: 0;
-    border-left: 0;
-    color: inherit;
-    border-left: 4px solid #74C046;
-}*/
-
-/*#buddypress div#message p, #buddypress div.message p, #buddypress div#message.error p {
-    margin: 0;
-    margin-bottom: 1.5em;
-    padding: 0;
-    text-decoration: none;
-    background-color: #efefef;
-    border: 0;
-    border-left: 0;
-    color: inherit;
-}*/
-
-/*#buddypress div#message p:last-child, #buddypress div.message p:last-child {
-    margin-bottom: 0;
-}
-
-#buddypress div#message.info, #buddypress div.message.info, .bp-cover-image-status, .bp-avatar-status {
-    border-left: 4px solid #74C046;
-}
-*/
-/*.bp-cover-image-status p.warning, .bp-avatar-status p.warning, .bp-template-notice p {
-    margin: 0!important;
-    padding: 0!important;
-    text-decoration: none!important;
-    background-color: #efefef!important;
-    border: 0!important;
-    border-left: 0!important;
-    color: inherit!important;
-}*/
-
-/*#buddypress div#message.warning, #buddypress div.message.warning {
+div.message.warning {
+    background: rgba(255,255,0,0.25);
     border-left: 4px solid #F48625;
 }
 
-#buddypress div#message.error, #buddypress div.message.error {
-    border-left: 4px solid #EE1C25;
+.dotted {
+    border-bottom: 1px dotted;
 }
-
-#drag-drop-area {
-    border: 3px dashed #eaeaea;
-}
-
-
-#buddypress table.forum tr.alt td, #buddypress table.messages-notices tr.alt td, #buddypress table.notifications tr.alt td, #buddypress table.notifications-settings tr.alt td, #buddypress table.profile-fields tr.alt td, #buddypress table.profile-settings tr.alt td, #buddypress table.wp-profile-fields tr.alt td {
-       color: inherit;
-}*/
 

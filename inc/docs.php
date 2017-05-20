@@ -47,6 +47,12 @@ class mif_bpc_docs {
     public $path = 'docs';
 
     //
+    // Название папки по умолчанию
+    //
+
+    public $default_folder_name = 'New folder';
+
+    //
     // Размер аватарки пользователя
     //
 
@@ -71,10 +77,12 @@ class mif_bpc_docs {
         add_action( 'wp_ajax_mif-bpc-docs-upload-files', array( $this, 'ajax_upload_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-network-link-files', array( $this, 'ajax_network_link_helper' ) );
         // add_action( 'wp_ajax_mif-bpc-docs-collection-more', array( $this, 'ajax_collection_more_helper' ) );
-        add_action( 'wp_ajax_mif-bpc-docs-doc-collection-show', array( $this, 'ajax_collection_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-collection-show', array( $this, 'ajax_collection_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-new-folder', array( $this, 'ajax_new_folder_helper' ) );
-        add_action( 'wp_ajax_mif-bpc-docs-remove-doc', array( $this, 'ajax_remove_doc_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-remove', array( $this, 'ajax_remove_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-statusbar-info', array( $this, 'ajax_folder_statusbar_info_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-folder-settings', array( $this, 'ajax_folder_settings_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-folder-settings-save', array( $this, 'ajax_folder_settings_save_helper' ) );
 
         // add_action( 'bp_init', array( $this, 'dialogues_nav' ) );
         // add_action( 'bp_screens', array( $this, 'compose_screen' ) );
@@ -83,6 +91,8 @@ class mif_bpc_docs {
         // add_filter( 'bp_get_send_private_message_link', array( $this, 'message_link' ) );
 
         add_action( 'wp_enqueue_scripts', array( $this, 'load_js_helper' ) );   
+
+        $this->default_folder_name = __( 'Новая папка', 'mif-bp-customizer' );
     }
 
 
@@ -93,6 +103,8 @@ class mif_bpc_docs {
 
     function create_post_type()
     {
+        // f($_POST);
+
         // Тип записей - документ
 
         register_post_type( 'mif-bpc-doc',
@@ -277,49 +289,169 @@ class mif_bpc_docs {
 
 
     // 
-    // Ajax-помощник удаления или восстановления документа
+    // Ajax-помощник удаления или восстановления папки или документа
     // 
 
-    function ajax_remove_doc_helper()
+    function ajax_remove_helper()
     {
         check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
 
         // $user_id = bp_loggedin_user_id();
         // if ( empty( $user_id ) ) wp_die();
 
-        $doc_id = (int) $_POST['doc_id'];
+        $item_id = (int) $_POST['item_id'];
 
-        if ( ! $this->is_access( $doc_id, 'write' ) ) wp_die();
+        // $doc_id = $item_id;
 
-        $doc = get_post( $doc_id );
+        if ( ! $this->is_access( $item_id, 'write' ) ) wp_die();
 
-        if ( $doc->post_status == 'trash' ) {
+        $is_doc = ( $this->is_doc( $item_id ) ) ? true : false;
+        $is_folder = ( $this->is_folder( $item_id ) ) ? true : false;
+        $mode = ( $_POST['mode'] == 'page' ) ? 'page' : 'item';
+
+        $item = get_post( $item_id );
+
+        if ( $item->post_status == 'trash' ) {
 
             if ( isset( $_POST['restore'] ) && $_POST['restore'] == 1) {
 
-                // Восстановить документ
-
-                if ( wp_untrash_post( $doc_id ) ) echo $this->get_doc_item( $doc_id );
-
+                // Восстановить документ или папку
+                // if ( $is_doc ) if ( $this->untrash_doc( $item_id ) ) echo $this->get_doc_item( $item_id );
+                // if ( $is_folder ) if ( $this->untrash_folder( $item_id ) ) echo $this->get_folder_item( $item_id );
+                if ( $is_doc ) if ( $this->untrash_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc', $mode );
+                if ( $is_folder ) if ( $this->untrash_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder', $mode );
 
             } else {
 
-                // Удалить документ навсегда
+                // Удалить документ или папку навсегда
+                // if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo '<!-- empty -->';
+                // if ( $is_folder ) if ( $this->delete_folder( $item_id ) ) echo '<!-- empty -->';
+                if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc-empty', $mode, $item->post_title );
+                if ( $is_folder ) if ( $this->delete_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder-empty', $mode, $item->post_title );
 
-                if ( wp_delete_post( $doc_id ) ) echo '<!-- empty -->';
             }
 
         } else {
 
-            // Поместить документ в корзину
-
-            if ( wp_trash_post( $doc_id ) ) echo $this->get_doc_item( $doc_id );
+            // Поместить документ или папку в корзину
+            // if ( $is_doc ) if ( $this->trash_doc( $item_id ) ) echo $this->get_doc_item( $item_id );
+            // if ( $is_folder ) if ( $this->trash_folder( $item_id ) ) echo $this->get_folder_item( $item_id );
+            if ( $is_doc ) if ( $this->trash_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc', $mode );
+            if ( $is_folder ) if ( $this->trash_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder', $mode );
 
         }
 
         wp_die();
     }
 
+
+
+    // 
+    // Показать данные ответа
+    // 
+
+    function show_response( $item_id = NULL, $item_type = 'doc', $mode = 'item', $name )
+    {
+        if ( $item_id == NULL ) return;
+
+        // Если запрос пришел с кнопки на элементе в каталоге элементов
+
+        if ( $mode == 'item' ) {
+
+            if( $item_type == 'doc' ) $out = $this->get_doc_item( $item_id );
+            if( $item_type == 'doc-empty' ) $out = '<!-- empty -->';
+            if( $item_type == 'folder' ) $out = $this->get_folder_item( $item_id );
+            if( $item_type == 'folder-empty' ) $out = '<!-- empty -->';
+
+        }
+
+        // Если запрос пришел со страницы элемента
+
+        if ( $mode == 'page' ) {
+
+            // if( $item_type == 'doc' ) $out = $this->get_doc_item( $item_id );
+            // if( $item_type == 'doc-empty' ) $out = '<!-- empty -->';
+            if( $item_type == 'folder' ) $out = $this->get_folder_content( $item_id, __( 'Папка и все удалённые вместе с ней документы восстановлены', 'mif-bp-customizer' ) );
+            if( $item_type == 'folder-empty' ) {
+                
+                $msg = sprintf( __( 'Папка «%s» окончательно удалена', 'mif-bp-customizer' ), '<strong>' . $name . '</strong>' );
+                $msg .= '<p>' . __( 'Вернуться', 'mif-bp-customizer' ) . ': <strong><a href="' . $this->get_docs_url() . '">' . __( 'документы', 'mif-bp-customizer' ) . '</a></strong>';
+                
+                $out = mif_bpc_message( $msg );
+
+            }
+                
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_show_response', $out, $item_id, $item_type, $mode );
+    }
+
+
+    // 
+    // Удалить документ в корзину
+    // 
+
+    function trash_doc( $doc_id = NULL )
+    {
+        if ( ! $this->is_doc( $doc_id ) ) return false;
+
+        $doc = get_post( $doc_id );
+        $this->clean_folder_size( $doc->post_parent );
+
+        $ret = wp_trash_post( $doc_id );
+
+        return apply_filters( 'mif_bpc_docs_trash_doc', $ret, $doc_id );
+    }
+
+
+
+    // 
+    // Восстановить документ из корзины
+    // 
+
+    function untrash_doc( $doc_id = NULL )
+    {
+        if ( ! $this->is_doc( $doc_id ) ) return false;
+
+        $doc = get_post( $doc_id );
+        $this->clean_folder_size( $doc->post_parent );
+        
+        // Восстановить папку (вдруг она тоже в корзине?)
+        //
+        // Вернет в $ret2:
+        //          true - если это не папка
+        //          false - если папка, но не в корзине
+        //          $post (array) - если папка была в корзине и она восстановлена
+
+        $ret2 = true;
+        if ( $this->is_folder( $doc->post_parent ) ) {
+
+            $ret2 = wp_untrash_post( $doc->post_parent );
+            $ret3 = delete_post_meta( $doc->post_parent, 'mif-bpc-trashed-docs' );
+
+        }
+
+        $ret = wp_untrash_post( $doc_id );
+
+
+        return apply_filters( 'mif_bpc_docs_untrash_doc', $ret, $ret2, $ret3, $doc_id );
+    }
+
+
+
+    // 
+    // Удалить документ навсегда
+    // 
+
+    function delete_doc( $doc_id = NULL )
+    {
+        if ( ! $this->is_doc( $doc_id ) ) return false;
+
+        $ret = wp_delete_post( $doc_id );
+
+        return apply_filters( 'mif_bpc_docs_untrash_doc', $ret, $doc_id );
+    }
 
 
     // 
@@ -334,13 +466,12 @@ class mif_bpc_docs {
         if ( empty( $user_id ) ) wp_die();
 
         $publish = ( $_POST['publish'] == 'on' ) ? 'publish' : 'private';
-        $name = ( trim( $_POST['name'] ) == '' ) ? __( 'Папка', 'mif-bp-customizer' ) : $_POST['name'];
-
+        $name = ( trim( $_POST['name'] ) == '' ) ? $this->default_folder_name : trim( $_POST['name'] );
 
         $folder_data = array(
             'post_type' => 'mif-bpc-folder',
             'post_title' => $name,
-            'post_content' => $_POST['desc'],
+            'post_content' => trim( $_POST['desc'] ),
             'post_status' => $publish,
             // 'post_parent' => $group_id,
             'post_author' => $user_id,
@@ -351,7 +482,12 @@ class mif_bpc_docs {
 
         $post_id = wp_insert_post( wp_slash( $folder_data ) );
 
-        echo $this->get_folder_settings( $post_id );
+        if ( $post_id ) {
+
+            $folder_url = $this->get_docs_url() . '/folder/' . $post_id . '/';
+            echo $folder_url;
+
+        }
 
         wp_die();
     }
@@ -397,23 +533,36 @@ class mif_bpc_docs {
     function ajax_collection_helper()
     {
         check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
-
         $page = ( isset( $_POST['page'] ) ) ? (int) $_POST['page'] : 1;
+        $trashed = (int) $_POST['trashed'];
 
         if ( isset( $_POST['folder_id'] ) ) {
 
             $folder_id = (int) $_POST['folder_id'];
-            $trashed = (int) $_POST['trashed'];
             echo $this->get_docs_collection( $folder_id, $page, $trashed );
 
         } else {
 
-            $item_id = (int) $_POST['item_id'];
-            $mode = $_POST['mode'];
-            echo $this->get_folders( $page, $item_id, $mode );
+            $mode = false;
+            
+            if ( bp_is_user() ) {
+
+                $mode = 'member';
+                $item_id = bp_displayed_user_id();
+
+            } elseif ( bp_is_user() ) {
+
+                $mode = 'group';
+                $item_id = bp_get_current_group_id();
+
+            }
+
+            // $item_id = (int) $_POST['item_id'];
+            // $mode = $_POST['mode'];
+
+            if ( $mode ) echo $this->get_folders( $page, $item_id, $mode, $trashed );
             
         }
-        
 
         wp_die();
     }
@@ -546,6 +695,8 @@ class mif_bpc_docs {
         if ( isset( $file_type ) ) $docs_data['post_mime_type'] = $file_type;
 
         $post_id = wp_insert_post( wp_slash( $docs_data ) );
+        
+        $this->clean_folder_size( $folder_id );
 
         return apply_filters( 'mif_bpc_docs_doc_save', $post_id, $title, $location, $user_id, $folder_id );
     }
@@ -604,13 +755,16 @@ class mif_bpc_docs {
     // Все папки пользователя или группы
     // 
 
-    function get_folders( $page = 1, $item_id = NULL, $mode = 'member' )
+    function get_folders( $page = 1, $item_id = NULL, $mode = 'member', $trashed = false )
     {
         if ( ! in_array( $mode, array( 'member', 'group' ) ) ) return;
 
         $item_id = bp_displayed_user_id();
 
-        $args['member'] = array(
+        $arr = array( 'publish', 'private' );
+        if ( $trashed ) $arr[] = 'trash';
+
+        $args = array(
             // 'numberposts' => $this->folders_on_page,
             'posts_per_page' => $this->folders_on_page,
             'paged' => $page,
@@ -623,12 +777,15 @@ class mif_bpc_docs {
             // 'meta_key'    => '',
             // 'meta_value'  =>'',
             'post_type'   => 'mif-bpc-folder',
+            'post_status' => implode( ',', $arr ),
         );
 
         $out = '';
         if ( $page === 1 ) $out .= '<div class="collection clearfix">';
 
-        $folders = get_posts( $args['member'] );
+
+
+        $folders = get_posts( $args );
 
         if ( $folders ) {
 
@@ -649,7 +806,8 @@ class mif_bpc_docs {
                 // $out .= '<input type="hidden" name="page" value="' . $next_page . '">';
                 // $out .= '</form>';
 
-                $out .= $this->get_more_button( $page, array( 'mode' => $mode, 'item_id' => $item_id ) );
+                // $out .= $this->get_more_button( $page, array( 'mode' => $mode, 'item_id' => $item_id ) );
+                $out .= $this->get_more_button( $page );
 
             }
 
@@ -661,7 +819,13 @@ class mif_bpc_docs {
 
         }
 
-        if ( $page === 1 ) $out .= '</div>';
+        if ( $page === 1 ) {
+            
+            $out .= '</div>';
+            // $out .= '<input type="hidden" id="docs-collection-nonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-nonce' ) . '">';
+            // $out .= $this->get_folder_statusbar();
+
+        }
 
         return apply_filters( 'mif_bpc_docs_get_folders', $out, $page, $item_id, $mode, $arr );
     }
@@ -674,6 +838,8 @@ class mif_bpc_docs {
 
     function get_docs_collection( $folder_id, $page = 1, $trashed = false )
     {
+        if ( ! $this->is_folder( $folder_id ) ) return;
+        
         if ( ! $this->is_access( $folder_id, 'read' ) ) {
 
             $out = __( 'Доступ ограничен', 'mif-bp-customizer' );   
@@ -681,26 +847,17 @@ class mif_bpc_docs {
 
         }
 
-        // $args = array(
-        //     // 'numberposts' => $this->docs_on_page,
-        //     'posts_per_page' => $this->docs_on_page,
-        //     // 'author' => bp_displayed_user_id(),
-        //     // 'category'    => 0,
-        //     'orderby'     => 'date',
-        //     'order'       => 'DESC',
-        //     // 'include'     => array(),
-        //     // 'exclude'     => array(),
-        //     // 'meta_key'    => '',
-        //     // 'meta_value'  =>'',
-        //     'post_type'   => 'mif-bpc-doc',
-        //     'post_parent' => $folder_id,
-        //     'paged' => $page,
-        // );
-
         $out = '';
         if ( $page === 1 ) $out .= '<div class="collection response-box clearfix">';
 
-        // $docs = get_posts( $args );
+        $folder = get_post( $folder_id );
+
+        if ( $folder->post_status == 'trash' ) {
+            
+            $out .= $this->folder_restore_delete_tool( $folder_id );
+            $trashed = true;
+
+        }
 
         $docs = $this->get_docs_collection_data( $folder_id, $page, $trashed );
 
@@ -708,43 +865,49 @@ class mif_bpc_docs {
 
             $arr = array();
             foreach( $docs as $doc ) $arr[] = $this->get_doc_item( $doc );
-
             $out .= implode( "\n", $arr );
 
-            if ( count( $docs ) == $this->docs_on_page ) {
-
-                // $out .= '<form><div class="more">
-                // <button>' . __( 'Показать ещё', 'mif-bp-customizer' ) . '</button>
-                // <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
-                // $out .= '<input type="hidden" name="nonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-more-nonce' ) . '">';
-                // $out .= '<input type="hidden" name="folder_id" value="' . $folder_id . '">';
-                // $next_page = (int) $page + 1;
-                // $out .= '<input type="hidden" name="page" value="' . $next_page . '">';
-                // $out .= '</form>';
-
-                $out .= $this->get_more_button( $page, array( 'folder_id' => $folder_id ) );
-
-            }
+            if ( count( $docs ) == $this->docs_on_page ) $out .= $this->get_more_button( $page, array( 'folder_id' => $folder_id ) );
         
         } else {
 
-            if ( $page === 1 ) $out .= __( 'Документы не обнаружены', 'mif-bp-customizer' );
+            if ( $page === 1 ) $out .= '<div class="folder-is-empty-msg">' . mif_bpc_message( __( 'Документы не обнаружены', 'mif-bp-customizer' ) ) . '</div>';
             
         }
 
-        if ( $page === 1 ) {
-            
-            $out .= '</div>';
-            $out .= '<input type="hidden" id="docs-collection-nonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-nonce' ) . '">';
-            $out .= '<input type="hidden" id="docs-folder-id" value="' . $folder_id . '">';
-
-        }
+        if ( $page === 1 ) $out .= '</div>';
 
         return apply_filters( 'mif_bpc_docs_get_docs_collection', $out, $page, $folder_id );
     }
 
 
 
+    // 
+    // Окно восстановления или окончательного удаления папки
+    // 
+
+    function folder_restore_delete_tool( $folder_id )
+    {
+        if ( ! $this->is_folder( $folder_id ) ) return;
+
+        $out = '';
+
+        $out .= __( 'Папка находится в корзине и через некоторое время будет окончательно удалена. Пока это не произошло, вы можете её восстановить или самостоятельно удалить из корзины.', 'mif-bp-customizer' );
+        $out .= '<div class="folder-restore-delete">
+        <form>
+        <input type="button" name="delete" class="delete" value="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '">
+        <input type="button" name="restore" class="restore" value="' . __( 'Восстановить', 'mif-bp-customizer' ) . '">
+        <input type="hidden" name="item_id" value="' . $folder_id . '">
+        </form>
+        </div>';
+
+        $ret = mif_bpc_message( $out, 'warning' );
+
+        return apply_filters( 'mif_bpc_docs_folder_restore_delete_tool', $ret, $out, $folder_id );
+    }
+
+
+    
     // 
     // Получить данные коллекции документов
     // 
@@ -754,7 +917,7 @@ class mif_bpc_docs {
 
         if ( $posts_per_page == NULL ) $posts_per_page = $this->docs_on_page;
 
-        $arr = array( 'publish' );
+        $arr = array( 'publish', 'private' );
         if ( $trashed ) $arr[] = 'trash';
 
         $args = array(
@@ -771,10 +934,10 @@ class mif_bpc_docs {
             'post_type'   => 'mif-bpc-doc',
             'post_parent' => $folder_id,
             'post_status' => implode( ',', $arr ),
-            // 'paged' => $page,
+            'paged' => $page,
         );
 
-        if ( isset( $page ) ) $args['paged'] = $page;
+        // if ( isset( $page ) ) $args['paged'] = $page;
 
         $docs = get_posts( $args );
 
@@ -790,9 +953,9 @@ class mif_bpc_docs {
     {
         $out = '';
 
-        $out .= '<form><div class="more">
+        $out .= '<div class="more"><form>
         <button>' . __( 'Показать ещё', 'mif-bp-customizer' ) . '</button>
-        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>';
         // $out .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-more-nonce' ) . '">';
         $out .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-nonce' ) . '">';
 
@@ -800,7 +963,7 @@ class mif_bpc_docs {
 
         $next_page = (int) $page + 1;
         $out .= '<input type="hidden" name="page" value="' . $next_page . '">';
-        $out .= '</form>';
+        $out .= '</form></div>';
 
         return apply_filters( 'mif_bpc_docs_get_more_button', $out, $page, $args );
     }
@@ -833,7 +996,7 @@ class mif_bpc_docs {
             $url = $this->get_docs_url() . '/' . $doc->ID;
             $a1 = '<a href="' . $url . '/">';
             $a2 = '</a>';
-            $left = '<a href="' . $url . '/remove/" data-doc-id="' . $doc->ID . '" class="button doc-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+            $left = '<a href="' . $url . '/remove/" data-item-id="' . $doc->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
             $doc_type = $this->get_doc_type( $doc );
 
@@ -853,12 +1016,10 @@ class mif_bpc_docs {
 
             if ( $doc->post_status == 'trash' ) {
 
-                $left = '<a href="' . $url . '/restore/" data-doc-id="' . $doc->ID . '" class="button doc-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
-                $right = '<a href="' . $url . '/remove/" data-doc-id="' . $doc->ID . '" class="button doc-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+                $left = '<a href="' . $url . '/restore/" data-item-id="' . $doc->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
+                $right = '<a href="' . $url . '/remove/" data-item-id="' . $doc->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
             }
-
-
 
         }
 
@@ -882,14 +1043,35 @@ class mif_bpc_docs {
 
     function get_folder_item( $folder = NULL )
     {
-        if ( $folder == NULL ) return;
-        
-        $folder_url = $this->get_docs_url() . '/folder/' . $folder->ID . '/';
+        if ( is_numeric( $folder ) ) $folder = get_post( $folder );
 
-        $out = '<div class="file folder">
-        <a href="' . $folder_url . '">
+        if ( ! $this->is_folder( $folder->ID ) ) return;
+
+        $data = $this->get_folder_size( $folder->ID );
+
+        $left = '';
+        $right = '';
+        $url = $this->get_folder_url( $folder->ID );
+
+
+        if ( $folder->post_status == 'trash' ) {
+
+            if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/restore/" data-item-id="' . $folder->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
+            if ( $data['count'] == 0 ) $right = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+
+        } else {
+
+            if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+
+        }
+
+        $out = '<div class="file folder ' . $folder->post_status . '">
+        <a href="' . $this->get_folder_url( $folder->ID ) . '">
         <span class="logo"><i class="fa fa-folder-open-o fa-3x"></i></span>
         <span class="name">' . $folder->post_title . '</span>
+        <span class="count right">' . $data['count'] . '</span>
+        ' . $left . '
+        ' . $right . '
         </a>
         </div>';
 
@@ -901,31 +1083,78 @@ class mif_bpc_docs {
     // Выводит страницу создания или настройки папки
     // 
 
-    function get_folder_settings( $folder = NULL )
+    function get_folder_settings( $folder_id = NULL )
     {
-        $out = '';
+        $out = '<div class="folder-settings">';
 
-        if ( empty( $folder ) ) {
+        if ( $folder_id == NULL ) {
 
-            $out .= '<form id="new-folder">
-            <h2>' . __( 'Новая папка', 'mif-bp-customizer' ) . '</h2>
-            <p>' . __( 'Название', 'mif-bp-customizer' ) . ':</p>
-            <p><input type="text" name="name"></p>
-            <p>' . __( 'Описание', 'mif-bp-customizer' ) . ':</p>
-            <p><textarea name="desc"></textarea></p>
-            <p>' . __( 'Режим доступа', 'mif-bp-customizer' ) . ':</p>
-            <p><label><input type="checkbox" name="publish" checked> ' . __( 'Опубликована', 'mif-bp-customizer' ) . '</label></p>
-            <p><input type="submit" value="' . __( 'Сохранить', 'mif-bp-customizer' ) . '"></p>
-            <input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-new-folder-nonce' ) . '">
-            </form>';
+            // Создаем новую папку
+
+            $out .= '<h2>' . __( 'Новая папка', 'mif-bp-customizer' ) . '</h2>
+            <form id="new-folder">
+            <input type="hidden" name="redirect" value="' . $this->get_docs_url() . '/">
+            <input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-new-folder-nonce' ) . '">';
+
+            $name = $this->default_folder_name;
+            $desc = '';
+            $publish = ' checked';
+            $remove_box = '';
+            $disabled = '';
 
         } else {
 
-            $out .= 'ok';
+            // Редактируем существующую папку
+
+            $folder = get_post( $folder_id );
+
+            if ( ! $this->is_folder( $folder ) ) return false;
+
+            $out .= '<h2>' . __( 'Настройки папки', 'mif-bp-customizer' ) . '</h2>';
+            
+            $remove_box = '<p><a href="' . $this->get_folder_url( $folder_id ) . '" class="remove-box-toggle dotted">' . __( 'Удалить папку', 'mif-bp-customizer' ) . '</a></p>
+            <div class="remove-box">
+            <div class="message warning">
+            <p><strong>' . __( 'Удалить папку и все её документы', 'mif-bp-customizer' ) . '</strong></p>
+            <p>' . __( 'Папка и все её документы будут перемещены в корзину и через несколько дней окончательно удалены. Пока материалы хранятся в корзине, вы их сможете восстановить.', 'mif-bp-customizer' ) . '</p>
+            <p><input type="button" class="remove to-trash" value="' . __( 'Удалить папку', 'mif-bp-customizer' ) . '"></p>
+            </div>
+            </div>';
+
+            $disabled = '';
+            if ( $folder->post_status == 'trash' ) {
+
+                $out .= $this->folder_restore_delete_tool( $folder_id );
+                $disabled = ' disabled';
+                $remove_box = '';
+
+            }
+
+            $out .= '<form id="folder-settings" class="' . $folder->post_status . '">
+            <input type="hidden" name="folder_id" value="' . $folder_id . '">
+            <input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-folder-settings-nonce' ) . '">';
+
+            $name = $folder->post_title;
+            $desc = $folder->post_content;
+            $publish = ( $folder->post_status == 'publish' ) ? ' checked' : '';
 
         }
 
-        return apply_filters( 'mif_bpc_docs_get_folder_settings', $out, $folder );
+        $out .= '<p>' . __( 'Название', 'mif-bp-customizer' ) . ':</p>
+        <p><input type="text" name="name" value="' . $name .'"' . $disabled . '></p>
+        <p>' . __( 'Описание', 'mif-bp-customizer' ) . ':</p>
+        <p><textarea name="desc"' . $disabled . '>' . $desc . '</textarea></p>
+        <p>' . __( 'Режим доступа', 'mif-bp-customizer' ) . ':</p>
+        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Опубликована', 'mif-bp-customizer' ) . '</label></p><p>';
+
+        if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Сохранить', 'mif-bp-customizer' ) . '"> ';
+
+        $out .= '<input type="button" id="cancel" value="' . __( 'Отмена', 'mif-bp-customizer' ) . '">
+        </p>' . $remove_box . '</form>';
+
+        $out .= '</div>';
+
+        return apply_filters( 'mif_bpc_docs_get_folder_settings', $out, $folder_id );
     }
 
 
@@ -945,11 +1174,12 @@ class mif_bpc_docs {
     }
 
 
+
     // 
     // Содержимое папки
     // 
 
-    function get_folder_content( $folder_id = NULL )
+    function get_folder_content( $folder_id = NULL, $msg = false )
     {
         if ( $folder_id == NULL ) return;
         
@@ -961,12 +1191,16 @@ class mif_bpc_docs {
             // $out .= '<h2>' . __( 'Папки', 'mif-bp-customizer' ) . ' / ' . $folder->post_title . '</h2>';
             $out .= $this->get_folder_header( $folder );
             $out .= $this->get_upload_form( $folder_id );
+
+            if ( $msg ) $out .= mif_bpc_message( $msg );
+
             $out .= $this->get_docs_collection( $folder_id );
             $out .= $this->get_folder_statusbar( $folder_id );
+            $out .= $this->get_docs_collection_nonce( $folder_id );
              
         } else {
 
-            $out .= __( 'Папка не обнаружена', 'mif-bp-customizer' );
+            $out .= mif_bpc_message( __( 'Папка не обнаружена', 'mif-bp-customizer' ), 'warning' );
 
         }
 
@@ -1000,15 +1234,31 @@ class mif_bpc_docs {
 
             // Главная страница документов - папки и др.
             $out .= $this->get_folders();
+            $out .= $this->get_folder_statusbar();
+            $out .= $this->get_docs_collection_nonce();
 
         }
-
-
-
 
         // if ( bp_is_current_action( 'new-folder' ) ) $tpl_file = 'docs-folder-settings.php';
 
         return apply_filters( 'mif_bpc_docs_get_docs_content', $out, $ca );
+    }
+
+
+
+
+    // 
+    // Выводит nonce-поля и другую информацию для поддержки AJAX-запросов
+    // 
+
+    function get_docs_collection_nonce( $folder_id = NULL )
+    {
+        $out = '';
+        $out .= '<input type="hidden" id="docs-collection-nonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-nonce' ) . '">';
+        
+        if ( is_numeric( $folder_id ) ) $out .= '<input type="hidden" id="docs-folder-id" value="' . $folder_id . '">';
+
+        return apply_filters( 'mif_bpc_docs_gget_docs_collection_nonce', $out, $folder_id );
     }
 
 
@@ -1019,19 +1269,20 @@ class mif_bpc_docs {
 
     function get_folder_statusbar( $folder_id = NULL )
     {
-        if ( $folder_id == NULL ) {
-
-            if ( ! ( bp_current_action() == 'folder' && is_numeric( bp_action_variable( 0 ) ) ) ) return;
-            $folder_id = bp_action_variable( 0 );
-
-        }
+        if ( $folder_id == NULL && bp_current_action() == 'folder' && is_numeric( bp_action_variable( 0 ) ) ) $folder_id = bp_action_variable( 0 );
 
         $out = '';
 
+        $show_settings = ( $this->is_folder( $folder_id ) ) ? true : false;
+
         $out .= '<div class="statusbar">
         <span class="info">&nbsp;</span>
-        <span class="tools"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>
-        </div>';
+        <span class="tools"> 
+        <span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
+
+        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span></span>';
+
+        $out .= '</div>';
 
         return apply_filters( 'mif_bpc_docs_get_folder_statusbar', $out, $folder_id );
     }
@@ -1051,18 +1302,12 @@ class mif_bpc_docs {
 
         }
 
-        $docs = $this->get_docs_collection_data( $folder_id, 0, 0, -1 );
+        $data = $this->get_folder_size( $folder_id );
 
-        $count = count( $docs );
-        
-        $size = 0;
+        $out = '<span class="one">' . __( 'Документов', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $data['count'] . '</span>
+        <span class="one">' . __( 'Объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
 
-        foreach ( $docs as $doc ) $size += $this->get_doc_size( $doc );
-
-        $out = '<span class="one">' . __( 'Документов', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $count . '</span>
-        <span class="one">' . __( 'Объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $size ) . '</span>';
-
-        return apply_filters( 'mif_bpc_docs_get_folder_statusbar_info', $out, $folder_id );
+        return apply_filters( 'mif_bpc_docs_get_folder_statusbar_info', $out, $folder_id, $data );
     }
 
 
@@ -1098,16 +1343,315 @@ class mif_bpc_docs {
 
 
     // 
+    // Возвращает размер папки (количество и общий объем файлов)
+    // 
+
+    function get_folder_size( $folder = NULL )
+    {
+        if ( is_numeric( $folder ) ) $folder = get_post( $folder );
+        if ( ! $this->is_folder( $folder->ID ) ) return false;
+
+        $data = get_post_meta( $folder->ID, 'mif-bpc-folder-size', true );
+
+        if ( $data === '' ) {
+
+            $trashed = ( $folder->post_status == 'trash' ) ? true : false;
+            $docs = $this->get_docs_collection_data( $folder->ID, 0, $trashed, -1 );
+
+            $count = count( $docs );
+           
+            $size = 0;
+            foreach ( (array) $docs as $doc ) $size += $this->get_doc_size( $doc );
+
+            $data = array( 'count' => $count, 'size' => $size );
+
+            update_post_meta( $folder->ID, 'mif-bpc-folder-size', $data );
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_get_folder_size', $data, $folder );
+    }
+
+
+
+    // 
+    // Очищает данные о размере папки
+    // 
+
+    function clean_folder_size( $folder = NULL )
+    {
+        if ( is_numeric( $folder ) ) $folder = get_post( $folder );
+        if ( ! $this->is_folder( $folder->ID ) ) return false;
+
+        $ret = delete_post_meta( $folder->ID, 'mif-bpc-folder-size' );
+
+        return apply_filters( 'mif_bpc_docs_clean_folder_size', $ret, $folder );
+    }
+
+
+
+    // 
+    // Ajax-помощник окна настройки папки
+    // 
+
+    function ajax_folder_settings_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
+
+        $folder_id = (int) $_POST['folder_id'];
+
+        echo $this->get_folder_settings( $folder_id );
+        echo $this->get_docs_collection_nonce();
+
+
+        wp_die();
+    }
+
+
+
+    // 
+    // Ajax-помощник сохранения настроек папки
+    // 
+
+    function ajax_folder_settings_save_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-folder-settings-nonce' );
+
+        $folder_id = (int) $_POST['folder_id'];
+
+        if ( ! $this->is_access( $folder_id, 'write' ) ) wp_die();
+
+        if ( isset( $_POST['do'] ) ) {
+
+            if ( $_POST['do'] == 'cancel' ) {
+
+                // Нажали "Отмена" - просто показать папки
+
+                echo $this->get_docs_content();
+
+            } elseif ( $_POST['do'] == 'to-trash' ) {
+
+                // Удалить в корзину
+
+                $ret = ( $this->trash_folder( $folder_id ) ) ? $this->get_docs_content() : $this->error_msg( '004' );
+                echo $ret;
+
+            } else {
+
+                echo $this->error_msg( '003' );
+
+            }
+
+        } else {
+
+            // Сохраняем новые настройки папки
+
+            $folder = get_post( $folder_id );
+            
+            if ( isset( $folder->post_status) && $folder->post_status != 'trash' ) {
+
+                $publish = ( $_POST['publish'] == 'on' ) ? 'publish' : 'private';
+
+                $folder_data = array(
+                                    'ID' => (int) $_POST['folder_id'],
+                                    'post_status' => $publish,
+                                    'post_content' => trim( $_POST['desc'] ),
+                                );
+
+                if ( trim( $_POST['name'] ) != '' ) $folder_data['post_title'] = trim( $_POST['name'] );
+
+                $ret = ( wp_update_post( wp_slash( $folder_data ) ) ) ? $this->get_docs_content() : $this->error_msg( '001' );
+                echo $ret;
+
+            } else {
+
+                echo $this->error_msg( '002' );
+
+            }
+        }
+
+        wp_die();
+    }
+
+
+
+    // 
+    // Удалить папку в корзину
+    // 
+
+    function trash_folder( $folder_id = NULL )
+    {
+        if ( ! $this->is_folder( $folder_id ) ) return false;
+
+        $docs = $this->get_docs_collection_data( $folder_id, 0, 0, -1 );
+
+        // Удалить в корзину все документы папки, запомнив их номера
+
+        $arr = array();
+        $ret = array();
+        foreach ( (array) $docs as $doc ) {
+
+            $arr[] = $doc->ID;
+            $ret[] = $this->trash_doc( $doc->ID );
+
+        }
+
+        // Сохранить в мета-поле папки номера удаленных документов
+
+        $ret2 = update_post_meta( $folder_id, 'mif-bpc-trashed-docs', implode( ',', $arr ) );
+
+        // Удалить папку
+
+        // $this->clean_folder_size( $folder_id );
+        $ret3 = wp_trash_post( $folder_id );
+
+        return apply_filters( 'mif_bpc_docs_trash_folder', $ret3, $ret2, $ret, $folder_id );
+    }
+
+
+
+    // 
+    // Восстановить папку из корзины
+    // 
+
+    function untrash_folder( $folder_id = NULL )
+    {
+        if ( ! $this->is_folder( $folder_id ) ) return false;
+
+        // Восстановить папку
+
+        $ret = wp_untrash_post( $folder_id );
+
+        // Восстановить все документы
+
+        $docs_ids = get_post_meta( $folder_id, 'mif-bpc-trashed-docs', true );
+        $arr = explode( ',', $docs_ids );
+
+        $ret2 = array();
+        foreach ( (array) $arr as $doc_id ) {
+
+            $ret2[] = $this->untrash_doc( $doc_id );
+
+        }
+
+        // Очистить информацию о ранее удаленных документах
+
+        $ret3 = delete_post_meta( $folder_id, 'mif-bpc-trashed-docs' );
+
+        return apply_filters( 'mif_bpc_docs_untrash_folder', $ret, $ret2, $ret3, $folder_id );
+    }
+
+
+
+    // 
+    // Удалить папку навсегда
+    // 
+
+    function delete_folder( $folder_id = NULL )
+    {
+        if ( ! $this->is_folder( $folder_id ) ) return false;
+
+        $docs = $this->get_docs_collection_data( $folder_id, 0, 1, -1 );
+
+        // Удалить навсегда все документы папки
+
+        $ret = array();
+        foreach ( (array) $docs as $doc ) {
+
+            $ret[] = wp_delete_post( $doc->ID );
+
+        }
+
+        // Удалить папку
+
+        $ret3 = wp_delete_post( $folder_id );
+
+        return apply_filters( 'mif_bpc_docs_delete_folder', $ret3, $ret2, $ret, $folder_id );
+    }
+
+
+
+    // 
+    // Проверяет, является ли объект документом
+    // 
+
+    function is_doc( $doc_id = NULL )
+    {
+        if ( $doc_id == NULL ) return false;
+
+        $doc = get_post( $doc_id );
+
+        $ret = false;
+        if ( isset( $doc->post_type ) && $doc->post_type == 'mif-bpc-doc' ) $ret = true;
+
+        return apply_filters( 'mif_bpc_docs_is_doc', $ret, $doc_id );
+    }
+
+
+
+    // 
+    // Проверяет, является ли объект папкой
+    // 
+
+    function is_folder( $folder_id = NULL )
+    {
+        if ( $folder_id == NULL ) return false;
+
+        $folder = get_post( $folder_id );
+
+        $ret = false;
+        if ( isset( $folder->post_type ) && $folder->post_type == 'mif-bpc-folder' ) $ret = true;
+
+        return apply_filters( 'mif_bpc_docs_is_folder', $ret, $folder_id );
+    }
+
+
+
+    // 
+    // Выводит сообщение об ошибке
+    // 
+
+    function error_msg( $s = '000' )
+    {
+        $out = mif_bpc_message( sprintf( __( 'Ошибка %s. Что-то пошло не так', 'mif-bp-customizer' ), $s ), 'error' );
+        return apply_filters( 'mif_bpc_docs_error_msg', $out, $s );
+    }
+
+    // // 
+    // // Окно настройки папки
+    // // 
+
+    // function get_folder_settings_page( $folder_id = NULL )
+    // {
+    //     $folder = get_post( $folder_id );
+    //     if ( ( isset( $folder->post_type ) && $folder->post_type == 'folder' ) ) return;
+
+    //     $out = '';
+
+    //     $out .= $folder->post_title;
+    //     $out .= $folder->post_content;
+    //     $out .= $folder->post_status;
+
+    //     return apply_filters( 'mif_bpc_docs_get_folder_settings_page', $out, $folder_id );
+    // }
+
+
+
+    // 
     // Ajax-помощник информации статусной строки
     // 
 
     function ajax_folder_statusbar_info_helper()
     {
         check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
-        echo $this->get_folder_statusbar_info();
+        
+        $folder_id = (int) $_POST['folder_id'];
+        if ( empty( $folder_id ) ) wp_die();
+
+        echo $this->get_folder_statusbar_info( $folder_id );
+
         wp_die();
     }
-
 
 
 
@@ -1245,6 +1789,17 @@ class mif_bpc_docs {
     }
 
 
+    //
+    // Возвращает путь к папке
+    //
+
+    function get_folder_url( $folder_id = NULL )
+    {
+        if ( $folder_id == NULL ) return;
+        $folder_url = $this->get_docs_url() . '/folder/' . $folder_id . '/';
+
+        return apply_filters( 'mif_bpc_docs_get_folder_url', $folder_url, $folder_id );
+    }
 
 
 
@@ -1397,7 +1952,6 @@ class mif_bpc_docs {
 
         return apply_filters( 'mif_bpc_docs_get_owner', $out, $doc );
     }
-
 
 
     //

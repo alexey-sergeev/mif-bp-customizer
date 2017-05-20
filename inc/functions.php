@@ -241,7 +241,6 @@ function mif_bpc_time_since( $time, $reverse = false )
 // Красивое оформление размера файла
 //
 
-
 function mif_bpc_format_file_size( $size = 0 ) 
 {
     if ( $size == 0 ) return 0;
@@ -267,4 +266,15 @@ function mif_bpc_format_file_size( $size = 0 )
     $ret = round( $size, 2 ) . ' ' . $arr[$i];
 
     return apply_filters( 'mif_bpc_format_file_size', $ret, $size );
+}
+
+
+//
+// Вывод диалогового окна
+//
+
+function mif_bpc_message( $msg, $class = 'info' ) 
+{
+    $out = '<div id="message" class="message ' . $class . '"><p>' . $msg . '</p></div>';
+    return apply_filters( 'mif_bpc_message', $out, $msg, $class );
 }
