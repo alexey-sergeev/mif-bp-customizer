@@ -750,23 +750,23 @@ class mif_bpc_docs {
     }
 
 
-
+    
     // 
-    // Все папки пользователя или группы
+    // Получить данные коллекции папок
     // 
 
-    function get_folders( $page = 1, $item_id = NULL, $mode = 'member', $trashed = false )
+    function get_folders_data( $item_id, $mode = 'member', $page = NULL, $trashed = false, $posts_per_page = NULL )
     {
-        if ( ! in_array( $mode, array( 'member', 'group' ) ) ) return;
-
         $item_id = bp_displayed_user_id();
 
         $arr = array( 'publish', 'private' );
         if ( $trashed ) $arr[] = 'trash';
 
+        if ( $posts_per_page == NULL ) $posts_per_page = $this->folders_on_page;
+
         $args = array(
             // 'numberposts' => $this->folders_on_page,
-            'posts_per_page' => $this->folders_on_page,
+            'posts_per_page' => $posts_per_page,
             'paged' => $page,
             'author' => $item_id,
             // 'category'    => 0,
@@ -780,12 +780,46 @@ class mif_bpc_docs {
             'post_status' => implode( ',', $arr ),
         );
 
+        $folders = get_posts( $args );
+
+        return apply_filters( 'mif_bpc_docs_get_folders_data', $folders, $item_id, $mode, $page, $posts_per_page );
+    }
+
+
+    // 
+    // Все папки пользователя или группы
+    // 
+
+    function get_folders( $page = 1, $item_id = NULL, $mode = 'member', $trashed = false )
+    {
+        if ( ! in_array( $mode, array( 'member', 'group' ) ) ) return;
+
+        // $item_id = bp_displayed_user_id();
+
+        // $arr = array( 'publish', 'private' );
+        // if ( $trashed ) $arr[] = 'trash';
+
+        // $args = array(
+        //     // 'numberposts' => $this->folders_on_page,
+        //     'posts_per_page' => $this->folders_on_page,
+        //     'paged' => $page,
+        //     'author' => $item_id,
+        //     // 'category'    => 0,
+        //     'orderby'     => 'date',
+        //     'order'       => 'DESC',
+        //     // 'include'     => array(),
+        //     // 'exclude'     => array(),
+        //     // 'meta_key'    => '',
+        //     // 'meta_value'  =>'',
+        //     'post_type'   => 'mif-bpc-folder',
+        //     'post_status' => implode( ',', $arr ),
+        // );
+
         $out = '';
         if ( $page === 1 ) $out .= '<div class="collection clearfix">';
 
-
-
-        $folders = get_posts( $args );
+        // $folders = get_posts( $args );
+        $folders = $this->get_folders_data( $item_id, $mode, $page, $trashed );
 
         if ( $folders ) {
 
@@ -1235,7 +1269,7 @@ class mif_bpc_docs {
             // Главная страница документов - папки и др.
             $out .= $this->get_folders();
             $out .= $this->get_folder_statusbar();
-            $out .= $this->get_docs_collection_nonce();
+            $out .= $this->get_docs_collection_nonce( 'all-folders' );
 
         }
 
@@ -1256,7 +1290,8 @@ class mif_bpc_docs {
         $out = '';
         $out .= '<input type="hidden" id="docs-collection-nonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-nonce' ) . '">';
         
-        if ( is_numeric( $folder_id ) ) $out .= '<input type="hidden" id="docs-folder-id" value="' . $folder_id . '">';
+        if ( is_numeric( $folder_id ) ) $out .= '<input type="hidden" name="folder_id" id="docs-folder-id" value="' . $folder_id . '">';
+        if ( $folder_id == 'all-folders' ) $out .= '<input type="hidden" name="all_folders" id="docs-all-folders" value="on">';
 
         return apply_filters( 'mif_bpc_docs_gget_docs_collection_nonce', $out, $folder_id );
     }
@@ -1290,7 +1325,7 @@ class mif_bpc_docs {
 
 
     // 
-    // Выводит информацию статусной строки
+    // Выводит информацию папки в статусной строке
     // 
 
     function get_folder_statusbar_info( $folder_id = NULL )
@@ -1310,6 +1345,56 @@ class mif_bpc_docs {
         return apply_filters( 'mif_bpc_docs_get_folder_statusbar_info', $out, $folder_id, $data );
     }
 
+
+
+    // 
+    // Выводит информацию всех папок в статусной строке
+    // 
+
+    function get_all_folders_statusbar_info()
+    {
+        // if ( $folder_id == NULL ) {
+
+        //     if ( ! ( bp_current_action() == 'folder' && is_numeric( bp_action_variable( 0 ) ) ) ) return;
+        //     $folder_id = bp_action_variable( 0 );
+
+        // }
+
+        $data = $this->get_all_folders_size();
+
+        $out = '<span class="one">' . __( 'Папок', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $data['count'] . '</span>
+        <span class="one">' . __( 'Общий объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
+
+        return apply_filters( 'mif_bpc_docs_get_folder_statusbar_info', $out, $folder_id, $data );
+    }
+
+
+
+    // 
+    // Возвращает размер папки (количество и общий объем файлов)
+    // 
+
+    function get_all_folders_size()
+    {
+        $item_id = bp_displayed_user_id();
+        $mode = 'member';
+
+        $folders = $this->get_folders_data( $item_id, $mode, 0, false, -1 );
+
+        $count = count( $folders );
+        
+        $size = 0;
+        foreach ( (array) $folders as $folder ) {
+            
+            $folder_size = $this->get_folder_size( $folder );
+            $size += $folder_size['size'];
+
+        }
+
+        $data = array( 'count' => $count, 'size' => $size );
+     
+        return apply_filters( 'mif_bpc_docs_get_all_folders_size', $data );
+    }
 
 
     // 
@@ -1645,10 +1730,20 @@ class mif_bpc_docs {
     {
         check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
         
-        $folder_id = (int) $_POST['folder_id'];
-        if ( empty( $folder_id ) ) wp_die();
+        // if ( empty( $folder_id ) ) wp_die();
 
-        echo $this->get_folder_statusbar_info( $folder_id );
+        if ( isset( $_POST['folder_id'] ) ) {
+            
+            // Показать статистику конкретной папки
+            $folder_id = (int) $_POST['folder_id'];
+            echo $this->get_folder_statusbar_info( $folder_id );
+
+        } elseif ( isset( $_POST['all_folders'] ) && $_POST['all_folders'] == 'on' ) {
+
+            // Показать статистику всех папок папки
+            echo $this->get_all_folders_statusbar_info();
+
+        }
 
         wp_die();
     }

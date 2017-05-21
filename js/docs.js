@@ -512,12 +512,14 @@ jQuery( document ).ready( function( jq ) {
     {
         var nonce = jq( '#docs-collection-nonce' ).val();
         var folder_id = jq( '#docs-folder-id' ).val();
+        var all_folders = jq( '#docs-all-folders' ).val();
 
         if ( nonce ) {
 
             jq.post( ajaxurl, {
                 action: 'mif-bpc-docs-folder-statusbar-info',
                 folder_id: folder_id,
+                all_folders: all_folders,
                 _wpnonce: nonce,
             },
             function( response ) { 
