@@ -105,7 +105,7 @@ function no_friends_page( $is_current_component, $component )
 // Возвращает fa-иконку для файла указанного типа
 //
 
-function get_file_icon( $file, $class = '' )
+function mif_bpc_get_file_icon( $file, $class = '' )
 {
     $default = 'file-o';
     $icon = $default;

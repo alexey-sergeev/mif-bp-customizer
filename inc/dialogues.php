@@ -769,7 +769,7 @@ class mif_bpc_dialogues {
         $arr = explode( '.', $attach );
         $type = array_pop( $arr );
 
-        $icon = get_file_icon( $type );
+        $icon = mif_bpc_get_file_icon( $type );
 
         $out = '';
         $out .= '<span class="clearfix attach ' .  $type . '">';
