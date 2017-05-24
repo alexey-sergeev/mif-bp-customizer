@@ -607,6 +607,26 @@ abstract class mif_bpc_docs_core {
 
 
 
+    //
+    // Имя документа
+    //
+
+    function get_doc_name( $doc = NULL )
+    {
+        if ( $doc == NULL ) return;
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc ); 
+
+        $name = $doc->post_title;
+        
+        $icon = mif_bpc_get_file_icon( $name );
+
+        if ( in_array( $this->get_doc_type( $doc ), array( 'file', 'image' ) ) && preg_match( '/noext/', $icon ) ) $name = preg_replace( '/\.\w+$/', '', $name );
+
+        return apply_filters( 'mif_bpc_docs_get_doc_name', $name, $doc );
+    }
+
+
+
     // 
     // Инициирует скачивание документа
     // 
@@ -700,6 +720,22 @@ abstract class mif_bpc_docs_core {
         }
 
         return apply_filters( 'mif_bpc_docs_get_doc_type', $ret, $doc );
+    }
+
+
+
+    //
+    // Получает данные документа, отображаемого на экране
+    //
+
+    function get_doc_data()
+    {
+        if ( bp_current_component() != 'docs' || ! is_numeric( bp_current_action() ) ) return false;
+
+        $doc_id = bp_current_action();
+        $doc_data = get_post( $doc_id );
+
+        return apply_filters( 'mif_bpc_docs_get_doc_data', $doc_data, $doc_id );
     }
 
 

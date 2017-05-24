@@ -11,6 +11,7 @@
         <div class="content">
 
             <?php mif_bpc_docs_the_doc(); ?>
+            <?php mif_bpc_the_doc_statusbar(); ?>
 
         </div>
 

@@ -213,6 +213,44 @@ jQuery( document ).ready( function( jq ) {
 
 
 	//
+	// Опубликовать приватную папку
+	//
+
+	jq( '.docs-page' ).on( 'click', '.folder-publisher input[type="button"]', function() {
+
+        var form = jq( this ).closest( 'form' );
+        var item_id = jq( 'input[name="item_id"]', form ).val();
+
+        var nonce = jq( '#docs-collection-nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-docs-publisher',
+            item_id: item_id,
+            _wpnonce: nonce,
+        },
+        function( response ) { 
+
+            if ( response ) {
+
+                jq( '.message.folder-publisher').animate( { 'opacity': 0 }, function() {
+
+                    jq( '.message.folder-publisher').replaceWith( response );
+                    jq( '.message.folder-publisher').animate( { 'opacity': 1 } );
+
+                } )
+
+        }
+            // console.log( response );
+
+        });
+
+        return false;
+
+    } )
+
+
+
+	//
 	// Удалить совсем или восстановить папку (через tools-панель)
 	//
 

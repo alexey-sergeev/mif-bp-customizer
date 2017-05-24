@@ -25,9 +25,13 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_upload_form( $folder_id = NULL )
     {
-        if ( $folder_id == NULL ) return;
+        if ( ! $this->is_folder( $folder_id ) ) return;
         if ( ! $this->is_access( $folder_id, 'write' ) ) return;
         
+        $folder = get_post( $folder_id );
+
+        if ( $folder->post_status == 'trash' ) return;
+
         $out = '';
 
         $out .= '<div class="upload-form">';
@@ -206,34 +210,6 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
 
-
-    // 
-    // Выводит статусную строку папки
-    // 
-
-    function get_folder_statusbar( $folder_id = NULL )
-    {
-        if ( $folder_id == NULL && bp_current_action() == 'folder' && is_numeric( bp_action_variable( 0 ) ) ) $folder_id = bp_action_variable( 0 );
-
-        $out = '';
-
-        $show_settings = ( $this->is_folder( $folder_id ) ) ? true : false;
-
-        $out .= '<div class="statusbar">
-        <span class="info">&nbsp;</span>
-        <span class="tools"> 
-        <span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
-
-        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span></span>';
-
-        $out .= '</div>';
-
-        return apply_filters( 'mif_bpc_docs_get_folder_statusbar', $out, $folder_id );
-    }
-
-
-
-
     // 
     // Все документы, расположенные в папке
     // 
@@ -261,6 +237,12 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
+        if ( $folder->post_status == 'private' ) {
+            
+            $out .= $this->folder_publisher_tool( $folder_id );
+
+        }
+
         $docs = $this->get_docs_collection_data( $folder_id, $page, $trashed );
 
         if ( $docs ) {
@@ -281,6 +263,33 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         return apply_filters( 'mif_bpc_docs_get_docs_collection', $out, $page, $folder_id );
     }
+
+
+
+
+    // 
+    // Окно публикации приватной папки
+    // 
+
+    function folder_publisher_tool( $folder_id )
+    {
+        if ( ! $this->is_folder( $folder_id ) ) return;
+
+        $out = '';
+
+        $out .= __( 'Папка не опубликована и видна только вам', 'mif-bp-customizer' );
+        $out .= '<div class="folder-publisher">
+        <form>
+        <input type="button" name="publish" class="publish" value="' . __( 'Опубликовать', 'mif-bp-customizer' ) . '">
+        <input type="hidden" name="item_id" value="' . $folder_id . '">
+        </form>
+        </div>';
+
+        $ret = mif_bpc_message( $out, 'warning folder-publisher' );
+
+        return apply_filters( 'mif_bpc_docs_folder_publisher_tool', $ret, $out, $folder_id );
+    }
+
 
 
 
@@ -308,7 +317,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         return apply_filters( 'mif_bpc_docs_folder_restore_delete_tool', $ret, $out, $folder_id );
     }
 
-    
+   
 
 
     // 
@@ -355,7 +364,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
             if ( is_numeric( $doc ) ) $doc = get_post( $doc );
 
-            $name = $doc->post_title;
+            // $name = $doc->post_title;
+            $name = $this->get_doc_name( $doc );
             $logo = $this->get_file_logo( $doc );
             $loading = '';
             $url = $this->get_doc_url( $doc->ID );
@@ -508,6 +518,63 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         if ( $folder_id == 'all-folders' ) $out .= '<input type="hidden" name="all_folders" id="docs-all-folders" value="on">';
 
         return apply_filters( 'mif_bpc_docs_gget_docs_collection_nonce', $out, $folder_id );
+    }
+
+
+
+    // 
+    // Выводит статусную строку документа
+    // 
+
+    function get_doc_statusbar( $doc = NULL )
+    {
+        if ( $doc == NULL) $doc = $this->get_doc_data();
+        if ( is_numeric( $doc ) ) $doc = get_post( $doc );
+
+        if ( ! $this->is_doc( $doc->ID ) ) return;
+
+        $out = '';
+
+        $show_settings = true;
+
+        $out .= '<div class="statusbar">
+        <span class="info">&nbsp;</span>
+        <span class="tools">';
+
+        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span></span>';
+
+        $out .= '</div>';
+
+        return apply_filters( 'mif_bpc_docs_get_doc_statusbar', $out, $doc_id );
+    }
+
+
+
+
+
+
+    // 
+    // Выводит статусную строку папки
+    // 
+
+    function get_folder_statusbar( $folder_id = NULL )
+    {
+        if ( $folder_id == NULL && bp_current_action() == 'folder' && is_numeric( bp_action_variable( 0 ) ) ) $folder_id = bp_action_variable( 0 );
+
+        $out = '';
+
+        $show_settings = ( $this->is_folder( $folder_id ) ) ? true : false;
+
+        $out .= '<div class="statusbar">
+        <span class="info">&nbsp;</span>
+        <span class="tools"> 
+        <span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
+
+        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span></span>';
+
+        $out .= '</div>';
+
+        return apply_filters( 'mif_bpc_docs_get_folder_statusbar', $out, $folder_id );
     }
 
 

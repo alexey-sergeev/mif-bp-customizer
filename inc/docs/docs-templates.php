@@ -29,22 +29,6 @@ class mif_bpc_docs_templates extends mif_bpc_docs_screen {
 
 
     //
-    // Получает данные документа, отображаемого на экране
-    //
-
-    function get_doc_data()
-    {
-        if ( bp_current_component() != 'docs' || ! is_numeric( bp_current_action() ) ) return false;
-
-        $doc_id = bp_current_action();
-        $doc_data = get_post( $doc_id );
-
-        return apply_filters( 'mif_bpc_docs_get_doc_data', $doc_data, $doc_id );
-    }
-
-
-
-    //
     // Выводит имя документа
     //
 
@@ -55,7 +39,7 @@ class mif_bpc_docs_templates extends mif_bpc_docs_screen {
         $doc = $this->get_doc_data();
         if ( empty( $doc ) ) return;
 
-        $out .= $doc->post_title;
+        $out .= $this->get_doc_name( $doc );
 
         return apply_filters( 'mif_bpc_docs_get_name', $out, $doc );
     }
@@ -68,7 +52,7 @@ class mif_bpc_docs_templates extends mif_bpc_docs_screen {
 
     function get_doc()
     {
-        $out = '<div class="doc">';
+        $out = '<div class="doc clearfix">';
 
         $doc = $this->get_doc_data();
         if ( empty( $doc ) ) return;
@@ -122,7 +106,7 @@ class mif_bpc_docs_templates extends mif_bpc_docs_screen {
                 <a href="' . $url . '"><span class="item">' . $item . '</span></a>
             </div>
             <div>
-                <div class="name"><a href="' . $url . '">' . $doc->post_title . '</a></div>
+                <div class="name"><a href="' . $url . '">' . $this->get_doc_name( $doc ) . '</a></div>
                 <div class="description">' . $doc->post_excerpt . '</div>
             </div>';
 
@@ -305,6 +289,18 @@ function mif_bpc_the_docs_content()
 {
     global $mif_bpc_docs_templates;
     echo $mif_bpc_docs_templates->get_docs_content();
+}
+
+
+
+//
+// Выводит статусную строку документа
+//
+
+function mif_bpc_the_doc_statusbar()
+{
+    global $mif_bpc_docs_templates;
+    echo $mif_bpc_docs_templates->get_doc_statusbar();
 }
 
 

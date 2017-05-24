@@ -30,6 +30,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         add_action( 'wp_ajax_mif-bpc-docs-collection-show', array( $this, 'ajax_collection_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-new-folder', array( $this, 'ajax_new_folder_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-remove', array( $this, 'ajax_remove_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-publisher', array( $this, 'ajax_publisher_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-statusbar-info', array( $this, 'ajax_folder_statusbar_info_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-settings', array( $this, 'ajax_folder_settings_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-settings-save', array( $this, 'ajax_folder_settings_save_helper' ) );
@@ -48,6 +49,32 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     function load_js_helper()
     {
         wp_enqueue_script( 'mif_bpc_docs_helper', plugins_url( '../../js/docs.js', __FILE__ ) );
+    }
+
+
+
+    // 
+    // Ajax-помощник публикации приватной папки
+    // 
+
+    function ajax_publisher_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
+
+        // $user_id = bp_loggedin_user_id();
+        // if ( empty( $user_id ) ) wp_die();
+
+        $item_id = (int) $_POST['item_id'];
+
+        // $doc_id = $item_id;
+
+        if ( ! $this->is_access( $item_id, 'write' ) ) wp_die();
+
+        wp_publish_post( $item_id );
+        
+        echo mif_bpc_message( __( 'Папка опубликована', 'mif-bp-customizer' ) );
+
+        wp_die();
     }
 
 
@@ -122,10 +149,10 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         if ( $mode == 'item' ) {
 
-            if( $item_type == 'doc' ) $out = $this->get_doc_item( $item_id );
-            if( $item_type == 'doc-empty' ) $out = '<!-- empty -->';
-            if( $item_type == 'folder' ) $out = $this->get_folder_item( $item_id );
-            if( $item_type == 'folder-empty' ) $out = '<!-- empty -->';
+            if ( $item_type == 'doc' ) $out = $this->get_doc_item( $item_id );
+            if ( $item_type == 'doc-empty' ) $out = '<!-- empty -->';
+            if ( $item_type == 'folder' ) $out = $this->get_folder_item( $item_id );
+            if ( $item_type == 'folder-empty' ) $out = '<!-- empty -->';
 
         }
 
@@ -135,8 +162,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
             // if( $item_type == 'doc' ) $out = $this->get_doc_item( $item_id );
             // if( $item_type == 'doc-empty' ) $out = '<!-- empty -->';
-            if( $item_type == 'folder' ) $out = $this->get_folder_content( $item_id, __( 'Папка и все удалённые вместе с ней документы восстановлены', 'mif-bp-customizer' ) );
-            if( $item_type == 'folder-empty' ) {
+            if ( $item_type == 'folder' ) $out = $this->get_folder_content( $item_id, __( 'Папка и все удалённые вместе с ней документы восстановлены', 'mif-bp-customizer' ) );
+            if ( $item_type == 'folder-empty' ) {
                 
                 $msg = sprintf( __( 'Папка «%s» окончательно удалена', 'mif-bp-customizer' ), '<strong>' . $name . '</strong>' );
                 $msg .= '<p>' . __( 'Вернуться', 'mif-bp-customizer' ) . ': <strong><a href="' . $this->get_docs_url() . '">' . __( 'документы', 'mif-bp-customizer' ) . '</a></strong>';

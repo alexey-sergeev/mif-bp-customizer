@@ -47,6 +47,7 @@ class mif_bpc_docs extends mif_bpc_docs_core {
 
     function nav()
     {
+        // f($_POST);
         global $bp;
 
         $url = $bp->displayed_user->domain . $this->slug . '/';

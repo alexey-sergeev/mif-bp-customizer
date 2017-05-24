@@ -112,15 +112,15 @@ function mif_bpc_get_file_icon( $file, $class = '' )
 
     $ext = end( explode( ".", $file ) );
 
-    if ( in_array( $ext, array( 'doc', 'docx', 'odt', 'rtf' ) ) ) $icon = 'file-word-o';
-    if ( in_array( $ext, array( 'xls', 'xlsx', 'ods' ) ) ) $icon = 'file-excel-o';
-    if ( in_array( $ext, array( 'ppt', 'pptx', 'odp' ) ) ) $icon = 'file-powerpoint-o';
-    if ( in_array( $ext, array( 'pdf' ) ) ) $icon = 'file-pdf-o';
-    if ( in_array( $ext, array( 'txt' ) ) ) $icon = 'file-text-o';
-    if ( in_array( $ext, array( 'zip', 'rar', '7z' ) ) ) $icon = 'file-archive-o';
-    if ( in_array( $ext, array( 'png', 'gif', 'jpg', 'jpeg' ) ) ) $icon = 'file-image-o';
-    if ( in_array( $ext, array( 'mp3', 'ogg', 'wma' ) ) ) $icon = 'file-audio-o';
-    if ( in_array( $ext, array( 'html', 'htm', 'css', 'cpp', 'pas', 'js' ) ) ) $icon = 'file-code-o';
+    if ( in_array( $ext, array( 'doc', 'docx', 'odt', 'rtf' ) ) ) $icon = 'file-word-o noext';
+    if ( in_array( $ext, array( 'xls', 'xlsx', 'ods' ) ) ) $icon = 'file-excel-o noext';
+    if ( in_array( $ext, array( 'ppt', 'pptx', 'odp' ) ) ) $icon = 'file-powerpoint-o noext';
+    if ( in_array( $ext, array( 'pdf' ) ) ) $icon = 'file-pdf-o noext';
+    if ( in_array( $ext, array( 'txt' ) ) ) $icon = 'file-text-o noext';
+    if ( in_array( $ext, array( 'zip', 'rar', '7z' ) ) ) $icon = 'file-archive-o noext';
+    if ( in_array( $ext, array( 'png', 'gif', 'jpg', 'jpeg' ) ) ) $icon = 'file-image-o noext';
+    if ( in_array( $ext, array( 'mp3', 'ogg', 'wma' ) ) ) $icon = 'file-audio-o noext';
+    if ( in_array( $ext, array( 'html', 'htm', 'css', 'cpp', 'pas', 'js' ) ) ) $icon = 'file-code-o noext';
 
     if ( $icon == $default ) {
 
@@ -131,7 +131,9 @@ function mif_bpc_get_file_icon( $file, $class = '' )
 
     if ( $class ) $class = ' ' . $class;
 
-    return '<i class="fa fa-' . $icon . $class . '"></i>';
+    $out = '<i class="fa fa-' . $icon . $class . '"></i>';
+
+    return apply_filters( 'mif_bpc_get_file_icon', $out, $file, $class );
 }
 
 
