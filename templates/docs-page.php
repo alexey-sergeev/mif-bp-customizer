@@ -2,7 +2,7 @@
 
 <div class="docs-page">
 
-    <div class="docs-content clearfix">
+    <div class="docs-content content clearfix">
 
         <?php mif_bpc_the_docs_content(); ?>
 

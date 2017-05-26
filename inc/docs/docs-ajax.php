@@ -30,10 +30,13 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         add_action( 'wp_ajax_mif-bpc-docs-collection-show', array( $this, 'ajax_collection_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-new-folder', array( $this, 'ajax_new_folder_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-remove', array( $this, 'ajax_remove_helper' ) );
-        add_action( 'wp_ajax_mif-bpc-docs-publisher', array( $this, 'ajax_publisher_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-folder-publisher', array( $this, 'ajax_publisher_folder_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-statusbar-info', array( $this, 'ajax_folder_statusbar_info_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-settings', array( $this, 'ajax_folder_settings_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-settings-save', array( $this, 'ajax_folder_settings_save_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-doc-publisher', array( $this, 'ajax_publisher_doc_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-doc-settings', array( $this, 'ajax_doc_settings_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-doc-settings-save', array( $this, 'ajax_doc_settings_save_helper' ) );
 
         add_action( 'wp_enqueue_scripts', array( $this, 'load_js_helper' ) );   
 
@@ -54,12 +57,33 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
 
     // 
+    // Ajax-помощник публикации приватного документа
+    // 
+
+    function ajax_publisher_doc_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
+
+        $item_id = (int) $_POST['item_id'];
+
+        if ( ! $this->is_access( $item_id, 'write' ) ) wp_die();
+
+        wp_publish_post( $item_id );
+        
+        echo mif_bpc_message( __( 'Документ опубликован', 'mif-bp-customizer' ) );
+
+        wp_die();
+    }
+
+
+
+    // 
     // Ajax-помощник публикации приватной папки
     // 
 
-    function ajax_publisher_helper()
+    function ajax_publisher_folder_helper()
     {
-        check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
 
         // $user_id = bp_loggedin_user_id();
         // if ( empty( $user_id ) ) wp_die();
@@ -85,7 +109,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
     function ajax_remove_helper()
     {
-        check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
 
         // $user_id = bp_loggedin_user_id();
         // if ( empty( $user_id ) ) wp_die();
@@ -101,6 +125,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         $mode = ( $_POST['mode'] == 'page' ) ? 'page' : 'item';
 
         $item = get_post( $item_id );
+        
+        if ( $is_doc ) $folder_id = $item->post_parent;
 
         if ( $item->post_status == 'trash' ) {
 
@@ -117,7 +143,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
                 // Удалить документ или папку навсегда
                 // if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo '<!-- empty -->';
                 // if ( $is_folder ) if ( $this->delete_folder( $item_id ) ) echo '<!-- empty -->';
-                if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc-empty', $mode, $item->post_title );
+                if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo $this->show_response( $folder_id, 'doc-empty', $mode, $item->post_title );
                 if ( $is_folder ) if ( $this->delete_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder-empty', $mode, $item->post_title );
 
             }
@@ -160,8 +186,19 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         if ( $mode == 'page' ) {
 
-            // if( $item_type == 'doc' ) $out = $this->get_doc_item( $item_id );
-            // if( $item_type == 'doc-empty' ) $out = '<!-- empty -->';
+            if( $item_type == 'doc' ) $out = $this->get_doc_content( $item_id, __( 'Документ восстановлен', 'mif-bp-customizer' ) );
+            if( $item_type == 'doc-empty' ) {
+                
+                $msg = sprintf( __( 'Документ «%s» окончательно удален', 'mif-bp-customizer' ), '<strong>' . $name . '</strong>' );
+
+                $folder = get_post( $item_id );
+
+                $msg .= '<p>' . __( 'Вернуться', 'mif-bp-customizer' ) . ': <strong><a href="' . $this->get_folder_url( $folder->ID ) . '">' . $folder->post_title . '</a></strong>';
+                
+                $out = mif_bpc_message( $msg );
+
+            }           
+
             if ( $item_type == 'folder' ) $out = $this->get_folder_content( $item_id, __( 'Папка и все удалённые вместе с ней документы восстановлены', 'mif-bp-customizer' ) );
             if ( $item_type == 'folder-empty' ) {
                 
@@ -257,7 +294,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
     function ajax_collection_helper()
     {
-        check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
 
         $page = ( isset( $_POST['page'] ) ) ? (int) $_POST['page'] : 1;
         $trashed = (int) $_POST['trashed'];
@@ -354,18 +391,104 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
 
     // 
+    // Ajax-помощник окна настройки документа
+    // 
+
+    function ajax_doc_settings_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
+
+        $doc_id = (int) $_POST['doc_id'];
+
+        echo $this->get_doc_settings( $doc_id );
+        echo $this->get_doc_nonce();
+
+        wp_die();
+    }
+
+
+
+    // 
+    // Ajax-помощник сохранения настроек документа
+    // 
+
+    function ajax_doc_settings_save_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-doc-settings-nonce' );
+
+        $doc_id = (int) $_POST['doc_id'];
+
+        if ( ! $this->is_access( $doc_id, 'write' ) ) wp_die();
+
+        if ( isset( $_POST['do'] ) ) {
+
+            if ( $_POST['do'] == 'cancel' ) {
+
+                // Нажали "Отмена" - просто показать папки
+
+                echo $this->get_doc_content( $doc_id );
+
+            } elseif ( $_POST['do'] == 'to-trash' ) {
+
+                // Удалить в корзину
+
+                $ret = ( $this->trash_doc( $doc_id ) ) ? $this->get_doc_content( $doc_id ) : $this->error_msg( '005' );
+                echo $ret;
+
+            } else {
+
+                echo $this->error_msg( '006' );
+
+            }
+
+        } else {
+
+            // Сохраняем новые настройки папки
+
+            $doc = get_post( $doc_id );
+            
+            if ( isset( $doc->post_status) && $doc->post_status != 'trash' ) {
+
+                $publish = ( $_POST['publish'] == 'on' ) ? 'publish' : 'private';
+
+                $doc_data = array(
+                                    'ID' => (int) $_POST['doc_id'],
+                                    'post_status' => $publish,
+                                    'post_excerpt' => trim( $_POST['desc'] ),
+                                );
+
+                $name = trim( $_POST['name'] );
+                
+                if ( $name != '' ) $doc_data['post_title'] = apply_filters( 'mif_bpc_docs_ajax_doc_settings_save_helper_name', $name, $doc_data['post_title'] );
+
+                // Примечание. Фильтр выше можно использовать для корректировки имен файлов, т.к. пользователи могут поломать расширение файла
+
+                $ret = ( wp_update_post( wp_slash( $doc_data ) ) ) ? $this->get_doc_content( $doc_id ) : $this->error_msg( '008' );
+                echo $ret;
+
+            } else {
+
+                echo $this->error_msg( '007' );
+
+            }
+        }
+
+        wp_die();
+    }
+
+
+    // 
     // Ajax-помощник окна настройки папки
     // 
 
     function ajax_folder_settings_helper()
     {
-        check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
 
         $folder_id = (int) $_POST['folder_id'];
 
         echo $this->get_folder_settings( $folder_id );
-        echo $this->get_docs_collection_nonce();
-
+        echo $this->get_folder_nonce();
 
         wp_die();
     }
@@ -445,7 +568,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
     function ajax_folder_statusbar_info_helper()
     {
-        check_ajax_referer( 'mif-bpc-docs-collection-nonce' );
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
         
         // if ( empty( $folder_id ) ) wp_die();
 

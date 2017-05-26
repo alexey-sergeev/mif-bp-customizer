@@ -131,9 +131,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $remove_box = '<p><a href="' . $this->get_folder_url( $folder_id ) . '" class="remove-box-toggle dotted">' . __( 'Удалить папку', 'mif-bp-customizer' ) . '</a></p>
             <div class="remove-box">
             <div class="message warning">
-            <p><strong>' . __( 'Удалить папку и все её документы', 'mif-bp-customizer' ) . '</strong></p>
             <p>' . __( 'Папка и все её документы будут перемещены в корзину и через несколько дней окончательно удалены. Пока материалы хранятся в корзине, вы их сможете восстановить.', 'mif-bp-customizer' ) . '</p>
-            <p><input type="button" class="remove to-trash" value="' . __( 'Удалить папку', 'mif-bp-customizer' ) . '"></p>
+            <p><input type="button" class="remove to-trash" value="' . __( 'Удалить', 'mif-bp-customizer' ) . '"></p>
             </div>
             </div>';
 
@@ -201,7 +200,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             // Главная страница документов - папки и др.
             $out .= $this->get_folders();
             $out .= $this->get_folder_statusbar();
-            $out .= $this->get_docs_collection_nonce( 'all-folders' );
+            $out .= $this->get_folder_nonce( 'all-folders' );
 
         }
 
@@ -268,6 +267,56 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
+    // Окно публикации приватного документа
+    // 
+
+    function doc_publisher_tool( $doc_id )
+    {
+        if ( ! $this->is_doc( $doc_id ) ) return;
+
+        $out = '';
+
+        $out .= __( 'Документ не опубликован и доступен только вам', 'mif-bp-customizer' );
+        $out .= '<form>
+        <input type="button" name="publish" class="publish" value="' . __( 'Опубликовать', 'mif-bp-customizer' ) . '">
+        <input type="hidden" name="item_id" value="' . $doc_id . '">
+        </form>';
+
+        $ret = mif_bpc_message( $out, 'warning doc-publisher' );
+
+        return apply_filters( 'mif_bpc_docs_doc_publisher_tool', $ret, $out, $doc_id );
+    }
+
+
+
+
+    // 
+    // Окно восстановления или окончательного удаления документа
+    // 
+
+    function doc_restore_delete_tool( $doc_id )
+    {
+        if ( ! $this->is_doc( $doc_id ) ) return;
+
+        $out = '';
+
+        $out .= __( 'Документ находится в корзине и через некоторое время будет окончательно удален. Пока это не произошло, вы можете его восстановить или самостоятельно удалить из корзины.', 'mif-bp-customizer' );
+        $out .= '<div class="doc-restore-delete">
+        <form>
+        <input type="button" name="delete" class="delete" value="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '">
+        <input type="button" name="restore" class="restore" value="' . __( 'Восстановить', 'mif-bp-customizer' ) . '">
+        <input type="hidden" name="item_id" value="' . $doc_id . '">
+        </form>
+        </div>';
+
+        $ret = mif_bpc_message( $out, 'warning' );
+
+        return apply_filters( 'mif_bpc_docs_doc_restore_delete_tool', $ret, $out, $doc_id );
+    }
+
+
+
+    // 
     // Окно публикации приватной папки
     // 
 
@@ -277,13 +326,11 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        $out .= __( 'Папка не опубликована и видна только вам', 'mif-bp-customizer' );
-        $out .= '<div class="folder-publisher">
-        <form>
+        $out .= __( 'Папка не опубликована и доступна только вам', 'mif-bp-customizer' );
+        $out .= '<form>
         <input type="button" name="publish" class="publish" value="' . __( 'Опубликовать', 'mif-bp-customizer' ) . '">
         <input type="hidden" name="item_id" value="' . $folder_id . '">
-        </form>
-        </div>';
+        </form>';
 
         $ret = mif_bpc_message( $out, 'warning folder-publisher' );
 
@@ -331,7 +378,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $out .= '<div class="more"><form>
         <button>' . __( 'Показать ещё', 'mif-bp-customizer' ) . '</button>
         <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>';
-        $out .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-nonce' ) . '">';
+        $out .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-nonce' ) . '">';
 
         foreach ( $args as $key => $value ) $out .= '<input type="hidden" name="' . $key . '" value="' . $value . '">';
 
@@ -492,7 +539,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
             $out .= $this->get_docs_collection( $folder_id );
             $out .= $this->get_folder_statusbar( $folder_id );
-            $out .= $this->get_docs_collection_nonce( $folder_id );
+            $out .= $this->get_folder_nonce( $folder_id );
              
         } else {
 
@@ -505,19 +552,193 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
 
+    //
+    // Содержимое страницы документа
+    //
+
+    function get_doc_content( $doc, $msg = false )
+    {
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
+        if ( empty( $doc ) ) return;
+
+        $out = '<div class="doc clearfix">';
+
+        if ( $msg ) $out .= mif_bpc_message( $msg );
+
+        if ( $doc->post_status == 'private' ) $out .= $this->doc_publisher_tool( $doc->ID );
+        if ( $doc->post_status == 'trash' ) $out .= $this->doc_restore_delete_tool( $doc->ID );
+
+        $doc_type = $this->get_doc_type( $doc );
+        $url = $this->get_doc_url( $doc->ID ) . 'download';
+        $html = $doc->the_content;
+
+        // Если ссылка, то решить, отображать ее как HTML или как простую ссылку (оформляется как файл)
+
+        if ( $doc_type == 'link' ) {
+
+            $html = wp_oembed_get( $doc->post_content );
+
+            if ( $html  ) {
+
+                $doc_type = 'html';
+
+            } else {
+
+                $doc_type = 'file';
+                $url = $doc->post_content;
+
+            }
+
+        }
+
+        // Показать HTML (из базы данных, или сформироанную выше через oembed)
+
+        if ( $doc_type == 'html' ) {
+
+            $name = ( preg_match( '/^https?:\/\//', $doc->post_title ) ) ? '' : '<div class="name">' . $doc->post_title . '</div>';
+
+            $out .= '
+            <div class="html">' . $html . '</div>
+            <div>
+                ' . $name . '
+                <div class="description">' . $doc->post_excerpt . '</div>
+            </div>';
+
+        }
+
+        // Показать файл (или простую ссылку)
+
+        if ( $doc_type == 'file' ) {
+
+            $item = $this->get_file_logo( $doc );
+
+            $out .= '
+            <div class="file">
+                <a href="' . $url . '"><span class="item">' . $item . '</span></a>
+            </div>
+            <div>
+                <div class="name"><a href="' . $url . '">' . $this->get_doc_name( $doc ) . '</a></div>
+                <div class="description">' . $doc->post_excerpt . '</div>
+            </div>';
+
+        } 
+        
+        // Показать картинку (целиком)
+
+        if ( $doc_type == 'image' ) {
+
+            // $url = $this->get_docs_url() . '/' . $doc->ID . '/download';
+
+            $out .= '
+            <div class="image">
+                <a href="' . $url . '"><img src="' . $url . '"></a>
+            </div>
+            <div>
+                <div class="name"><span class="one">' . __( 'Файл', 'mif-bp-customizer' ) . ':</span> <span class="two"><a href="' . $url . '">' . $doc->post_title . '</a></span></div>
+                <div class="description">' . $doc->post_excerpt . '</div>
+            </div>';
+
+        } 
+        
+        $out .= '</div>';
+
+        $out .= $this->get_doc_statusbar( $doc->ID );
+        $out .= $this->get_doc_nonce( $doc->ID );
+       
+        return apply_filters( 'mif_bpc_docs_get_doc_content', $out, $doc );
+    }
+
+
+
+
+    //
+    // Содержимое страницы документа
+    //
+
+    function get_doc_settings( $doc )
+    {
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
+        if ( empty( $doc ) ) return;
+
+        $out = '<div class="doc-settings clearfix">';
+
+        $out .= '<h2>' . __( 'Параметры документа', 'mif-bp-customizer' ) . '</h2>';
+
+        $remove_box = '<p><a href="' . $this->get_doc_url( $doc->ID ) . '" class="remove-box-toggle dotted">' . __( 'Удалить документ', 'mif-bp-customizer' ) . '</a></p>
+        <div class="remove-box">
+        <div class="message warning">
+        <p>' . __( 'Документ будет отправлен в корзину и через несколько дней окончательно удален. Пока документ хранятся в корзине, вы сможете его восстановить.', 'mif-bp-customizer' ) . '</p>
+        <p><input type="button" class="remove to-trash" value="' . __( 'Удалить', 'mif-bp-customizer' ) . '"></p>
+        </div>
+        </div>';
+
+        $disabled = '';
+        if ( $doc->post_status == 'trash' ) {
+
+            $out .= $this->doc_restore_delete_tool( $doc->ID );
+            $disabled = ' disabled';
+            $remove_box = '';
+
+        }
+
+        $out .= '<form id="doc-settings" class="' . $doc->post_status . '">
+        <input type="hidden" name="doc_id" value="' . $doc->ID . '">
+        <input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-doc-settings-nonce' ) . '">';
+
+        $name = $doc->post_title;
+        $desc = $doc->post_excerpt;
+        $publish = ( $doc->post_status == 'publish' ) ? ' checked' : '';
+
+        $out .= '<p>' . __( 'Название', 'mif-bp-customizer' ) . ':</p>
+        <p><input type="text" name="name" value="' . $name .'"' . $disabled . '></p>
+        <p>' . __( 'Описание', 'mif-bp-customizer' ) . ':</p>
+        <p><textarea name="desc"' . $disabled . '>' . $desc . '</textarea></p>
+        <p>' . __( 'Режим доступа', 'mif-bp-customizer' ) . ':</p>
+        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Опубликована', 'mif-bp-customizer' ) . '</label></p><p>';
+
+        if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Сохранить', 'mif-bp-customizer' ) . '"> ';
+
+        $out .= '<input type="button" id="cancel" value="' . __( 'Отмена', 'mif-bp-customizer' ) . '">
+        </p>' . $remove_box . '</form>';
+
+        $out .= '</div>';
+        
+        return apply_filters( 'mif_bpc_docs_get_doc_settings', $out, $doc );
+    }
+
+
+
+
     // 
-    // Выводит nonce-поля и другую информацию для поддержки AJAX-запросов
+    // Выводит nonce-поля и другую информацию для поддержки AJAX-запросов на странице папки
     // 
 
-    function get_docs_collection_nonce( $folder_id = NULL )
+    function get_folder_nonce( $folder_id = NULL )
     {
         $out = '';
-        $out .= '<input type="hidden" id="docs-collection-nonce" value="' . wp_create_nonce( 'mif-bpc-docs-collection-nonce' ) . '">';
+        $out .= '<input type="hidden" id="docs-folder-nonce" value="' . wp_create_nonce( 'mif-bpc-docs-nonce' ) . '">';
         
         if ( is_numeric( $folder_id ) ) $out .= '<input type="hidden" name="folder_id" id="docs-folder-id" value="' . $folder_id . '">';
         if ( $folder_id == 'all-folders' ) $out .= '<input type="hidden" name="all_folders" id="docs-all-folders" value="on">';
 
-        return apply_filters( 'mif_bpc_docs_gget_docs_collection_nonce', $out, $folder_id );
+        return apply_filters( 'mif_bpc_docs_get_folder_nonce', $out, $folder_id );
+    }
+
+
+
+
+    // 
+    // Выводит nonce-поля и другую информацию для поддержки AJAX-запросов на странице документа
+    // 
+
+    function get_doc_nonce( $doc_id = NULL )
+    {
+        $out = '';
+        $out .= '<input type="hidden" id="docs-doc-nonce" value="' . wp_create_nonce( 'mif-bpc-docs-nonce' ) . '">';
+        
+        if ( is_numeric( $doc_id ) ) $out .= '<input type="hidden" name="doc_id" id="docs-doc-id" value="' . $doc_id . '">';
+
+        return apply_filters( 'mif_bpc_docs_get_doc_nonce', $out, $doc_id );
     }
 
 

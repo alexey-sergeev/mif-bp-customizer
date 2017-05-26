@@ -11,19 +11,12 @@
         <div class="content">
 
             <?php mif_bpc_docs_the_doc(); ?>
-            <?php mif_bpc_the_doc_statusbar(); ?>
 
         </div>
 
         <div class="meta">
 
-            <?php // mif_bpc_docs_the_name(); ?>
-            <?php mif_bpc_docs_the_folder(); ?>
-            <?php mif_bpc_docs_the_group(); ?>
-            <?php mif_bpc_docs_the_date(); ?>
-            <?php mif_bpc_docs_the_owner(); ?>
-            <?php mif_bpc_docs_the_prev(); ?>
-            <?php mif_bpc_docs_the_next(); ?>
+            <?php mif_bpc_docs_the_meta(); ?>
 
         </div>
 

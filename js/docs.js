@@ -41,7 +41,7 @@ jQuery( document ).ready( function( jq ) {
     // Показать форму для удаления папки
     //
 
-    jq( '.docs-page' ).on( 'click', '.remove-box-toggle', function() {
+    jq( '.docs-page, .docs-page-doc' ).on( 'click', '.remove-box-toggle', function() {
 
         jq( '.remove-box' ).fadeToggle();
         return false;
@@ -181,7 +181,7 @@ jQuery( document ).ready( function( jq ) {
 
         var item = jq( this ).closest( '.file' );
         var item_id = jq( this ).attr( 'data-item-id' );
-        var nonce = jq( '#docs-collection-nonce' ).val();
+        var nonce = jq( '#docs-folder-nonce' ).val();
         var restore = ( jq( this ).hasClass( 'restore' ) ) ? 1 : 0;
 
         jq.post( ajaxurl, {
@@ -213,6 +213,43 @@ jQuery( document ).ready( function( jq ) {
 
 
 	//
+	// Опубликовать приватный документ
+	//
+
+	jq( '.docs-page-doc' ).on( 'click', '.doc-publisher input[type="button"]', function() {
+
+        var form = jq( this ).closest( 'form' );
+        var item_id = jq( 'input[name="item_id"]', form ).val();
+
+        var nonce = jq( '#docs-doc-nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-docs-doc-publisher',
+            item_id: item_id,
+            _wpnonce: nonce,
+        },
+        function( response ) { 
+
+            if ( response ) {
+
+                jq( '.message.doc-publisher').animate( { 'opacity': 0 }, function() {
+
+                    jq( '.message.doc-publisher').replaceWith( response );
+                    jq( '.message.doc-publisher').animate( { 'opacity': 1 } );
+
+                } )
+
+            }
+
+        });
+
+        return false;
+
+    } )
+
+
+
+	//
 	// Опубликовать приватную папку
 	//
 
@@ -221,10 +258,10 @@ jQuery( document ).ready( function( jq ) {
         var form = jq( this ).closest( 'form' );
         var item_id = jq( 'input[name="item_id"]', form ).val();
 
-        var nonce = jq( '#docs-collection-nonce' ).val();
+        var nonce = jq( '#docs-folder-nonce' ).val();
 
         jq.post( ajaxurl, {
-            action: 'mif-bpc-docs-publisher',
+            action: 'mif-bpc-docs-folder-publisher',
             item_id: item_id,
             _wpnonce: nonce,
         },
@@ -239,8 +276,7 @@ jQuery( document ).ready( function( jq ) {
 
                 } )
 
-        }
-            // console.log( response );
+            }
 
         });
 
@@ -260,7 +296,7 @@ jQuery( document ).ready( function( jq ) {
         var item_id = jq( 'input[name="item_id"]', form ).val();
         var restore = ( jq( this ).hasClass( 'restore' ) ) ? 1 : 0;
 
-        var nonce = jq( '#docs-collection-nonce' ).val();
+        var nonce = jq( '#docs-folder-nonce' ).val();
 
         jq.post( ajaxurl, {
             action: 'mif-bpc-docs-remove',
@@ -271,7 +307,7 @@ jQuery( document ).ready( function( jq ) {
         },
         function( response ) { 
 
-            docs_content_update( response );
+            folder_content_update( response );
             // console.log( response );
 
         });
@@ -324,7 +360,7 @@ jQuery( document ).ready( function( jq ) {
 
 	jq( '.docs-page' ).on( 'change', '.statusbar #show-remove-docs', function() {
 
-        var nonce = jq( '#docs-collection-nonce' ).val();
+        var nonce = jq( '#docs-folder-nonce' ).val();
         var folder_id = jq( '#docs-folder-id' ).val();
         var trashed = ( jq( '#show-remove-docs' ).prop( 'checked' ) ) ? 1 : 0;
         
@@ -399,7 +435,7 @@ jQuery( document ).ready( function( jq ) {
             data: data,
             success: function( response ) {
 
-                docs_content_update( response );
+                folder_content_update( response );
 
             }
         } );
@@ -408,7 +444,7 @@ jQuery( document ).ready( function( jq ) {
 
 	} );
 
-   
+  
 
 
 	//
@@ -418,7 +454,7 @@ jQuery( document ).ready( function( jq ) {
 	jq( '.docs-page' ).on( 'click', '.statusbar #folder-settings', function() {
 
 
-        var nonce = jq( '#docs-collection-nonce' ).val();
+        var nonce = jq( '#docs-folder-nonce' ).val();
         var folder_id = jq( '#docs-folder-id' ).val();
 
         jq.post( ajaxurl, {
@@ -428,13 +464,157 @@ jQuery( document ).ready( function( jq ) {
         },
         function( response ) { 
 
-            docs_content_update( response );
+            folder_content_update( response );
 
         });
 
 		return false;
 
 	} );
+
+
+
+	//
+	// Сохранение настроек документа
+	//
+
+	jq( '.docs-page-doc' ).on( 'submit', 'form#doc-settings', function() {
+
+        var form = jq( this );
+        var data = new FormData( this );
+        data.append( 'action', 'mif-bpc-docs-doc-settings-save' );
+
+        jq.ajax( {
+            url: ajaxurl,
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: data,
+            success: function( response ) {
+
+                doc_content_update( response );
+
+            }
+        } );
+
+		return false;
+
+	} );
+
+
+
+	//
+	// Кнопка "Удалить" (редактирование документа)
+	//
+
+	jq( '.docs-page-doc' ).on( 'click', '.doc-settings .remove', function() {
+
+        var form = jq( this ).closest( 'form' );
+        var data = new FormData( form.get( 0 ) );
+        data.append( 'action', 'mif-bpc-docs-doc-settings-save' );
+        data.append( 'do', 'to-trash' );
+
+        jq.ajax( {
+            url: ajaxurl,
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: data,
+            success: function( response ) {
+
+                doc_content_update( response );
+
+            }
+        } );
+
+    } );
+
+   
+
+
+	//
+	// Редактирование документа
+	//
+
+	jq( '.docs-page-doc' ).on( 'click', '.statusbar #doc-settings', function() {
+
+        var nonce = jq( '#docs-doc-nonce' ).val();
+        var doc_id = jq( '#docs-doc-id' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-docs-doc-settings',
+            doc_id: doc_id,
+            _wpnonce: nonce,
+        },
+        function( response ) { 
+
+            // console.log(response);
+            doc_content_update( response );
+
+        });
+
+		return false;
+
+	} );
+
+
+
+	//
+	// Удалить совсем или восстановить документ (через tools-панель)
+	//
+
+	jq( '.docs-page-doc' ).on( 'click', '.doc-restore-delete input[type="button"]', function() {
+
+        var form = jq( this ).closest( 'form' );
+        var item_id = jq( 'input[name="item_id"]', form ).val();
+        var restore = ( jq( this ).hasClass( 'restore' ) ) ? 1 : 0;
+
+        var nonce = jq( '#docs-doc-nonce' ).val();
+
+        jq.post( ajaxurl, {
+            action: 'mif-bpc-docs-remove',
+            item_id: item_id,
+            restore: restore,
+            mode: 'page',
+            _wpnonce: nonce,
+        },
+        function( response ) { 
+
+            doc_content_update( response );
+            // console.log( response );
+
+        });
+
+        return false;
+
+    } )
+
+
+	//
+	// Кнопка "Отмена" (редактирование документа)
+	//
+
+	jq( '.docs-page-doc' ).on( 'click', '.doc-settings #cancel', function() {
+
+        var form = jq( this ).closest( 'form' );
+        var data = new FormData( form.get( 0 ) );
+        data.append( 'action', 'mif-bpc-docs-doc-settings-save' );
+        data.append( 'do', 'cancel' );
+
+        jq.ajax( {
+            url: ajaxurl,
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: data,
+            success: function( response ) {
+
+                doc_content_update( response );
+
+            }
+        } );
+
+    } );
 
 
 
@@ -470,7 +650,7 @@ jQuery( document ).ready( function( jq ) {
             data: data,
             success: function( response ) {
 
-                docs_content_update( response );
+                folder_content_update( response );
 
             }
         } );
@@ -498,7 +678,7 @@ jQuery( document ).ready( function( jq ) {
             data: data,
             success: function( response ) {
 
-                docs_content_update( response );
+                folder_content_update( response );
 
             }
         } );
@@ -516,6 +696,7 @@ jQuery( document ).ready( function( jq ) {
         if ( e.which == 27 ) {
 
             if ( jq( '.folder-settings #cancel' ).length ) jq( '.folder-settings #cancel' ).trigger( 'click' );
+            if ( jq( '.doc-settings #cancel' ).length ) jq( '.doc-settings #cancel' ).trigger( 'click' );
             if ( jq( '.new-folder #cancel' ).length ) jq( '.new-folder #cancel' ).trigger( 'click' );
 
             return false;
@@ -524,16 +705,36 @@ jQuery( document ).ready( function( jq ) {
     });
 
 
+
     //
-    // Обновляет содержимое страницы документов
+    // Обновляет содержимое страницы документа
     //
 
-    function docs_content_update( response )
+    function doc_content_update( response )
     {
-        jq( '.docs-content').animate( { 'opacity': 0 }, function() {
+        // console.log(response);
+        jq( '.docs-page-doc .content' ).animate( { 'opacity': 0 }, function() {
 
-            jq( '.docs-content').html( response );
-            jq( '.docs-content').animate( { 'opacity': 1 } );
+            jq( '.docs-page-doc .content' ).html( response );
+            jq( '.docs-page-doc .content' ).animate( { 'opacity': 1 } );
+            // folder_statusbar_info_update();
+
+        } )
+
+    }
+
+
+
+    //
+    // Обновляет содержимое страницы папки
+    //
+
+    function folder_content_update( response )
+    {
+        jq( '.docs-content' ).animate( { 'opacity': 0 }, function() {
+
+            jq( '.docs-content' ).html( response );
+            jq( '.docs-content' ).animate( { 'opacity': 1 } );
             folder_statusbar_info_update();
 
         } )
@@ -548,7 +749,7 @@ jQuery( document ).ready( function( jq ) {
 
     function folder_statusbar_info_update()
     {
-        var nonce = jq( '#docs-collection-nonce' ).val();
+        var nonce = jq( '#docs-folder-nonce' ).val();
         var folder_id = jq( '#docs-folder-id' ).val();
         var all_folders = jq( '#docs-all-folders' ).val();
 

@@ -230,6 +230,21 @@
     outline: none;
 }
 
+/* Параметры документа */
+
+.doc-settings {
+    padding: 0px 20px;
+}
+
+.doc-settings input[type="text"],
+.doc-settings textarea {
+    width: 100%;
+}
+
+.doc-settings textarea {
+    min-height: 6rem;
+}
+
 /* Создание и настройка папок */
 
 .folder-settings {
@@ -250,11 +265,11 @@
     display: none;
 }
 
-.folder-settings .trash input[type="text"],
+/*.folder-settings .trash input[type="text"],
 .folder-settings .trash textarea {
     width: 80%;
 }
-
+*/
 
 
 /* Документы */
