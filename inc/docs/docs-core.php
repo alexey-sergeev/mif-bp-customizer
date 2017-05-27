@@ -207,9 +207,11 @@ abstract class mif_bpc_docs_core {
     // Сохранить документ
     // 
 
-    function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL )
+    function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL,  $order = 0 )
     {
         if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+
+        // $order = $this->get_max_order() + 1;
 
         $docs_data = array(
             'post_type' => 'mif-bpc-doc',
@@ -217,6 +219,7 @@ abstract class mif_bpc_docs_core {
             'post_content' => $path,
             'post_status' => 'publish',
             'post_author' => (int) $user_id,
+            'menu_order' => (int) $order,
             'comment_status' => 'closed',
             'ping_status' => 'closed'
         );
@@ -286,7 +289,7 @@ abstract class mif_bpc_docs_core {
             'posts_per_page' => $posts_per_page,
             // 'author' => bp_displayed_user_id(),
             // 'category'    => 0,
-            'orderby'     => 'date',
+            'orderby'     => 'menu_order',
             'order'       => 'DESC',
             // 'include'     => array(),
             // 'exclude'     => array(),
@@ -341,6 +344,7 @@ abstract class mif_bpc_docs_core {
 
     function get_doc_size( $doc = NULL )
     {
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
         if ( $doc == NULL ) return 0;
 
         $doc_type = $this->get_doc_type( $doc );
@@ -689,18 +693,32 @@ abstract class mif_bpc_docs_core {
 
 
     // 
+    // Возвращает расширение файла документа
+    // 
+
+    function get_doc_ext( $name )
+    {
+        $ext = end( explode( ".", $name ) );
+        return apply_filters( 'mif_bpc_docs_get_doc_ext', $ext, $doc );
+    }
+
+
+
+    // 
     // Возвращает тип документа (image, file, link или html)
     // 
 
     function get_doc_type( $doc )
     {
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
         if ( empty( $doc ) ) return false;
 
         if ( preg_match( '/^\/' . $this->path . '\//', $doc->post_content ) ) {
 
             // Если содержимое начинается с /docs/
 
-            $ext = end( explode( ".", $doc->post_title ) );
+            // $ext = end( explode( ".", $doc->post_title ) );
+            $ext = $this->get_doc_ext( $doc->post_title );
             $img_types = apply_filters( 'mif_bpc_docs_img_types', array( 'png', 'jpg', 'jpeg', 'gif' ) );
 
             $ret = ( in_array( $ext, $img_types ) ) ? 'image' : 'file';
@@ -725,6 +743,25 @@ abstract class mif_bpc_docs_core {
 
 
     //
+    // Обеспечивает сохранность расширения файла при изменении имени
+    //
+    
+    function ext_safety( $new_name, $old_name = '' )
+    {
+        if ( $old_name == '' ) return $new_name;
+
+        $new_ext = $this->get_doc_ext( $new_name );
+        $old_ext = $this->get_doc_ext( $old_name );
+
+        $name = $new_name;
+        if ( $new_ext != $old_ext ) $name = $new_name . '.' . $old_ext;
+
+        return apply_filters( 'mif_bpc_docs_ext_safety', $name, $new_name, $old_name );
+    }
+
+
+
+    //
     // Получает данные документа, отображаемого на экране
     //
 
@@ -736,6 +773,54 @@ abstract class mif_bpc_docs_core {
         $doc_data = get_post( $doc_id );
 
         return apply_filters( 'mif_bpc_docs_get_doc_data', $doc_data, $doc_id );
+    }
+
+
+
+    //
+    // Сортирует документы в папке
+    //
+
+    function docs_reorder( $folder_id, $order_raw )
+    {
+        if ( ! $this->is_folder( $folder_id ) ) return false;
+        
+        // Получить массив ID всех документов папки (включая удаленные)
+
+        $docs = $this->get_docs_collection_data( $folder_id, 0, 1, -1 );
+        $arr = array();
+        foreach ( (array) $docs as $doc ) $arr[] = $doc->ID;
+
+        // Из записи doc-NNN оставить только NNN, относящиеся к документам в папке
+        $order = array();
+        foreach ( (array) $order_raw as $key => $value ) {
+
+            $nnn = (int) end( explode( "-", $value ) );
+            if ( $nnn && in_array( $nnn, $arr ) ) $order[] = $nnn;
+
+        }
+
+        // Добавить к порядку отсутствующие документы папки
+
+        foreach ( $arr as $item ) if ( ! in_array( $item, $order ) ) $order[] = $item;
+
+        // Обновить порядок в базе данных
+
+        $count = count( $order );
+        foreach ( $order as $key => $value ) {
+
+            $data = array(
+                    'ID' => $value,
+                    'menu_order' => $count - $key,
+                );
+
+            $ret = wp_update_post( wp_slash( $data ) );
+
+        }
+
+        // f($order);
+
+        return apply_filters( 'mif_bpc_docs_docs_reorder', $ret, $folder_id, $order );
     }
 
 

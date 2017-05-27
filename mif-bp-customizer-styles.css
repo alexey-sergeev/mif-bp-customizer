@@ -16,7 +16,7 @@
 
 .docs-page .statusbar .info .two,
 .docs-page-doc .statusbar .info .two {
-    margin-right: 1rem;
+    margin-right: 0.5rem;
     background-color: #999;
     padding: 1px 6px;
     border-radius: 2px;
@@ -283,6 +283,7 @@
     position: relative;
     background-color: #f2f2f2;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .docs-page .file .name {
@@ -390,6 +391,11 @@
 
 .docs-page .file.loading .logo {
     z-index: 9999;
+}
+
+.docs-page .file.highlight {
+    background-color: rgba(255,255,0,0.15);
+    border: 2px dotted rgba(0,0,0,0.25);
 }
 
 .template {

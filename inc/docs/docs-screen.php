@@ -13,6 +13,13 @@ defined( 'ABSPATH' ) || exit;
 class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
+    //
+    // Размер аватарки пользователя
+    //
+
+    public $avatar_size = 50;
+
+
     function __construct()
     {
         parent::__construct();
@@ -406,6 +413,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $a2 = '';
             $remove = '';
             $download = '';
+            $id = 'item-tpl';
+            $order = '';
 
         } else {
 
@@ -415,6 +424,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $name = $this->get_doc_name( $doc );
             $logo = $this->get_file_logo( $doc );
             $loading = '';
+            $id = 'doc-' . $doc->ID;
+            $order = $doc->menu_order;
+
             $url = $this->get_doc_url( $doc->ID );
             $a1 = '<a href="' . $url . '/">';
             $a2 = '</a>';
@@ -445,7 +457,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        $out = '<div class="file ' . $doc->post_status . $loading . '">
+        $out = '<div class="file sortable ' . $doc->post_status . $loading . '" id="' . $id . '" data-order="' . $order . '">
         ' . $a1 . '
         <span class="logo">' . $logo . '</span>
         <span class="name">' . $name . '</span>
@@ -650,6 +662,30 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
 
+    //
+    // Выводит мета-информацию на страницу документа
+    //
+
+    function get_doc_meta( $doc = NULL )
+    {
+        $out = '';
+
+        if ( $doc == NULL ) $doc = $this->get_doc_data();
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
+        if ( empty( $doc ) ) return;
+
+        $out .= $this->get_folder( $doc );
+        $out .= $this->get_group( $doc );
+        $out .= $this->get_date( $doc );
+        $out .= $this->get_owner( $doc );
+        // $out .= $this->get_prev( $doc );
+        // $out .= $this->get_next( $doc );
+        
+        return apply_filters( 'mif_bpc_docs_get_meta', $out, $doc );
+    }
+
+
+
 
     //
     // Содержимое страницы документа
@@ -762,11 +798,42 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         <span class="info">&nbsp;</span>
         <span class="tools">';
 
-        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span></span>';
+        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Параметры', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span></span>';
 
         $out .= '</div>';
 
         return apply_filters( 'mif_bpc_docs_get_doc_statusbar', $out, $doc_id );
+    }
+
+
+
+    // 
+    // Выводит информацию документа в статусной строке
+    // 
+
+    function get_doc_statusbar_info( $doc_id = NULL )
+    {
+        // if ( $folder_id == NULL ) {
+
+        //     if ( ! ( bp_current_action() == 'folder' && is_numeric( bp_action_variable( 0 ) ) ) ) return;
+        //     $folder_id = bp_action_variable( 0 );
+
+        // }
+
+        // $data = $this->get_folder_size( $folder_id );
+
+        // $out = '<span class="one">' . __( 'Документов', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $data['count'] . '</span>
+        // <span class="one">' . __( 'Объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
+        
+        $doc = get_post( $doc_id );
+        $size = $this->get_doc_size( $doc );
+        $ext = $this->get_doc_ext( $doc->post_title );
+        $type = ( in_array( $this->get_doc_type( $doc_id ), array( 'image', 'file' ) ) ) ? mb_strtoupper( $ext ) : '<a href="' . $doc->post_content . '" target="blank">' . __( 'ссылка', 'mif-bp-customizer' ) . '</a>';
+
+        // $out = '<span class="one">' . __( 'Объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $size ) . '</span>';
+        $out = '<span class="two">' . mif_bpc_format_file_size( $size ) . '</span><span class="one">' . $type . '</span>';
+
+        return apply_filters( 'mif_bpc_docs_get_doc_statusbar_info', $out, $folder_id, $data );
     }
 
 
@@ -861,8 +928,146 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $type = ( preg_match( '/^http/', $doc->post_content ) ) ? $doc->post_content : $doc->post_title;
         return apply_filters( 'mif_bpc_docs_get_file_logo', mif_bpc_get_file_icon( $type, 'fa-' . $size . 'x' ), $doc );
     }
+    //
+    // Выводит имя документа
+    //
+
+    function get_name()
+    {
+        $out = '';
+
+        $doc = $this->get_doc_data();
+        if ( empty( $doc ) ) return;
+
+        $out .= $this->get_doc_name( $doc );
+
+        return apply_filters( 'mif_bpc_docs_get_name', $out, $doc );
+    }
 
 
+
+    //
+    // Выводит документ на страницу документа
+    //
+
+    function get_doc()
+    {
+        $out = '';
+
+        $doc = $this->get_doc_data();
+        if ( empty( $doc ) ) return;
+
+        $out .= $this->get_doc_content( $doc );
+
+        return apply_filters( 'mif_bpc_docs_get_doc', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит владельца документа
+    //
+
+    function get_owner( $doc = NULL )
+    {
+        $out = '';
+
+        if ( $doc == NULL ) $doc = $this->get_doc_data();
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
+        if ( empty( $doc ) ) return;
+
+        $avatar = get_avatar( $doc->post_author, apply_filters( 'mif_bpc_docs_avatar_size', $this->avatar_size ) );
+        $author = mif_bpc_get_member_name( $doc->post_author );
+
+        $out .= '<div class="owner clearfix"><a href="' . bp_core_get_user_domain( $doc->post_author ) . '" target="blank"><span class="one">' . $avatar . '</span><span class="two">' . $author . '</span></a></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_owner', $out, $doc );
+    }
+
+
+    //
+    // Выводит папку документа
+    //
+
+    function get_folder( $doc = NULL )
+    {
+        $out = '';
+
+        if ( $doc == NULL ) $doc = $this->get_doc_data();
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
+        if ( empty( $doc ) ) return;
+
+        $folder = get_post( $doc->post_parent );
+        if ( empty( $folder ) ) return;
+
+        $folder_url = $this->get_folder_url( $folder->ID );
+
+        $out .= '<div class="folder"><span class="one">' . __( 'Папка', 'mif-bp-customizer' ) . ':</span> <span class="two"><a href="' . $folder_url . '">' . $folder->post_title . '</a></span></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_folder', $out, $doc, $folder );
+    }
+
+
+
+    //
+    // Выводит группу документа
+    //
+
+    function get_group( $doc = NULL )
+    {
+        return apply_filters( 'mif_bpc_docs_get_group', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит время размещения документа
+    //
+
+    function get_date( $doc = NULL )
+    {
+        $out = '';
+
+        if ( $doc == NULL ) $doc = $this->get_doc_data();
+        if ( ! is_object( $doc ) ) $doc = get_post( $doc );
+        if ( empty( $doc ) ) return;
+
+        $txt = ( $doc->post_date_gmt == $doc->post_modified_gmt ) ? __( 'Опубликовано', 'mif-bp-customizer' ) : __( 'Изменено', 'mif-bp-customizer' );
+
+        $out .= '<div class="date"><span class="one">' . $txt . ':</span> <span class="two">' . mif_bpc_time_since( $doc->post_modified_gmt ) . '</span></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_date', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит ссылку на следующий документ
+    //
+
+    function get_next( $doc = NULL )
+    {
+        $out = '';
+
+        $out .= '<div class="next"><a href="11"><span>' . __( 'туда', 'mif-bp-customizer' ) . '</span> <i class="fa fa-arrow-right"></i></a></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_next', $out, $doc );
+    }
+
+
+
+    //
+    // Выводит ссылку на предыдущий документ
+    //
+
+    function get_prev( $doc = NULL )
+    {
+        $out = '';
+
+        $out .= '<div class="prev"><a href="22"><i class="fa fa-arrow-left"></i> <span>' . __( 'сюда', 'mif-bp-customizer' ) . '</span></a></div>';
+
+        return apply_filters( 'mif_bpc_docs_get_prev', $out, $doc );
+    }
 
 
 }

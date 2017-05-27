@@ -51,7 +51,7 @@ jQuery( document ).ready( function( jq ) {
     
 
 	//
-	// Отправляем файлы или ссылки на сервер
+	// Отправляем файлы на сервер
 	//
 
 	jq( '.docs-page' ).on( 'change', '.upload-form input[type=file]', function() {
@@ -65,22 +65,29 @@ jQuery( document ).ready( function( jq ) {
 
         jq.each( files, function( key, value ) { 
             
+            // Отобразить блок файла на экране, клонировав его из шаблона и уточнив оформление
+
+            var item = jq( '.template .file' ).clone();
+
+            // Правильная иконка файла и название
+            item.addClass( value['name'].split( '.' ).pop() );
+            jq( '.name', item ).html( value['name'] );
+            
+            // Поставить порядок сортировки
+            var order = __get_order();
+            item.attr( 'data-order', order );
+
+            item.prependTo( '.response-box' ).hide().fadeIn();
+            jq( '.folder-is-empty-msg' ).remove();
+
+            // Сформировать данные для отправки
+
             var data = new FormData();
             data.append( 'file', value ); 
             data.append( 'action', 'mif-bpc-docs-upload-files' );
             data.append( '_wpnonce', nonce );
             data.append( 'folder_id', folder_id );
-            // console.log( value );
-
-            // Отобразить блок файла на экране, клонировав его из шаблона и уточнив оформление
-
-            var item = jq( '.template .file').clone();
-            item.addClass( value['name'].split( '.' ).pop() );
-            jq( '.name', item ).html( value['name'] );
-            item.prependTo( '.response-box' ).hide().fadeIn();
-            jq( '.folder-is-empty-msg' ).remove();
-
-            // console.log( data );
+            data.append( 'order', order );
 
             jq.ajax( {
                 url: ajaxurl,
@@ -134,8 +141,12 @@ jQuery( document ).ready( function( jq ) {
             item.addClass( link.split( '.' ).pop() );
             
             var name = ( descr ) ? descr : link;
-            
-            jq( '.name', item ).html( link );
+            jq( '.name', item ).html( name );
+
+            // Поставить порядок сортировки
+            var order = __get_order();
+            item.attr( 'data-order', order );
+
             item.prependTo( '.response-box' ).hide().fadeIn();
 
             // Отправить Ajax-запрос
@@ -144,6 +155,7 @@ jQuery( document ).ready( function( jq ) {
                 action: 'mif-bpc-docs-network-link-files',
                 link: link,
                 descr: descr,
+                order: order,
                 folder_id: folder_id,
                 _wpnonce: nonce,
             },
@@ -492,7 +504,8 @@ jQuery( document ).ready( function( jq ) {
             data: data,
             success: function( response ) {
 
-                doc_content_update( response );
+                doc_content_update( response, true );
+                // doc_meta_update();
 
             }
         } );
@@ -686,6 +699,37 @@ jQuery( document ).ready( function( jq ) {
     } );
 
 
+    jq( '.collection' ).sortable( {
+
+            update: function( event, ui ) {
+
+                var nonce = jq( '#docs-folder-nonce' ).val();
+                var folder_id = jq( '#docs-folder-id' ).val();
+                var all_folders = jq( '#docs-all-folders' ).val();
+
+                var order = jq( '.collection' ).sortable( 'toArray' );
+
+                console.log(order);
+
+                jq.post( ajaxurl, {
+                    action: 'mif-bpc-collection-reorder',
+                    order: JSON.stringify( order ),
+                    folder_id: folder_id,
+                    all_folders: all_folders,
+                    _wpnonce: nonce,
+                },
+                function( response ) { 
+
+                    // doc_content_update( response );
+                    console.log( response );
+
+                });
+
+            }
+
+    } );
+
+
 
     //
     // Обработка клавиш
@@ -710,14 +754,15 @@ jQuery( document ).ready( function( jq ) {
     // Обновляет содержимое страницы документа
     //
 
-    function doc_content_update( response )
+    function doc_content_update( response, meta = false )
     {
         // console.log(response);
         jq( '.docs-page-doc .content' ).animate( { 'opacity': 0 }, function() {
 
             jq( '.docs-page-doc .content' ).html( response );
             jq( '.docs-page-doc .content' ).animate( { 'opacity': 1 } );
-            // folder_statusbar_info_update();
+            doc_statusbar_info_update();
+            if ( meta ) doc_meta_update();
 
         } )
 
@@ -772,9 +817,100 @@ jQuery( document ).ready( function( jq ) {
 
     }
 
-    // Запустить обновление срузу после загрузки страницы
+
+
+    //
+    // Обновляет статусную строку документа
+    //
+
+    function doc_statusbar_info_update()
+    {
+        var nonce = jq( '#docs-doc-nonce' ).val();
+        var doc_id = jq( '#docs-doc-id' ).val();
+
+        if ( nonce ) {
+
+            jq.post( ajaxurl, {
+                action: 'mif-bpc-docs-doc-statusbar-info',
+                doc_id: doc_id,
+                _wpnonce: nonce,
+            },
+            function( response ) { 
+
+                if ( response ) jq( '.statusbar .info' ).html( response );
+                // console.log( response );
+
+            });
+            
+        }
+
+    }
+
+
+
+    //
+    // Обновляет мета-данные документа
+    //
+
+    function doc_meta_update()
+    {
+        var nonce = jq( '#docs-doc-nonce' ).val();
+        var doc_id = jq( '#docs-doc-id' ).val();
+
+        if ( nonce ) {
+
+            jq.post( ajaxurl, {
+                action: 'mif-bpc-docs-doc-meta',
+                doc_id: doc_id,
+                _wpnonce: nonce,
+            },
+            function( response ) { 
+
+                if ( response ) jq( '.docs-page-doc .meta' ).html( response );
+
+            });
+            
+        }
+
+    }
+
+
+
+    //
+    // Инициализация сортировки элементов
+    //
+
+    function sortable_init()
+    {
+        jq( '.collection' ).sortable(
+            {
+                // placeholder: 'file highlight',
+                opacity: 0.6
+            }
+        ); 
+    }
+
+
+
+    //
+    // Инициализация параметров сразу после открытия документа
+    //
 
     folder_statusbar_info_update();
+    doc_statusbar_info_update();
+    sortable_init();
+
+
+    //
+    // Возвращает очередной порядковый номер для списка документов или папок
+    //
+
+    function __get_order()
+    {
+        var arr = [];
+        jq( '.file' ).each( function() { arr.push( Number( jq( this ).attr( 'data-order' )) ) });
+        return Math.max.apply( null, arr ) + 1;
+    }
 
 });
 

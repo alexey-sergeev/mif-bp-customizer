@@ -208,7 +208,7 @@ class mif_bpc_dialogues {
         wp_enqueue_script( 'mif_bpc_baron_core', plugins_url( '../js/mif-bpc-baron.js', __FILE__ ) );
 
         // Плагин авторесайза формы
-        wp_enqueue_script( 'mif_bpc_autosize', plugins_url( '../js/plugins/autosize.js', __FILE__ ) );
+        wp_enqueue_script( 'mif_bpc_autosize', plugins_url( '../js/autosize/autosize.js', __FILE__ ) );
 
         wp_enqueue_script( 'mif_bpc_dialogues_helper', plugins_url( '../js/dialogues.js', __FILE__ ) );
     }

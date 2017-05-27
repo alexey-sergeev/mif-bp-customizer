@@ -28,6 +28,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         add_action( 'wp_ajax_mif-bpc-docs-upload-files', array( $this, 'ajax_upload_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-network-link-files', array( $this, 'ajax_network_link_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-collection-show', array( $this, 'ajax_collection_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-collection-reorder', array( $this, 'ajax_collection_reorder_helper' ) );
+
         add_action( 'wp_ajax_mif-bpc-docs-new-folder', array( $this, 'ajax_new_folder_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-remove', array( $this, 'ajax_remove_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-folder-publisher', array( $this, 'ajax_publisher_folder_helper' ) );
@@ -37,6 +39,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         add_action( 'wp_ajax_mif-bpc-docs-doc-publisher', array( $this, 'ajax_publisher_doc_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-doc-settings', array( $this, 'ajax_doc_settings_helper' ) );
         add_action( 'wp_ajax_mif-bpc-docs-doc-settings-save', array( $this, 'ajax_doc_settings_save_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-doc-statusbar-info', array( $this, 'ajax_doc_statusbar_info_helper' ) );
+        add_action( 'wp_ajax_mif-bpc-docs-doc-meta', array( $this, 'ajax_doc_meta_helper' ) );
 
         add_action( 'wp_enqueue_scripts', array( $this, 'load_js_helper' ) );   
 
@@ -52,6 +56,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     function load_js_helper()
     {
         wp_enqueue_script( 'mif_bpc_docs_helper', plugins_url( '../../js/docs.js', __FILE__ ) );
+        wp_enqueue_script( 'mif_bpc_docs_jquery-ui', plugins_url( '../../js/jquery-ui/jquery-ui.min.js', __FILE__ ) );
     }
 
 
@@ -274,7 +279,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         if ( ! empty( $path ) ) {
             
-            $post_id = $this->doc_save( $name, $path, $user_id, $_POST['folder_id'] );
+            $post_id = $this->doc_save( $name, $path, $user_id, $_POST['folder_id'], '', $_POST['order'] );
             echo $this->get_doc_item( $post_id );
 
         } else {
@@ -287,6 +292,25 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     }
 
 
+
+    // 
+    // Ajax-помощник загрузки страниц коллекции документов
+    // 
+
+    function ajax_collection_reorder_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
+
+
+        $folder_id = (int) $_POST['folder_id'];
+        $order = json_decode( stripcslashes( $_POST['order'] ), true );
+        $this->docs_reorder( $folder_id, $order );
+
+        // f($_POST['order']);
+        // f($order);
+
+        wp_die();
+    }
 
     // 
     // Ajax-помощник загрузки страниц коллекции документов
@@ -366,7 +390,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
                 // Файл успешно загружен
 
-                $post_id = $this->doc_save( $filename, $path, $user_id, $_POST['folder_id'], $_FILES['file']['type'] );
+                $post_id = $this->doc_save( $filename, $path, $user_id, $_POST['folder_id'], $_FILES['file']['type'], $_POST['order'] );
                 echo $this->get_doc_item( $post_id );
 
                 // // Отправить ответ клиенту
@@ -443,11 +467,11 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         } else {
 
-            // Сохраняем новые настройки папки
+            // Сохраняем новые настройки документа
 
             $doc = get_post( $doc_id );
             
-            if ( isset( $doc->post_status) && $doc->post_status != 'trash' ) {
+            if ( isset( $doc->post_status ) && $doc->post_status != 'trash' ) {
 
                 $publish = ( $_POST['publish'] == 'on' ) ? 'publish' : 'private';
 
@@ -459,9 +483,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
                 $name = trim( $_POST['name'] );
                 
-                if ( $name != '' ) $doc_data['post_title'] = apply_filters( 'mif_bpc_docs_ajax_doc_settings_save_helper_name', $name, $doc_data['post_title'] );
-
-                // Примечание. Фильтр выше можно использовать для корректировки имен файлов, т.к. пользователи могут поломать расширение файла
+                if ( $name != '' ) $doc_data['post_title'] = $this->ext_safety( $name, $doc->post_title );
 
                 $ret = ( wp_update_post( wp_slash( $doc_data ) ) ) ? $this->get_doc_content( $doc_id ) : $this->error_msg( '008' );
                 echo $ret;
@@ -563,7 +585,49 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
 
     // 
-    // Ajax-помощник информации статусной строки
+    // Ajax-помощник обновления мета-информации документа
+    // 
+
+    function ajax_doc_meta_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
+        
+        if ( isset( $_POST['doc_id'] ) ) {
+            
+            $doc_id = (int) $_POST['doc_id'];
+            echo $this->get_doc_meta( $doc_id );
+
+        }
+
+        wp_die();
+    }
+
+
+
+
+    // 
+    // Ajax-помощник информации статусной строки документа
+    // 
+
+    function ajax_doc_statusbar_info_helper()
+    {
+        check_ajax_referer( 'mif-bpc-docs-nonce' );
+        
+        if ( isset( $_POST['doc_id'] ) ) {
+            
+            $doc_id = (int) $_POST['doc_id'];
+            echo $this->get_doc_statusbar_info( $doc_id );
+
+        }
+
+        wp_die();
+    }
+
+
+
+
+    // 
+    // Ajax-помощник информации статусной строки папки
     // 
 
     function ajax_folder_statusbar_info_helper()

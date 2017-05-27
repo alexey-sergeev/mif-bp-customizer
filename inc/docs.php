@@ -16,7 +16,7 @@ if ( mif_bpc_options( 'docs' ) ) {
 }
 
 
-class mif_bpc_docs extends mif_bpc_docs_core {
+class mif_bpc_docs extends mif_bpc_docs_screen {
 
 
 
@@ -29,9 +29,9 @@ class mif_bpc_docs extends mif_bpc_docs_core {
         add_action( 'bp_activity_setup_nav', array( $this, 'nav' ) );
         add_action( 'bp_screens', array( $this, 'doc_page' ) );
 
-        // Экранные функции
-        global $mif_bpc_docs_templates;
-        $mif_bpc_docs_templates = new mif_bpc_docs_templates();
+        // // Экранные функции
+        // global $mif_bpc_docs_templates;
+        // $mif_bpc_docs_templates = new mif_bpc_docs_templates();
 
         // Функции ajax-запросов
         global $mif_bpc_docs_ajax;
