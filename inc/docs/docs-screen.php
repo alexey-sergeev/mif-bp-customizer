@@ -72,9 +72,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     // Все папки пользователя или группы
     // 
 
-    function get_folders( $page = 1, $item_id = NULL, $mode = 'member', $trashed = false )
+    function get_folders( $page = 1, $item_id = NULL, $mode = 'user', $trashed = false )
     {
-        if ( ! in_array( $mode, array( 'member', 'group' ) ) ) return;
+        if ( ! in_array( $mode, array( 'user', 'group' ) ) ) return;
 
         $out = '';
         if ( $page === 1 ) $out .= '<div class="collection clearfix">';
@@ -409,12 +409,14 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $logo = '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>';
             $name = '';
             $loading = ' loading';
+            // $sortable = '';
             $a1 = '';
             $a2 = '';
             $remove = '';
             $download = '';
             $id = 'item-tpl';
             $order = '';
+            $status = '';
 
         } else {
 
@@ -424,8 +426,10 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $name = $this->get_doc_name( $doc );
             $logo = $this->get_file_logo( $doc );
             $loading = '';
+            // $sortable = ' sortable';
             $id = 'doc-' . $doc->ID;
             $order = $doc->menu_order;
+            $status = ' ' . $doc->post_status;
 
             $url = $this->get_doc_url( $doc->ID );
             $a1 = '<a href="' . $url . '/">';
@@ -457,11 +461,12 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        $out = '<div class="file sortable ' . $doc->post_status . $loading . '" id="' . $id . '" data-order="' . $order . '">
+        $out = '<div class="file' . $status . $loading . '" id="' . $id . '" data-order="' . $order . '">
         ' . $a1 . '
         <span class="logo">' . $logo . '</span>
         <span class="name">' . $name . '</span>
         ' . $a2 . '
+        <span class="reorder-loading right"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
         ' . $left . '
         ' . $right . '
         </div>';
@@ -499,11 +504,12 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        $out = '<div class="file folder ' . $folder->post_status . '">
+        $out = '<div class="file folder ' . $folder->post_status . '" id="folder-' . $folder->ID . '">
         <a href="' . $this->get_folder_url( $folder->ID ) . '">
         <span class="logo"><i class="fa fa-folder-open-o fa-3x"></i></span>
         <span class="name">' . $folder->post_title . '</span>
         <span class="count right">' . $data['count'] . '</span>
+        <span class="reorder-loading right"><i class="fa fa-spinner fa-spin fa-fw"></i></span>
         ' . $left . '
         ' . $right . '
         </a>

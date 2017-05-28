@@ -12,13 +12,6 @@ defined( 'ABSPATH' ) || exit;
 
 class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
-    //
-    // Название папки по умолчанию
-    //
-
-    public $default_folder_name = 'New folder';
-
-
     function __construct()
     {
        
@@ -44,7 +37,6 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         add_action( 'wp_enqueue_scripts', array( $this, 'load_js_helper' ) );   
 
-        $this->default_folder_name = __( 'Новая папка', 'mif-bp-customizer' );
     }
 
 
@@ -230,31 +222,32 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     {
         check_ajax_referer( 'mif-bpc-docs-new-folder-nonce' );
 
-        $user_id = bp_loggedin_user_id();
-        if ( empty( $user_id ) ) wp_die();
+        // if ( empty( $user_id ) ) wp_die();
 
-        $publish = ( $_POST['publish'] == 'on' ) ? 'publish' : 'private';
-        $name = ( trim( $_POST['name'] ) == '' ) ? $this->default_folder_name : trim( $_POST['name'] );
+        // $publish = ( $_POST['publish'] == 'on' ) ? 'publish' : 'private';
+        // $name = ( trim( $_POST['name'] ) == '' ) ? $this->default_folder_name : trim( $_POST['name'] );
 
-        $folder_data = array(
-            'post_type' => 'mif-bpc-folder',
-            'post_title' => $name,
-            'post_content' => trim( $_POST['desc'] ),
-            'post_status' => $publish,
-            // 'post_parent' => $group_id,
-            'post_author' => $user_id,
-            'comment_status' => 'closed',
-            'ping_status' => 'closed'
+        // $folder_data = array(
+        //     'post_type' => 'mif-bpc-folder',
+        //     'post_title' => $name,
+        //     'post_content' => trim( $_POST['desc'] ),
+        //     'post_status' => $publish,
+        //     // 'post_parent' => $group_id,
+        //     'post_author' => $user_id,
+        //     'comment_status' => 'closed',
+        //     'ping_status' => 'closed'
 
-        );
+        // );
 
-        $post_id = wp_insert_post( wp_slash( $folder_data ) );
+        // $post_id = wp_insert_post( wp_slash( $folder_data ) );
 
-        if ( $post_id ) {
 
-            echo $this->get_folder_url( $post_id );
 
-        }
+        $item_id = bp_loggedin_user_id();
+        $mode = 'user';
+
+        $post_id = $this->folder_save( $item_id, $mode, $_POST['name'], $_POST['desc'], $_POST['publish'] );
+        if ( $post_id ) echo $this->get_folder_url( $post_id );
 
         wp_die();
     }
@@ -301,13 +294,34 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     {
         check_ajax_referer( 'mif-bpc-docs-nonce' );
 
+        if ( isset( $_POST['folder_id'] ) ) {
 
-        $folder_id = (int) $_POST['folder_id'];
-        $order = json_decode( stripcslashes( $_POST['order'] ), true );
-        $this->docs_reorder( $folder_id, $order );
+            // Папка (сортируем документы)
 
-        // f($_POST['order']);
-        // f($order);
+            $folder_id = (int) $_POST['folder_id'];
+            $order = json_decode( stripcslashes( $_POST['order'] ), true );
+            $this->docs_reorder( $folder_id, $order );
+
+            echo 1;
+
+        } elseif ( isset( $_POST['all_folders'] ) ) {
+
+            // Список папок (сортируем папки)
+
+            $item_id = bp_displayed_user_id(); //!!! как быть для групп?
+            $mode = 'user';
+            $order = json_decode( stripcslashes( $_POST['order'] ), true );
+            $this->folders_reorder( $item_id, $mode, $order );
+
+            echo 1;
+            
+        } else {
+
+            // Не ясно, это папки или документы?
+
+            echo 0;
+
+        }
 
         wp_die();
     }
@@ -334,10 +348,10 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
             
             if ( bp_is_user() ) {
 
-                $mode = 'member';
+                $mode = 'user';
                 $item_id = bp_displayed_user_id();
 
-            } elseif ( bp_is_user() ) {
+            } elseif ( bp_is_group() ) {
 
                 $mode = 'group';
                 $item_id = bp_get_current_group_id();

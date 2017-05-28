@@ -36,11 +36,11 @@ abstract class mif_bpc_docs_core {
 
     public $path = 'docs';
 
-    // //
-    // // Название папки по умолчанию
-    // //
+    //
+    // Название папки по умолчанию
+    //
 
-    // public $default_folder_name = 'New folder';
+    public $default_folder_name = 'New folder';
 
 
 
@@ -54,7 +54,7 @@ abstract class mif_bpc_docs_core {
         // Скачивание файла
         add_action( 'bp_init', array( $this, 'force_download' ) );
 
-        // $this->default_folder_name = __( 'Новая папка', 'mif-bp-customizer' );
+        $this->default_folder_name = __( 'Новая папка', 'mif-bp-customizer' );
     }
 
 
@@ -236,12 +236,48 @@ abstract class mif_bpc_docs_core {
 
 
 
+    // 
+    // Сохранить папку
+    // 
+
+    function folder_save( $item_id = NULL, $mode = 'user', $name = '', $desc = '', $publish = 'on' )
+    {
+        if ( $item_id == 'NULL' ) $item_id = bp_loggedin_user_id();
+
+        $publish = ( $publish == 'on' ) ? 'publish' : 'private';
+        $name = ( trim( $name ) == '' ) ? $this->default_folder_name : trim( $name );
+
+        // Получить первую папку по порядку сортировки
+        $top_folder = $this->get_folders_data( $item_id, $mode, 1, 1, 1 );
+        $order = 0;
+        if ( isset( $top_folder[0]->menu_order ) ) $order = $top_folder[0]->menu_order + 1;
+
+        $folder_data = array(
+            'post_type' => 'mif-bpc-folder',
+            'post_title' => $name,
+            'post_content' => trim( $desc ),
+            'post_status' => $publish,
+            // 'post_parent' => $group_id,
+            'post_author' => $item_id,
+            'menu_order' => $order,
+            'comment_status' => 'closed',
+            'ping_status' => 'closed'
+
+        );
+
+        $post_id = wp_insert_post( wp_slash( $folder_data ) );
+
+        return apply_filters( 'mif_bpc_docs_folder_save', $post_id, $title, $location, $user_id, $folder_id );
+    }
+
+
+
     
     // 
     // Получить данные коллекции папок
     // 
 
-    function get_folders_data( $item_id, $mode = 'member', $page = NULL, $trashed = false, $posts_per_page = NULL )
+    function get_folders_data( $item_id, $mode = 'user', $page = NULL, $trashed = false, $posts_per_page = NULL )
     {
         $item_id = bp_displayed_user_id();
 
@@ -255,14 +291,16 @@ abstract class mif_bpc_docs_core {
             'posts_per_page' => $posts_per_page,
             'paged' => $page,
             'author' => $item_id,
-            // 'category'    => 0,
-            'orderby'     => 'date',
-            'order'       => 'DESC',
-            // 'include'     => array(),
-            // 'exclude'     => array(),
-            // 'meta_key'    => '',
-            // 'meta_value'  =>'',
-            'post_type'   => 'mif-bpc-folder',
+            // 'category' => 0,
+            // 'orderby' => 'date',
+            // 'order' => 'DESC',
+            'orderby' => 'menu_order',
+            'order' => 'DESC',
+            // 'include' => array(),
+            // 'exclude' => array(),
+            // 'meta_key' => '',
+            // 'meta_value' =>'',
+            'post_type' => 'mif-bpc-folder',
             'post_status' => implode( ',', $arr ),
         );
 
@@ -285,17 +323,10 @@ abstract class mif_bpc_docs_core {
         if ( $trashed ) $arr[] = 'trash';
 
         $args = array(
-            // 'numberposts' => $this->docs_on_page,
             'posts_per_page' => $posts_per_page,
-            // 'author' => bp_displayed_user_id(),
-            // 'category'    => 0,
-            'orderby'     => 'menu_order',
-            'order'       => 'DESC',
-            // 'include'     => array(),
-            // 'exclude'     => array(),
-            // 'meta_key'    => '',
-            // 'meta_value'  =>'',
-            'post_type'   => 'mif-bpc-doc',
+            'orderby' => 'menu_order',
+            'order' => 'DESC',
+            'post_type' => 'mif-bpc-doc',
             'post_parent' => $folder_id,
             'post_status' => implode( ',', $arr ),
             'paged' => $page,
@@ -316,7 +347,7 @@ abstract class mif_bpc_docs_core {
     function get_all_folders_size()
     {
         $item_id = bp_displayed_user_id();
-        $mode = 'member';
+        $mode = 'user';
 
         $folders = $this->get_folders_data( $item_id, $mode, 0, false, -1 );
 
@@ -821,6 +852,50 @@ abstract class mif_bpc_docs_core {
         // f($order);
 
         return apply_filters( 'mif_bpc_docs_docs_reorder', $ret, $folder_id, $order );
+    }
+
+
+
+    //
+    // Сортирует папки
+    //
+
+    function folders_reorder( $item_id, $mode, $order_raw )
+    {
+        // Получить массив ID всех папок (включая удаленные)
+
+        $folders = $this->get_folders_data( $item_id, $mode, 0, 1, -1 );
+        $arr = array();
+        foreach ( (array) $folders as $folder ) $arr[] = $folder->ID;
+
+        // Из записи doc-NNN оставить только NNN, относящиеся к правильным папкам
+        $order = array();
+        foreach ( (array) $order_raw as $key => $value ) {
+
+            $nnn = (int) end( explode( "-", $value ) );
+            if ( $nnn && in_array( $nnn, $arr ) ) $order[] = $nnn;
+
+        }
+
+        // Добавить к порядку отсутствующие папки
+
+        foreach ( $arr as $item ) if ( ! in_array( $item, $order ) ) $order[] = $item;
+
+        // Обновить порядок в базе данных
+
+        $count = count( $order );
+        foreach ( $order as $key => $value ) {
+
+            $data = array(
+                    'ID' => $value,
+                    'menu_order' => $count - $key,
+                );
+
+            $ret = wp_update_post( wp_slash( $data ) );
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_folders_reorder', $ret, $item_id, $mode, $order );
     }
 
 

@@ -387,6 +387,7 @@ jQuery( document ).ready( function( jq ) {
             var elements = jq( response ).hide();
             jq( '.collection' ).replaceWith( elements );
             elements.fadeIn();
+            sortable_init();
 
         });
 
@@ -699,38 +700,6 @@ jQuery( document ).ready( function( jq ) {
     } );
 
 
-    jq( '.collection' ).sortable( {
-
-            update: function( event, ui ) {
-
-                var nonce = jq( '#docs-folder-nonce' ).val();
-                var folder_id = jq( '#docs-folder-id' ).val();
-                var all_folders = jq( '#docs-all-folders' ).val();
-
-                var order = jq( '.collection' ).sortable( 'toArray' );
-
-                console.log(order);
-
-                jq.post( ajaxurl, {
-                    action: 'mif-bpc-collection-reorder',
-                    order: JSON.stringify( order ),
-                    folder_id: folder_id,
-                    all_folders: all_folders,
-                    _wpnonce: nonce,
-                },
-                function( response ) { 
-
-                    // doc_content_update( response );
-                    console.log( response );
-
-                });
-
-            }
-
-    } );
-
-
-
     //
     // Обработка клавиш
     //
@@ -781,6 +750,7 @@ jQuery( document ).ready( function( jq ) {
             jq( '.docs-content' ).html( response );
             jq( '.docs-content' ).animate( { 'opacity': 1 } );
             folder_statusbar_info_update();
+            sortable_init();
 
         } )
 
@@ -882,12 +852,45 @@ jQuery( document ).ready( function( jq ) {
 
     function sortable_init()
     {
-        jq( '.collection' ).sortable(
-            {
-                // placeholder: 'file highlight',
-                opacity: 0.6
-            }
-        ); 
+
+        jq( '.collection' ).sortable( {
+
+                // Сделать прозрачным перетаскиваемый элемент
+
+                opacity: 0.6,
+
+                // Событие - изменение порядка элементов
+
+                update: function( event, ui ) {
+
+                    var nonce = jq( '#docs-folder-nonce' ).val();
+                    var folder_id = jq( '#docs-folder-id' ).val();
+                    var all_folders = jq( '#docs-all-folders' ).val();
+
+                    var order = jq( '.collection' ).sortable( 'toArray' );
+
+                    ui.item.addClass( 'reorder-processing' );
+                    // console.log(order);
+
+                    jq.post( ajaxurl, {
+                        action: 'mif-bpc-collection-reorder',
+                        order: JSON.stringify( order ),
+                        folder_id: folder_id,
+                        all_folders: all_folders,
+                        _wpnonce: nonce,
+                    },
+                    function( response ) { 
+
+                        if ( response ) jq( '.reorder-processing' ).removeClass( 'reorder-processing' );
+                        // doc_content_update( response );
+                        // console.log( response );
+
+                    });
+
+                }
+
+        } );
+
     }
 
 
