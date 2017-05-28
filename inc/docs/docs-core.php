@@ -319,6 +319,28 @@ abstract class mif_bpc_docs_core {
     {
         if ( $posts_per_page == NULL ) $posts_per_page = $this->docs_on_page;
 
+        // Узнать номера чужих private и trash документов
+
+        $exclude_doc_id_arr = array();
+
+        if ( ! current_user_can('manage_options') ) {
+
+            $args = array(
+                'posts_per_page' => -1,
+                'post_type' => 'mif-bpc-doc',
+                'post_parent' => $folder_id,
+                'post_status' => 'private, trash',
+                'author__not_in' => bp_loggedin_user_id(),
+                'paged' => 0,
+            );
+
+            $exclude_doc_arr = get_posts( $args );
+            foreach ( (array) $exclude_doc_arr as $item ) $exclude_doc_id_arr[] = $item->ID;
+
+        }
+
+        // Получить данные документов
+
         $arr = array( 'publish', 'private' );
         if ( $trashed ) $arr[] = 'trash';
 
@@ -329,6 +351,7 @@ abstract class mif_bpc_docs_core {
             'post_type' => 'mif-bpc-doc',
             'post_parent' => $folder_id,
             'post_status' => implode( ',', $arr ),
+            'post__not_in' => $exclude_doc_id_arr,
             'paged' => $page,
         );
 
@@ -905,10 +928,60 @@ abstract class mif_bpc_docs_core {
     // режимы - read, write, delete
     //
 
-    function is_access( $folder_id, $mode = 'write' ) 
+    function is_access( $item, $level = 'write' ) 
     {
+        if ( ! is_object( $item ) ) $item = get_post( $item );
 
-        return true;
+        $ret = false;
+
+        if ( $this->is_folder( $item ) ) {
+
+            switch ( $level ) {
+
+                case 'read' :
+                    if ( true ) $ret = true;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_folder_read', $ret, $item, $level );
+                    break;
+
+                case 'write' :
+                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_folder_write', $ret, $item, $level );
+                    break;
+
+                case 'delete' :
+                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_folder_delete', $ret, $item, $level );
+                    break;
+
+            }
+
+        } elseif ( $this->is_doc( $item ) ) {
+
+            switch ( $level ) {
+
+                case 'read' :
+                    if ( true ) $ret = true;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_doc_read', $ret, $item, $level );
+                    break;
+
+                case 'write' :
+                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_doc_write', $ret, $item, $level );
+                    break;
+
+                case 'delete' :
+                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_doc_delete', $ret, $item, $level );
+                    break;
+
+            }
+
+        }
+
+        // Админ сайта всегда может всё
+        if ( current_user_can('manage_options') ) $ret = true;
+
+        return apply_filters( 'mif_bpc_docs_is_access', $ret, $item, $level );
     }
 
 

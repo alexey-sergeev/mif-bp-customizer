@@ -225,8 +225,11 @@
     display: none;
 }
 
+/*.show-link-box {
+    border-bottom: 1px dotted;
+}*/
+
 .show-link-box:focus {
-    /*border-bottom: 1px dotted;*/
     outline: none;
 }
 
@@ -439,6 +442,10 @@
 .collection .more.processing i {
     margin-top: 1rem;
     display: inline-block;
+}
+
+.folder-description {
+    margin-bottom: 1rem;
 }
 
 /* Сообщение, что кто-то пишет письмо */

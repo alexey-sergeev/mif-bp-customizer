@@ -91,7 +91,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         } else {
 
-            if ( $page === 1 ) $out = __( 'Папки не обнаружены', 'mif-bp-customizer' );
+            if ( $page === 1 ) $out = mif_bpc_message( __( 'Папки не обнаружены', 'mif-bp-customizer' ) );
 
         }
 
@@ -232,6 +232,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         }
 
         $out = '';
+
         if ( $page === 1 ) $out .= '<div class="collection response-box clearfix">';
 
         $folder = get_post( $folder_id );
@@ -261,7 +262,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         
         } else {
 
-            if ( $page === 1 ) $out .= '<div class="folder-is-empty-msg">' . mif_bpc_message( __( 'Документы не обнаружены', 'mif-bp-customizer' ) ) . '</div>';
+            if ( $page === 1 ) $out .= '</div><div class="folder-is-empty-msg">' . mif_bpc_message( __( 'Документы не обнаружены', 'mif-bp-customizer' ) ) . '</div><div>';
             
         }
 
@@ -525,12 +526,13 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     // Выводит заголовок на странице папки
     // 
 
-    function get_folder_header( $folder = NULL )
+    function get_folder_header( $folder_id = NULL )
     {
-        if ( $folder == NULL ) return;
+        $folder = get_post( $folder_id );
 
         $out = '<h2><a href="' . $this->get_docs_url() . '/">' . __( 'Папки', 'mif-bp-customizer' ) . '</a> /  
-        <a href="' . $this->get_folder_url( $folder->ID ) . '">' . $folder->post_title . '</a></h2>';
+        <a href="' . $this->get_folder_url( $folder->ID ) . '">' . $folder->post_title . '</a></h2>
+        <div class="folder-description">' . $folder->post_content . '</div>';
 
         return apply_filters( 'mif_bpc_docs_ get_folder_header', $out, $folder );
     }
@@ -543,28 +545,20 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_folder_content( $folder_id = NULL, $msg = false )
     {
-        if ( $folder_id == NULL ) return;
+        if ( ! $this->is_folder( $folder_id ) ) return;
         
         $out = '';
-        $folder = get_post( $folder_id );
+        // $folder = get_post( $folder_id );
 
-        if ( $folder->post_type == 'mif-bpc-folder' ) {
-            
-            $out .= $this->get_folder_header( $folder );
-            $out .= $this->get_upload_form( $folder_id );
+        $out .= $this->get_folder_header( $folder_id );
+        $out .= $this->get_upload_form( $folder_id );
 
-            if ( $msg ) $out .= mif_bpc_message( $msg );
+        if ( $msg ) $out .= mif_bpc_message( $msg );
 
-            $out .= $this->get_docs_collection( $folder_id );
-            $out .= $this->get_folder_statusbar( $folder_id );
-            $out .= $this->get_folder_nonce( $folder_id );
+        $out .= $this->get_docs_collection( $folder_id );
+        $out .= $this->get_folder_statusbar( $folder_id );
+        $out .= $this->get_folder_nonce( $folder_id );
              
-        } else {
-
-            $out .= mif_bpc_message( __( 'Папка не обнаружена', 'mif-bp-customizer' ), 'warning' );
-
-        }
-
         return apply_filters( 'mif_bpc_docs_get_folder_content', $out, $folder_id );
     }
 

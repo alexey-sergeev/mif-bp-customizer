@@ -80,7 +80,7 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
                 'parent_slug' => $this->slug, 
                 'screen_function' => array( $this, 'screen' ), 
                 'position' => 20,
-                // 'user_has_access'=>  bp_is_my_profile() 
+                'user_has_access'=>  bp_is_my_profile() 
             ) );
 
        
