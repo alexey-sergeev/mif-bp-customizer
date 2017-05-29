@@ -853,7 +853,7 @@ jQuery( document ).ready( function( jq ) {
     function sortable_init()
     {
 
-        jq( '.collection' ).sortable( {
+        jq( '.sortable' ).sortable( {
 
                 // Сделать прозрачным перетаскиваемый элемент
 

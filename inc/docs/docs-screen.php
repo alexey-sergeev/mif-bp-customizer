@@ -77,7 +77,10 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         if ( ! in_array( $mode, array( 'user', 'group' ) ) ) return;
 
         $out = '';
-        if ( $page === 1 ) $out .= '<div class="collection clearfix">';
+
+        $sortable = ( $this->is_access( 'all-folders', 'write' ) ) ? ' sortable' : '';
+
+        if ( $page === 1 ) $out .= '<div class="collection' . $sortable . ' clearfix">';
 
         $folders = $this->get_folders_data( $item_id, $mode, $page, $trashed );
 
@@ -233,7 +236,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        if ( $page === 1 ) $out .= '<div class="collection response-box clearfix">';
+        $sortable = ( $this->is_access( $folder_id, 'write' ) ) ? ' sortable' : '';
+
+        if ( $page === 1 ) $out .= '<div class="collection' . $sortable . ' response-box clearfix">';
 
         $folder = get_post( $folder_id );
 
@@ -435,7 +440,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $url = $this->get_doc_url( $doc->ID );
             $a1 = '<a href="' . $url . '/">';
             $a2 = '</a>';
-            $left = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+            if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
             $doc_type = $this->get_doc_type( $doc );
 
@@ -455,8 +460,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
             if ( $doc->post_status == 'trash' ) {
 
-                $left = '<a href="' . $url . 'restore/" data-item-id="' . $doc->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
-                $right = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+                if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'restore/" data-item-id="' . $doc->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
+                if ( $this->is_access( $doc, 'delete' ) ) $right = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
             }
 
@@ -496,12 +501,12 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         if ( $folder->post_status == 'trash' ) {
 
-            if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/restore/" data-item-id="' . $folder->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
-            if ( $data['count'] == 0 ) $right = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+            if ( $this->is_access( $folder, 'delete' ) ) $left = '<a href="' . $url . '/restore/" data-item-id="' . $folder->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
+            if ( $this->is_access( $folder, 'delete' ) ) $right = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
         } else {
 
-            if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+            if ( $this->is_access( $folder, 'delete' ) ) if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
         }
 
@@ -794,13 +799,15 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $show_settings = true;
 
-        $out .= '<div class="statusbar">
-        <span class="info">&nbsp;</span>
-        <span class="tools">';
+        $out .= '<div class="statusbar"><span class="info">&nbsp;</span><span class="tools">';
 
-        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Параметры', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span></span>';
+        if ( $this->is_access( $doc, 'write' ) ) {
 
-        $out .= '</div>';
+            if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Параметры', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span>';
+
+        }
+
+        $out .= '</span></div>';
 
         return apply_filters( 'mif_bpc_docs_get_doc_statusbar', $out, $doc_id );
     }
@@ -813,18 +820,6 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_doc_statusbar_info( $doc_id = NULL )
     {
-        // if ( $folder_id == NULL ) {
-
-        //     if ( ! ( bp_current_action() == 'folder' && is_numeric( bp_action_variable( 0 ) ) ) ) return;
-        //     $folder_id = bp_action_variable( 0 );
-
-        // }
-
-        // $data = $this->get_folder_size( $folder_id );
-
-        // $out = '<span class="one">' . __( 'Документов', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $data['count'] . '</span>
-        // <span class="one">' . __( 'Объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
-        
         $doc = get_post( $doc_id );
         $size = $this->get_doc_size( $doc );
         $ext = $this->get_doc_ext( $doc->post_title );
@@ -853,14 +848,16 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $show_settings = ( $this->is_folder( $folder_id ) ) ? true : false;
 
-        $out .= '<div class="statusbar">
-        <span class="info">&nbsp;</span>
-        <span class="tools"> 
-        <span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
+        $out .= '<div class="statusbar"><span class="info">&nbsp;</span><span class="tools">';
 
-        if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span></span>';
+        if ( $this->is_access( $folder_id, 'write' ) ) {
 
-        $out .= '</div>';
+            $out .= '<span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
+            if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span>';
+
+        }
+
+        $out .= '</span></div>';
 
         return apply_filters( 'mif_bpc_docs_get_folder_statusbar', $out, $folder_id );
     }

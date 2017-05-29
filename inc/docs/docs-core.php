@@ -146,6 +146,7 @@ abstract class mif_bpc_docs_core {
     function trash_doc( $doc_id = NULL )
     {
         if ( ! $this->is_doc( $doc_id ) ) return false;
+        if ( ! $this->is_access( $doc_id, 'delete' ) ) return false;
 
         $doc = get_post( $doc_id );
         $this->clean_folder_size( $doc->post_parent );
@@ -164,6 +165,7 @@ abstract class mif_bpc_docs_core {
     function untrash_doc( $doc_id = NULL )
     {
         if ( ! $this->is_doc( $doc_id ) ) return false;
+        if ( ! $this->is_access( $doc_id, 'delete' ) ) return false;
 
         $doc = get_post( $doc_id );
         $this->clean_folder_size( $doc->post_parent );
@@ -197,6 +199,7 @@ abstract class mif_bpc_docs_core {
     function delete_doc( $doc_id = NULL )
     {
         if ( ! $this->is_doc( $doc_id ) ) return false;
+        if ( ! $this->is_access( $doc_id, 'delete' ) ) return false;
         $ret = wp_delete_post( $doc_id );
         return apply_filters( 'mif_bpc_docs_untrash_doc', $ret, $doc_id );
     }
@@ -209,29 +212,33 @@ abstract class mif_bpc_docs_core {
 
     function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL,  $order = 0 )
     {
-        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+        if ( ! $this->is_folder( $folder_id ) ) return false;
+        if ( ! $this->is_access( $folder_id, 'write' ) ) return false;
 
-        // $order = $this->get_max_order() + 1;
+        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
 
         $docs_data = array(
             'post_type' => 'mif-bpc-doc',
             'post_title' => $name,
             'post_content' => $path,
             'post_status' => 'publish',
+            'post_parent' => (int) $folder_id,
             'post_author' => (int) $user_id,
             'menu_order' => (int) $order,
             'comment_status' => 'closed',
             'ping_status' => 'closed'
         );
 
-        if ( isset( $folder_id ) ) $docs_data['post_parent'] = (int) $folder_id;
+        // if ( isset( $folder_id ) ) $docs_data['post_parent'] = (int) $folder_id;
         if ( isset( $file_type ) ) $docs_data['post_mime_type'] = $file_type;
+
+        $docs_data = apply_filters( 'mif_bpc_docs_doc_save_docs_data', $docs_data, $name, $path, $user_id, $folder_id, $file_type,  $order );
 
         $post_id = wp_insert_post( wp_slash( $docs_data ) );
         
         $this->clean_folder_size( $folder_id );
 
-        return apply_filters( 'mif_bpc_docs_doc_save', $post_id, $title, $location, $user_id, $folder_id );
+        return apply_filters( 'mif_bpc_docs_doc_save', $post_id, $name, $path, $user_id, $folder_id, $file_type,  $order );
     }
 
 
@@ -281,8 +288,16 @@ abstract class mif_bpc_docs_core {
     {
         $item_id = bp_displayed_user_id();
 
-        $arr = array( 'publish', 'private' );
-        if ( $trashed ) $arr[] = 'trash';
+        $arr = array( 'publish' );
+        
+        // private и trash показывать только для владельца файла или админа
+
+        if ( bp_loggedin_user_id() == $item_id || $this->is_admin() ) {
+
+            $arr[] = 'private';
+            if ( $trashed ) $arr[] = 'trash';
+
+        }
 
         if ( $posts_per_page == NULL ) $posts_per_page = $this->folders_on_page;
 
@@ -315,7 +330,7 @@ abstract class mif_bpc_docs_core {
     // Получить данные коллекции документов
     // 
 
-    function get_docs_collection_data( $folder_id, $page = NULL, $trashed = false, $posts_per_page = NULL )
+    function get_docs_collection_data( $folder_id, $page = NULL, $posts_per_page = NULL, $trashed = false, $all_privated = false )
     {
         if ( $posts_per_page == NULL ) $posts_per_page = $this->docs_on_page;
 
@@ -323,7 +338,7 @@ abstract class mif_bpc_docs_core {
 
         $exclude_doc_id_arr = array();
 
-        if ( ! current_user_can('manage_options') ) {
+        if ( ! ( $this->is_admin() || $all_privated ) ) {
 
             $args = array(
                 'posts_per_page' => -1,
@@ -436,20 +451,65 @@ abstract class mif_bpc_docs_core {
         if ( $data === '' ) {
 
             $trashed = ( $folder->post_status == 'trash' ) ? true : false;
-            $docs = $this->get_docs_collection_data( $folder->ID, 0, $trashed, -1 );
+            $docs = $this->get_docs_collection_data( $folder->ID, 0, -1, $trashed, true );
 
-            $count = count( $docs );
-           
+            $count = 0;
             $size = 0;
-            foreach ( (array) $docs as $doc ) $size += $this->get_doc_size( $doc );
+            $private = array();
+            foreach ( (array) $docs as $doc ) {
 
-            $data = array( 'count' => $count, 'size' => $size );
+                if ( $doc->post_status == 'publish' ) {
+
+                    $count ++;
+                    $size += $this->get_doc_size( $doc );
+
+                } elseif ( $doc->post_status == 'private' ) {
+
+                    $private[$doc->post_author]['count'] = ( isset( $private[$doc->post_author]['count'] ) ) ? $private[$doc->post_author]['count'] + 1 : 1;
+                    $private[$doc->post_author]['size'] = ( isset( $private[$doc->post_author]['size'] ) ) ? $private[$doc->post_author]['size'] + $this->get_doc_size( $doc ) : $this->get_doc_size( $doc );
+
+
+                }
+
+            }
+
+            $data = array( 'count' => $count, 'size' => $size, 'private' => $private );
 
             update_post_meta( $folder->ID, 'mif-bpc-folder-size', $data );
 
         }
 
-        return apply_filters( 'mif_bpc_docs_get_folder_size', $data, $folder );
+        $ret['count'] = $data['count'];
+        $ret['size'] = $data['size'];
+
+        if ( $this->is_admin() ) {
+        
+            // Если админ, то посчитать все приватные документы
+
+            foreach ( (array) $data['private'] as $private ) {
+
+                $ret['count'] += $private['count'];
+                $ret['size'] += $private['size'];
+
+            }
+
+        } elseif ( is_user_logged_in() ) {
+
+            // Если есть пользователь, то учесть его возможные приватные данные
+
+            $user_id = bp_loggedin_user_id();
+
+            if ( isset( $data['private'][$user_id] ) ) {
+
+                $private = $data['private'][$user_id];
+                $ret['count'] += $private['count'];
+                $ret['size'] += $private['size'];
+
+            }
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_get_folder_size', $ret, $data, $folder );
     }
 
 
@@ -478,8 +538,9 @@ abstract class mif_bpc_docs_core {
     function trash_folder( $folder_id = NULL )
     {
         if ( ! $this->is_folder( $folder_id ) ) return false;
+        if ( ! $this->is_access( $folder_id, 'delete' ) ) return false;
 
-        $docs = $this->get_docs_collection_data( $folder_id, 0, 0, -1 );
+        $docs = $this->get_docs_collection_data( $folder_id, 0, -1, 0 );
 
         // Удалить в корзину все документы папки, запомнив их номера
 
@@ -513,6 +574,7 @@ abstract class mif_bpc_docs_core {
     function untrash_folder( $folder_id = NULL )
     {
         if ( ! $this->is_folder( $folder_id ) ) return false;
+        if ( ! $this->is_access( $folder_id, 'delete' ) ) return false;
 
         // Восстановить папку
 
@@ -542,8 +604,9 @@ abstract class mif_bpc_docs_core {
     function delete_folder( $folder_id = NULL )
     {
         if ( ! $this->is_folder( $folder_id ) ) return false;
+        if ( ! $this->is_access( $folder_id, 'delete' ) ) return false;
 
-        $docs = $this->get_docs_collection_data( $folder_id, 0, 1, -1 );
+        $docs = $this->get_docs_collection_data( $folder_id, 0, -1, 1 );
 
         // Удалить навсегда все документы папки
 
@@ -706,6 +769,7 @@ abstract class mif_bpc_docs_core {
     function download( $doc_id = NULL )
     {
         if ( ! $this->is_doc( $doc_id ) ) return false;
+        if ( ! $this->is_access( $doc_id, 'read' ) ) return false;
         
         $doc = get_post( $doc_id );
 
@@ -838,10 +902,11 @@ abstract class mif_bpc_docs_core {
     function docs_reorder( $folder_id, $order_raw )
     {
         if ( ! $this->is_folder( $folder_id ) ) return false;
+        if ( ! $this->is_access( $folder_id, 'write' ) ) return false;
         
         // Получить массив ID всех документов папки (включая удаленные)
 
-        $docs = $this->get_docs_collection_data( $folder_id, 0, 1, -1 );
+        $docs = $this->get_docs_collection_data( $folder_id, 0, -1, 1 );
         $arr = array();
         foreach ( (array) $docs as $doc ) $arr[] = $doc->ID;
 
@@ -885,6 +950,8 @@ abstract class mif_bpc_docs_core {
 
     function folders_reorder( $item_id, $mode, $order_raw )
     {
+        if ( ! $this->is_access( 'all-folders', 'write' ) ) return false;
+                
         // Получить массив ID всех папок (включая удаленные)
 
         $folders = $this->get_folders_data( $item_id, $mode, 0, 1, -1 );
@@ -924,12 +991,57 @@ abstract class mif_bpc_docs_core {
 
 
     //
+    // Проверяет, является ли текущий пользователь администартором
+    //
+
+    function is_admin()
+    {
+        $ret = current_user_can( 'manage_options' );
+        return apply_filters( 'mif_bpc_docs_is_admin', $ret );
+    }
+
+
+    //
     // Есть ли доступ к объекту?
     // режимы - read, write, delete
     //
 
     function is_access( $item, $level = 'write' ) 
     {
+        // Админ сайта всегда может всё
+
+        if ( $this->is_admin() ) return apply_filters( 'mif_bpc_docs_is_access_admin', true, $item, $level );
+
+        // Настройки доступа в целом для системы документов
+        
+        if ( $item == '' ) $item = 'all-folders';
+        if ( $item === 'all-folders' ) {
+
+            switch ( $level ) {
+
+                case 'read' :
+                    if ( true ) $ret = true;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_all_folders_read', $ret, $item, $level );
+                    break;
+
+                case 'write' :
+                    if ( true ) $ret = ( bp_loggedin_user_id() && bp_loggedin_user_id() == bp_displayed_user_id() ) ? true : false;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_all_folders_write', $ret, $item, $level );
+                    break;
+
+                case 'delete' :
+                    if ( true ) $ret = ( bp_loggedin_user_id() && bp_loggedin_user_id() == bp_displayed_user_id() ) ? true : false;
+                    $ret = apply_filters( 'mif_bpc_docs_is_access_all_folders_delete', $ret, $item, $level );
+                    break;
+
+            }
+
+            return apply_filters( 'mif_bpc_docs_is_access_all_folders', $ret, $item, $level );
+
+        }
+        
+        // Настройки доступа для конкретной папки или документа
+
         if ( ! is_object( $item ) ) $item = get_post( $item );
 
         $ret = false;
@@ -977,9 +1089,6 @@ abstract class mif_bpc_docs_core {
             }
 
         }
-
-        // Админ сайта всегда может всё
-        if ( current_user_can('manage_options') ) $ret = true;
 
         return apply_filters( 'mif_bpc_docs_is_access', $ret, $item, $level );
     }
