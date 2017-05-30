@@ -83,7 +83,6 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
                 'user_has_access'=>  bp_is_my_profile() 
             ) );
 
-       
     }
 
 

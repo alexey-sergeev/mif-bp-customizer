@@ -185,15 +185,39 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
-    // Выводит содержимое страницы документов
+    // Выводит содержимое страницы системы документов
     // 
 
     function get_docs_content()
     {
         $out = '';
 
-        $ca = bp_current_action();
-        $param = bp_action_variable( 0 );
+        // Определить текущие параметры
+
+        if ( bp_is_user() ) {
+
+            $ca = bp_current_action();
+            $param = bp_action_variable( 0 );
+
+        } elseif ( bp_is_group() ) {
+
+            $ca = bp_action_variable( 0 );
+            $param = bp_action_variable( 1 );
+
+            // if ( is_numeric( $ca ) ) {
+
+            //     $param = $ca;
+            //     $ca = 'folder';
+
+            // }
+
+        } else {
+
+            return false;
+
+        }
+
+        // Вывести содержимое согласно параметрам
 
         if ( $ca == 'new-folder' ) {
 
@@ -207,7 +231,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         } else {
 
-            // Главная страница документов - папки и др.
+            // Главная страница системы документов - папки и др.
             $out .= $this->get_folders();
             $out .= $this->get_folder_statusbar();
             $out .= $this->get_folder_nonce( 'all-folders' );

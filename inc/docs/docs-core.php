@@ -693,7 +693,20 @@ abstract class mif_bpc_docs_core {
     function get_docs_url()
     {
         global $bp;
-        $url = trailingslashit( $bp->displayed_user->domain ) . $this->slug;
+
+        if ( bp_is_user() ) {
+
+            $url = trailingslashit( $bp->displayed_user->domain ) . $this->slug;
+
+        } elseif ( bp_is_group() ) {
+
+            $url = bp_get_group_permalink( $group_id ) . $this->slug;
+
+        } else {
+
+            $url = '';
+
+        }
 
         return apply_filters( 'mif_bpc_dialogues_get_docs_url', $url );
     }
@@ -706,7 +719,8 @@ abstract class mif_bpc_docs_core {
 
     function get_folder_url( $folder_id = NULL )
     {
-        if ( $folder_id == NULL ) return;
+        if ( ! $this->is_folder( $folder_id ) ) return;
+
         $folder_url = $this->get_docs_url() . '/folder/' . $folder_id . '/';
 
         return apply_filters( 'mif_bpc_docs_get_folder_url', $folder_url, $folder_id );
@@ -720,8 +734,10 @@ abstract class mif_bpc_docs_core {
 
     function get_doc_url( $doc_id = NULL )
     {
-        if ( $doc_id == NULL ) return;
-        $doc_url = $this->get_docs_url() . '/' . $doc_id . '/';
+        if ( ! $this->is_doc( $doc_id ) ) return;
+
+        $doc = get_post( $doc_id );
+        $doc_url = trailingslashit(  bp_core_get_user_domain( $doc->post_author ) ) . $this->slug . '/' . $doc_id . '/';
 
         return apply_filters( 'mif_bpc_docs_get_doc_url', $doc_url, $doc_id );
     }

@@ -24,7 +24,6 @@ function mif_bpc_custom_background_groups_init() {
         var $enable_create_step = false;
         var $enable_nav_item = false;
         var $enable_edit_item = true;
-        
 
         function __construct() 
         {
