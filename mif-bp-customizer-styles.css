@@ -144,7 +144,8 @@
 }
 
 .docs-page-doc .meta .name,
-.docs-page-doc .meta .folder {
+.docs-page-doc .meta .folder,
+.docs-page-doc .meta .group {
     font-weight: bold;
 }
 

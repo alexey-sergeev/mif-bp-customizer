@@ -72,9 +72,21 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     // Все папки пользователя или группы
     // 
 
-    function get_folders( $page = 1, $item_id = NULL, $mode = 'user', $trashed = false )
+    function get_folders( $page = 1, $item_id = NULL, $mode = NULL, $trashed = false )
     {
-        if ( ! in_array( $mode, array( 'user', 'group' ) ) ) return;
+
+        // Уточнить размещение, если оно не указано
+
+        if ( empty( $item_id ) ) {
+
+            $parents_data = $this->get_parents_data();
+
+            $item_id = $parents_data['item_id'];
+            $mode = $parents_data['mode'];
+
+        }
+
+        // Сформировать страницу
 
         $out = '';
 
@@ -117,8 +129,14 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
             // Создаем новую папку
 
+            $parents_data = $this->get_parents_data();
+            $item_id = $parents_data['item_id'];
+            $mode = $parents_data['mode'];
+
             $out .= '<h2>' . __( 'Новая папка', 'mif-bp-customizer' ) . '</h2>
             <form id="new-folder">
+            <input type="hidden" name="item_id" value="' . $item_id . '">
+            <input type="hidden" name="mode" value="' . $mode . '">
             <input type="hidden" name="redirect" value="' . $this->get_docs_url() . '/">
             <input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-new-folder-nonce' ) . '">';
 
@@ -462,7 +480,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $status = ' ' . $doc->post_status;
 
             $url = $this->get_doc_url( $doc->ID );
-            $a1 = '<a href="' . $url . '/">';
+            $a1 = '<a href="' . $url . '">';
             $a2 = '</a>';
             if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
@@ -1036,7 +1054,32 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_group( $doc = NULL )
     {
-        return apply_filters( 'mif_bpc_docs_get_group', $out, $doc );
+        if ( $doc == NULL ) $doc = $this->get_doc_data();
+
+        $out = '';
+
+        $parent_data = get_post_meta( $doc->post_parent, $this->folder_parent_meta_key, true );
+
+        if ( $parent_data ) {
+
+            $arr = (array) explode( '-', $parent_data );
+            $item_id = (int) array_pop( $arr );
+            $mode = implode( '-', $arr );
+
+            if ( $mode == 'group' ) {
+
+                $group = groups_get_group( $item_id );
+
+                $url = trailingslashit( bp_get_group_permalink( $group ) ) . $this->slug;
+                $name = bp_get_group_name( $group );
+                
+                if ( isset( $url ) && isset( $name ) ) $out .= '<div class="group"><span class="one">' . __( 'Группа', 'mif-bp-customizer' ) . ':</span> <span class="two"><a href="' . $url . '">' . $name . '</a></span></div>';
+
+            }
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_get_group', $out, $doc, $mode, $item_id );
     }
 
 

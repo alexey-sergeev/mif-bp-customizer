@@ -42,6 +42,24 @@ abstract class mif_bpc_docs_core {
 
     public $default_folder_name = 'New folder';
 
+    //
+    // Мета-ключ родительского объекта папки
+    //
+
+    public $folder_parent_meta_key = 'mif-bpc-folder-parent';
+
+    //
+    // Мета-ключ настроек параметров доступа к папке
+    //
+
+    public $folder_access_mode_meta_key = 'mif-bpc-folder-access-mode';
+
+    //
+    // Мета-ключ настроек системы документов в группы
+    //
+
+    public $group_access_mode_meta_key = 'mif-bpc-group-access-mode';
+
 
 
 
@@ -247,9 +265,12 @@ abstract class mif_bpc_docs_core {
     // Сохранить папку
     // 
 
-    function folder_save( $item_id = NULL, $mode = 'user', $name = '', $desc = '', $publish = 'on' )
+    function folder_save( $item_id = NULL, $mode = 'user', $name = '', $desc = '', $publish = 'on', $author_id = NULL )
     {
-        if ( $item_id == 'NULL' ) $item_id = bp_loggedin_user_id();
+        if ( $item_id == NULL ) return false;
+        
+        if ( $mode == 'user' ) $author_id = $item_id;
+        if ( $author_id == NULL ) $author_id = bp_loggedin_user_id();
 
         $publish = ( $publish == 'on' ) ? 'publish' : 'private';
         $name = ( trim( $name ) == '' ) ? $this->default_folder_name : trim( $name );
@@ -264,8 +285,7 @@ abstract class mif_bpc_docs_core {
             'post_title' => $name,
             'post_content' => trim( $desc ),
             'post_status' => $publish,
-            // 'post_parent' => $group_id,
-            'post_author' => $item_id,
+            'post_author' => $author_id,
             'menu_order' => $order,
             'comment_status' => 'closed',
             'ping_status' => 'closed'
@@ -274,7 +294,9 @@ abstract class mif_bpc_docs_core {
 
         $post_id = wp_insert_post( wp_slash( $folder_data ) );
 
-        return apply_filters( 'mif_bpc_docs_folder_save', $post_id, $title, $location, $user_id, $folder_id );
+        if ( $mode != 'user' ) update_post_meta( $post_id, $this->folder_parent_meta_key, $mode . '-' . $item_id );
+
+        return apply_filters( 'mif_bpc_docs_folder_save', $post_id, $item_id, $mode, $name, $desc, $publish, $author_id );
     }
 
 
@@ -284,9 +306,9 @@ abstract class mif_bpc_docs_core {
     // Получить данные коллекции папок
     // 
 
-    function get_folders_data( $item_id, $mode = 'user', $page = NULL, $trashed = false, $posts_per_page = NULL )
+    function get_folders_data( $item_id = NULL, $mode = 'user', $page = NULL, $trashed = false, $posts_per_page = NULL )
     {
-        $item_id = bp_displayed_user_id();
+        // $item_id = bp_displayed_user_id();
 
         $arr = array( 'publish' );
         
@@ -302,22 +324,36 @@ abstract class mif_bpc_docs_core {
         if ( $posts_per_page == NULL ) $posts_per_page = $this->folders_on_page;
 
         $args = array(
-            // 'numberposts' => $this->folders_on_page,
             'posts_per_page' => $posts_per_page,
             'paged' => $page,
-            'author' => $item_id,
-            // 'category' => 0,
-            // 'orderby' => 'date',
-            // 'order' => 'DESC',
             'orderby' => 'menu_order',
             'order' => 'DESC',
-            // 'include' => array(),
-            // 'exclude' => array(),
-            // 'meta_key' => '',
-            // 'meta_value' =>'',
             'post_type' => 'mif-bpc-folder',
             'post_status' => implode( ',', $arr ),
         );
+
+        if ( $mode == 'user' ) {
+
+            // Если пользователь, то выбрать папки по автору и без сведений о родительском объекте
+
+            if ( empty( $item_id ) ) $item_id = bp_displayed_user_id();
+
+            $args['author'] = $item_id;
+            $args['meta_query'] = array(
+                        array(
+                            'key' => $this->folder_parent_meta_key,
+                            'compare' => 'NOT EXISTS'
+                        )
+                	);
+
+        } else {
+
+            // Если не пользователь, то выбрать папки по мета-полю родительского объекта
+
+            $args['meta_key'] = $this->folder_parent_meta_key;
+            $args['meta_value'] = $mode . '-' . $item_id;
+
+        }
 
         $folders = get_posts( $args );
 
@@ -379,13 +415,15 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Возвращает размер папки (количество и общий объем файлов)
+    // Возвращает размер всех папок данного места размещения (количество папок и общий объем файлов)
     // 
 
     function get_all_folders_size()
     {
-        $item_id = bp_displayed_user_id();
-        $mode = 'user';
+        $parents_data = $this->get_parents_data();
+
+        $item_id = $parents_data['item_id'];
+        $mode = $parents_data['mode'];
 
         $folders = $this->get_folders_data( $item_id, $mode, 0, false, -1 );
 
@@ -696,11 +734,12 @@ abstract class mif_bpc_docs_core {
 
         if ( bp_is_user() ) {
 
-            $url = trailingslashit( $bp->displayed_user->domain ) . $this->slug;
+            // $url = trailingslashit( $bp->displayed_user->domain ) . $this->slug;
+            $url = bp_core_get_user_domain( bp_displayed_user_id() ) . $this->slug;
 
         } elseif ( bp_is_group() ) {
 
-            $url = bp_get_group_permalink( $group_id ) . $this->slug;
+            $url = bp_get_group_permalink( $bp->groups->current_group ) . $this->slug;
 
         } else {
 
@@ -1007,6 +1046,39 @@ abstract class mif_bpc_docs_core {
 
 
     //
+    // Узнать данные текущего места размещения папки
+    //
+
+    function get_parents_data()
+    {
+
+        if ( bp_is_user() ) {
+            
+            $item_id = bp_displayed_user_id();
+            $mode = 'user';
+        
+        } elseif ( bp_is_group() ) {
+            
+            $item_id = bp_get_current_group_id();
+            $mode = 'group';
+
+        } else {
+
+            // Здесь можно уточнить идентификаторы нестандартного размещения
+            
+            $item_id = apply_filters( 'mif_bpc_docs_get_parents_data_item_id', 0 );
+            $mode = apply_filters( 'mif_bpc_docs_get_parents_data_mode', '' );;
+
+        }
+
+        $parents_data = array( 'item_id' => $item_id, 'mode' => $mode );
+
+        return apply_filters( 'mif_bpc_docs_get_parents_data', $parents_data );
+    }
+
+
+
+    //
     // Проверяет, является ли текущий пользователь администартором
     //
 
@@ -1036,17 +1108,20 @@ abstract class mif_bpc_docs_core {
             switch ( $level ) {
 
                 case 'read' :
-                    if ( true ) $ret = true;
+                    if ( bp_is_user() ) $ret = true;
+                    if ( bp_is_group() ) $ret = $this->is_access_to_group( 'read' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_all_folders_read', $ret, $item, $level );
                     break;
 
                 case 'write' :
-                    if ( true ) $ret = ( bp_loggedin_user_id() && bp_loggedin_user_id() == bp_displayed_user_id() ) ? true : false;
+                    if ( bp_is_user() ) $ret = ( bp_loggedin_user_id() && bp_loggedin_user_id() == bp_displayed_user_id() ) ? true : false;
+                    if ( bp_is_group() ) $ret = $this->is_access_to_group( 'write' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_all_folders_write', $ret, $item, $level );
                     break;
 
                 case 'delete' :
-                    if ( true ) $ret = ( bp_loggedin_user_id() && bp_loggedin_user_id() == bp_displayed_user_id() ) ? true : false;
+                    if ( bp_is_user() ) $ret = ( bp_loggedin_user_id() && bp_loggedin_user_id() == bp_displayed_user_id() ) ? true : false;
+                    if ( bp_is_group() ) $ret = $this->is_access_to_group( 'delete' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_all_folders_delete', $ret, $item, $level );
                     break;
 
@@ -1067,17 +1142,20 @@ abstract class mif_bpc_docs_core {
             switch ( $level ) {
 
                 case 'read' :
-                    if ( true ) $ret = true;
+                    if ( $this->place( $item ) == 'user' ) $ret = true;
+                    if ( $this->place( $item ) == 'group' ) $ret = $this->is_access_to_group( 'read' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_folder_read', $ret, $item, $level );
                     break;
 
                 case 'write' :
-                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'user' ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'group' ) $ret = $this->is_access_to_group( 'write' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_folder_write', $ret, $item, $level );
                     break;
 
                 case 'delete' :
-                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'user' ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'group' ) $ret = $this->is_access_to_group( 'delete' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_folder_delete', $ret, $item, $level );
                     break;
 
@@ -1088,17 +1166,20 @@ abstract class mif_bpc_docs_core {
             switch ( $level ) {
 
                 case 'read' :
-                    if ( true ) $ret = true;
+                    if ( $this->place( $item ) == 'user' ) $ret = true;
+                    if ( $this->place( $item ) == 'group' ) $ret = $this->is_access_to_group( 'read' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_doc_read', $ret, $item, $level );
                     break;
 
                 case 'write' :
-                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'user' ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'group' ) $ret = $this->is_access_to_group( 'write' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_doc_write', $ret, $item, $level );
                     break;
 
                 case 'delete' :
-                    if ( true ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'user' ) $ret = ( bp_loggedin_user_id() && $item->post_author == bp_loggedin_user_id() ) ? true : false;
+                    if ( $this->place( $item ) == 'group' ) $ret = $this->is_access_to_group( 'delete' );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_doc_delete', $ret, $item, $level );
                     break;
 
@@ -1107,6 +1188,78 @@ abstract class mif_bpc_docs_core {
         }
 
         return apply_filters( 'mif_bpc_docs_is_access', $ret, $item, $level );
+    }
+
+
+    //
+    // Имеет ли текущий пользователь доступ к группе?
+    //
+
+    function is_access_to_group( $level = 'read', $group = NULL )
+    {
+        global $bp;
+        
+        if ( is_numeric( $group ) ) $group = groups_get_group( $group );
+        if ( $group == NULL ) $group = $bp->groups->current_group;
+
+        $group_id = $group->id;
+        $user_id = bp_loggedin_user_id();
+
+        $access_mode = groups_get_groupmeta( $group_id, $this->group_access_mode_meta_key );
+
+        $everyone_create = ( isset( $access_mode['everyone_create'] ) && $access_mode['everyone_create'] ) ? true : false;
+        $everyone_delete = ( isset( $access_mode['everyone_delete'] ) && $access_mode['everyone_delete'] ) ? true : false;
+
+        if ( $level == 'read' ) $ret = bp_group_is_visible( $group );
+        if ( $level == 'write' ) $ret = ( groups_is_user_admin( $user_id, $group_id ) || ( groups_is_user_member( $user_id, $group_id ) && $everyone_create ) ) ? true : false;
+        if ( $level == 'delete' ) $ret = ( groups_is_user_admin( $user_id, $group_id ) || ( groups_is_user_member( $user_id, $group_id ) && $everyone_delete ) ) ? true : false;
+
+        return apply_filters( 'mif_bpc_docs_is_access_to_group', $ret, $level, $group );
+    }
+
+
+
+    //
+    // Возвращает расположение папки или документа (пользователь, группа или др.)
+    //
+
+    function place( $item )
+    {
+        if ( is_numeric( $item ) ) $item = get_post( $item );
+        
+        $folder_id = NULL;
+        
+        if ( $this->is_folder( $item ) ) $folder_id = $item->ID;
+        
+        if ( $this->is_doc( $item ) ) {
+
+            $folder_id = $item->post_parent;
+
+        }
+
+        if ( $folder_id ) {
+
+            $parent_data = get_post_meta( $folder_id, $this->folder_parent_meta_key, true );
+
+            if ( $parent_data ) {
+
+                $arr = (array) explode( '-', $parent_data );
+                $item_id = (int) array_pop( $arr );
+                $place = implode( '-', $arr );
+
+            } else {
+
+                $place = 'user';
+
+            }
+
+        } else {
+
+            $place = false;
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_place', $place, $item );
     }
 
 

@@ -222,31 +222,11 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     {
         check_ajax_referer( 'mif-bpc-docs-new-folder-nonce' );
 
-        // if ( empty( $user_id ) ) wp_die();
+        $author_id = bp_loggedin_user_id();
 
-        // $publish = ( $_POST['publish'] == 'on' ) ? 'publish' : 'private';
-        // $name = ( trim( $_POST['name'] ) == '' ) ? $this->default_folder_name : trim( $_POST['name'] );
+        $item_id = (int) $_POST['item_id'];
 
-        // $folder_data = array(
-        //     'post_type' => 'mif-bpc-folder',
-        //     'post_title' => $name,
-        //     'post_content' => trim( $_POST['desc'] ),
-        //     'post_status' => $publish,
-        //     // 'post_parent' => $group_id,
-        //     'post_author' => $user_id,
-        //     'comment_status' => 'closed',
-        //     'ping_status' => 'closed'
-
-        // );
-
-        // $post_id = wp_insert_post( wp_slash( $folder_data ) );
-
-
-
-        $item_id = bp_loggedin_user_id();
-        $mode = 'user';
-
-        $post_id = $this->folder_save( $item_id, $mode, $_POST['name'], $_POST['desc'], $_POST['publish'] );
+        $post_id = $this->folder_save( $item_id, $_POST['mode'], $_POST['name'], $_POST['desc'], $_POST['publish'], $author_id );
         if ( $post_id ) echo $this->get_folder_url( $post_id );
 
         wp_die();
@@ -658,7 +638,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         } elseif ( isset( $_POST['all_folders'] ) && $_POST['all_folders'] == 'on' ) {
 
-            // Показать статистику всех папок папки
+            // Показать статистику всех папок
             echo $this->get_all_folders_statusbar_info();
 
         }
