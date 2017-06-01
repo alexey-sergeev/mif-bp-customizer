@@ -130,16 +130,14 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
             if ( isset( $_POST['restore'] ) && $_POST['restore'] == 1) {
 
                 // Восстановить документ или папку
-                // if ( $is_doc ) if ( $this->untrash_doc( $item_id ) ) echo $this->get_doc_item( $item_id );
-                // if ( $is_folder ) if ( $this->untrash_folder( $item_id ) ) echo $this->get_folder_item( $item_id );
+
                 if ( $is_doc ) if ( $this->untrash_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc', $mode );
                 if ( $is_folder ) if ( $this->untrash_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder', $mode );
 
             } else {
 
                 // Удалить документ или папку навсегда
-                // if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo '<!-- empty -->';
-                // if ( $is_folder ) if ( $this->delete_folder( $item_id ) ) echo '<!-- empty -->';
+
                 if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo $this->show_response( $folder_id, 'doc-empty', $mode, $item->post_title );
                 if ( $is_folder ) if ( $this->delete_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder-empty', $mode, $item->post_title );
 
@@ -148,8 +146,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         } else {
 
             // Поместить документ или папку в корзину
-            // if ( $is_doc ) if ( $this->trash_doc( $item_id ) ) echo $this->get_doc_item( $item_id );
-            // if ( $is_folder ) if ( $this->trash_folder( $item_id ) ) echo $this->get_folder_item( $item_id );
+
             if ( $is_doc ) if ( $this->trash_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc', $mode );
             if ( $is_folder ) if ( $this->trash_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder', $mode );
 
@@ -226,8 +223,14 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         $item_id = (int) $_POST['item_id'];
 
-        $post_id = $this->folder_save( $item_id, $_POST['mode'], $_POST['name'], $_POST['desc'], $_POST['publish'], $author_id );
-        if ( $post_id ) echo $this->get_folder_url( $post_id );
+        $folder_id = $this->folder_save( $item_id, $_POST['mode'], $_POST['name'], $_POST['desc'], $_POST['publish'], $author_id );
+
+        if ( $folder_id ) {
+            
+            if ( isset( $_POST['access_mode'] ) ) $this->set_access_mode_to_folder( $folder_id, $_POST['access_mode'] );
+            echo $this->get_folder_url( $folder_id );
+        
+        }
 
         wp_die();
     }
@@ -361,24 +364,14 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         $user_id = bp_loggedin_user_id();
         if ( empty( $user_id ) ) wp_die();
 
-        // f($_FILES);
-        // f($_FILES['file']['name']);
-
-        // f( $this->get_file_logo( $_FILES['file']['name'] ) );
-
-        // echo '12';
-
-        // $attachment = new BP_Attachment( array( 'base_dir' => 'docs' ) );
-        // $file = $attachment->upload( $_FILES );
-
-
         if ( isset( $_FILES['file']['tmp_name'] ) ) {
 
             $filename = basename( $_FILES['file']['name'] );
             $path = trailingslashit( $this->get_docs_path() ) . md5( uniqid( rand(), true ) ); 
             $upload_dir = (object) wp_upload_dir();
 
-            // Здесь проверять размер и тип файла
+            // Проверить размер
+            if ( $_FILES['file']['size'] > $this->get_max_upload_size() ) wp_die();
 
             if ( move_uploaded_file( $_FILES['file']['tmp_name'], $upload_dir->basedir . $path ) ) {
 
@@ -387,19 +380,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
                 $post_id = $this->doc_save( $filename, $path, $user_id, $_POST['folder_id'], $_FILES['file']['type'], $_POST['order'] );
                 echo $this->get_doc_item( $post_id );
 
-                // // Отправить ответ клиенту
-
-                // $logo = $this->get_file_logo( $_FILES['file']['name'] );
-                // $before = '<a href="123">';
-                // $after = '</a>';
-                
-                // echo $before . $logo . $after;
-
-            } else {
-
-                echo __( 'Ошибка', 'mif-bp-customizer' );
-
-            }
+            } 
 
         }
 
@@ -489,6 +470,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
             }
         }
 
+        groups_update_last_activity();
+
         wp_die();
     }
 
@@ -535,8 +518,11 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
                 // Удалить в корзину
 
-                $ret = ( $this->trash_folder( $folder_id ) ) ? $this->get_docs_content() : $this->error_msg( '004' );
-                echo $ret;
+                // $ret = ( $this->trash_folder( $folder_id ) ) ? $this->get_docs_content() : $this->error_msg( '004' );
+                // echo $ret;
+
+                $this->trash_folder( $folder_id );
+                echo $this->get_docs_content();
 
             } else {
 
@@ -562,8 +548,16 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
                 if ( trim( $_POST['name'] ) != '' ) $folder_data['post_title'] = trim( $_POST['name'] );
 
-                $ret = ( wp_update_post( wp_slash( $folder_data ) ) ) ? $this->get_docs_content() : $this->error_msg( '001' );
-                echo $ret;
+                if ( wp_update_post( wp_slash( $folder_data ) ) ) {
+
+                    if ( isset( $_POST['access_mode'] ) ) $this->set_access_mode_to_folder( $folder_id, $_POST['access_mode'] );
+                    echo $this->get_docs_content();
+
+                } else {
+
+                    echo $this->error_msg( '001' );
+
+                }
 
             } else {
 
@@ -571,6 +565,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
             }
         }
+
+        groups_update_last_activity();
 
         wp_die();
     }

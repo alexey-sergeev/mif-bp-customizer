@@ -178,7 +178,7 @@ if ( ! function_exists( 'f' ) ) {
 
     function f( $data )
     {
-        file_put_contents('/tmp/log.txt', print_r( $data, true ) );
+        file_put_contents( '/tmp/log.txt', print_r( $data, true ) );
     }
 
 }

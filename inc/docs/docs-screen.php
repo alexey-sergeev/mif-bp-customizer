@@ -19,9 +19,24 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     public $avatar_size = 50;
 
+    //
+    // Описание уровней доступа к папке
+    //
+
+    public $access_mode_descr = array();
+
+
 
     function __construct()
     {
+        
+        $this->access_mode_descr = apply_filters( 'mif_bpc_docs_access_mode_descr', array(
+            'default' => __( 'Как в настройках группы', 'mif-bp-customizer' ),
+            'only_admin' => __( 'Только владелец папки и администратор могут размещать и удалять документы', 'mif-bp-customizer' ),
+            'everyone_create' => __( 'Каждый может размещать документы, но удалять – только свои', 'mif-bp-customizer' ),
+            'everyone_delete' => __( 'Каждый может размещать и удалять любые документы', 'mif-bp-customizer' ),
+        ) );
+        
         parent::__construct();
     }
 
@@ -47,7 +62,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         // $out .= '<div class="response-box clearfix"></div>';
         $out .= '<div class="template">' . $this->get_doc_item() . '</div>
         <p>' . __( 'Перетащите файлы сюда', 'mif-bp-customizer' ) . '...</p>
-        <input type="file" name="files[]" multiple="multiple">';
+        <input type="file" name="files[]" multiple="multiple">
+        <input name="MAX_FILE_SIZE" value="' . $this->get_max_upload_size() . '" type="hidden">
+        <input name="max_file_error" value="' . __( 'Слишком большой файл', 'mif-bp-customizer' ) . '" type="hidden">';
         $out .= '</div>';
         $out .= '<p>... ' . __( 'или', 'mif-bp-customizer' ) . ' <a href="#" class="show-link-box">' . __( 'укажите ссылку Интернета', 'mif-bp-customizer' ) . '</a></p>';
 
@@ -152,6 +169,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
             $folder = get_post( $folder_id );
 
+            if ( ! ( $this->is_admin() || $folder->post_author == bp_loggedin_user_id() ) ) return false;
             if ( ! $this->is_folder( $folder ) ) return false;
 
             $out .= '<h2>' . __( 'Настройки папки', 'mif-bp-customizer' ) . '</h2>';
@@ -189,6 +207,23 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         <p><textarea name="desc"' . $disabled . '>' . $desc . '</textarea></p>
         <p>' . __( 'Режим доступа', 'mif-bp-customizer' ) . ':</p>
         <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Опубликована', 'mif-bp-customizer' ) . '</label></p><p>';
+
+        if ( bp_is_group() ) {
+
+            $arr['default'] = '';
+            $arr['only_admin'] = '';
+            $arr['everyone_create'] = '';
+            $arr['everyone_delete'] = '';
+
+            $access_mode = $this->get_access_mode_to_folder( $folder_id, false );
+            $arr[$access_mode] = ' checked';
+
+            $out .= '<p>' . __( 'Возможности размещения и удаления документов', 'mif-bp-customizer' ) . ':</p>';
+            $out .= '<p><label><input type="radio" name="access_mode" value="default"' . $arr['default']  . $disabled . '> ' . $this->access_mode_descr['default'] . '</label><br />';
+            $out .= '<label><input type="radio" name="access_mode" value="only_admin"' . $arr['only_admin']  . $disabled . '> ' . $this->access_mode_descr['only_admin'] . '</label><br />';
+            $out .= '<label><input type="radio" name="access_mode" value="everyone_create"' . $arr['everyone_create']  . $disabled . '> ' . $this->access_mode_descr['everyone_create'] . '</label><br />';
+            $out .= '<label><input type="radio" name="access_mode" value="everyone_delete"' . $arr['everyone_delete']  . $disabled . '> ' . $this->access_mode_descr['everyone_delete'] . '</label><p>';
+        }
 
         if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Сохранить', 'mif-bp-customizer' ) . '"> ';
 
@@ -240,16 +275,25 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         if ( $ca == 'new-folder' ) {
 
             // Создание новой папки
+
             $out .= $this->get_folder_settings();
 
         } elseif ( $ca == 'folder' && is_numeric( $param ) ) {
 
             // Отобразить страницу папки
+
             $out .= $this->get_folder_content( $param );
+
+        } elseif ( $ca == 'stat' ) {
+
+            // Отобразить статистику пользователя
+
+            $out .= $this->get_user_stat();
 
         } else {
 
             // Главная страница системы документов - папки и др.
+
             $out .= $this->get_folders();
             $out .= $this->get_folder_statusbar();
             $out .= $this->get_folder_nonce( 'all-folders' );
@@ -447,6 +491,26 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
+    // Выводит страницу статистики пользователя
+    // 
+
+    function get_user_stat()
+    {
+        $out = '';
+
+        $out .= '<div class="stat">';
+        $out .= '<p>' . __( 'На этой странице отображается статистика по всем личным документам профиля пользователя и групп', 'mif-bp-customizer' ) . '</p>';
+        $out .= '<span class="one">' . __( 'Занято', 'mif-bp-customizer' ) . ':</span> ';
+        $out .= '<span class="two">' . mif_bpc_format_file_size( $this->get_user_size() ) . '</span>';
+        $out .= '<p>&nbsp;';
+        $out .= '</div>';
+
+        return apply_filters( 'mif_bpc_docs_get_user_stat', $out );
+    }
+
+
+
+    // 
     // Выводит изображение документа
     // 
 
@@ -465,6 +529,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $id = 'item-tpl';
             $order = '';
             $status = '';
+            $title = '';
 
         } else {
 
@@ -500,16 +565,27 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
             }
 
+            $title = '';
+
             if ( $doc->post_status == 'trash' ) {
 
                 if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'restore/" data-item-id="' . $doc->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
                 if ( $this->is_access( $doc, 'delete' ) ) $right = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
+                $title = ' title="' . __( 'Документ находится в корзине', 'mif-bp-customizer' ) . '"';
+
+            }
+
+            if ( $doc->post_status == 'private' ) {
+
+                $title = ' title="' . __( 'Документ доступен только вам', 'mif-bp-customizer' ) . '"';
+
             }
 
         }
 
-        $out = '<div class="file' . $status . $loading . '" id="' . $id . '" data-order="' . $order . '">
+
+        $out = '<div class="file' . $status . $loading . '" id="' . $id . '" data-order="' . $order . '"' . $title . '>
         ' . $a1 . '
         <span class="logo">' . $logo . '</span>
         <span class="name">' . $name . '</span>
@@ -538,6 +614,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $left = '';
         $right = '';
+        $title = '';
         $url = $this->get_folder_url( $folder->ID );
 
 
@@ -546,13 +623,22 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             if ( $this->is_access( $folder, 'delete' ) ) $left = '<a href="' . $url . '/restore/" data-item-id="' . $folder->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
             if ( $this->is_access( $folder, 'delete' ) ) $right = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
+            $title = ' title="' . __( 'Папка находится в корзине', 'mif-bp-customizer' ) . '"';
+
         } else {
 
             if ( $this->is_access( $folder, 'delete' ) ) if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
 
         }
 
-        $out = '<div class="file folder ' . $folder->post_status . '" id="folder-' . $folder->ID . '">
+        if ( $folder->post_status == 'private' ) {
+
+            $title = ' title="' . __( 'Папка доступна только вам', 'mif-bp-customizer' ) . '"';
+
+        }
+
+
+        $out = '<div class="file folder ' . $folder->post_status . '" id="folder-' . $folder->ID . '"' . $title . '>
         <a href="' . $this->get_folder_url( $folder->ID ) . '">
         <span class="logo"><i class="fa fa-folder-open-o fa-3x"></i></span>
         <span class="name">' . $folder->post_title . '</span>
@@ -568,7 +654,6 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
 
-
     // 
     // Выводит заголовок на странице папки
     // 
@@ -581,7 +666,35 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         <a href="' . $this->get_folder_url( $folder->ID ) . '">' . $folder->post_title . '</a></h2>
         <div class="folder-description">' . $folder->post_content . '</div>';
 
-        return apply_filters( 'mif_bpc_docs_ get_folder_header', $out, $folder );
+        return apply_filters( 'mif_bpc_docs_get_folder_header', $out, $folder );
+    }
+
+
+
+    // 
+    // Выводит описание режима доступа к папке
+    // 
+
+    function get_folder_access_mode( $folder_id = NULL )
+    {
+        $out = '';
+
+        if ( $this->place( $folder_id ) == 'group' ) {
+
+            $access_mode = $this->get_access_mode_to_folder( $folder_id, true );
+            if ( isset( $this->access_mode_descr[$access_mode] ) ) $out .= '<div class="access_mode"><span class="one">' . __( 'Уровень доступа', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $this->access_mode_descr[$access_mode] . '</span></div>';
+
+            $folder = get_post( $folder_id );
+            
+            $avatar = get_avatar( $folder->post_author, apply_filters( 'mif_bpc_docs_avatar_size', $this->avatar_size ) );
+            $author = mif_bpc_get_member_name( $folder->post_author );
+
+            $out .= '<div class="folder_meta_info clearfix">
+                    <div class="owner"><a href="' . bp_core_get_user_domain( $doc->post_author ) . '" target="blank"><span class="one">' . $avatar . '</span><span class="two">' . $author . '</span></a></div>
+                    </div>';
+        }
+
+        return apply_filters( 'mif_bpc_docs_get_folder_access_mode', $out, $folder_id );
     }
 
 
@@ -777,7 +890,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         <p>' . __( 'Описание', 'mif-bp-customizer' ) . ':</p>
         <p><textarea name="desc"' . $disabled . '>' . $desc . '</textarea></p>
         <p>' . __( 'Режим доступа', 'mif-bp-customizer' ) . ':</p>
-        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Опубликована', 'mif-bp-customizer' ) . '</label></p><p>';
+        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Опубликовано', 'mif-bp-customizer' ) . '</label></p><p>';
 
         if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Сохранить', 'mif-bp-customizer' ) . '"> ';
 
@@ -839,19 +952,27 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        $show_settings = true;
-
         $out .= '<div class="statusbar"><span class="info">&nbsp;</span><span class="tools">';
 
-        if ( $this->is_access( $doc, 'write' ) ) {
+        if ( $this->is_access( $doc, 'write' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Параметры', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span>';
 
-            if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Параметры', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span>';
-
-        }
+        if ( bp_loggedin_user_id() && $this->is_access( $doc, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Опубликовать в ленте активности', 'mif-bp-customizer' ) . '"><a href="' . $this->get_repost_link() . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
 
         $out .= '</span></div>';
 
         return apply_filters( 'mif_bpc_docs_get_doc_statusbar', $out, $doc_id );
+    }
+
+
+
+    // 
+    // Получает ссылку для репоста документа
+    // 
+
+    function get_repost_link( $doc )
+    {
+        $link = bp_core_get_user_domain( bp_loggedin_user_id() );
+        return apply_filters( 'mif_bpc_docs_get_repost_link', $link, $doc );
     }
 
 
@@ -888,18 +1009,20 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        $show_settings = ( $this->is_folder( $folder_id ) ) ? true : false;
-
         $out .= '<div class="statusbar"><span class="info">&nbsp;</span><span class="tools">';
 
-        if ( $this->is_access( $folder_id, 'write' ) ) {
+        if ( $this->is_access( $folder_id, 'write' ) ) $out .= '<span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
 
-            $out .= '<span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
-            if ( $show_settings ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span>';
+        if ( $this->is_folder( $folder_id ) ) {
+
+            $folder = get_post( $folder_id );
+            if ( $this->is_admin() || $folder->post_author == bp_loggedin_user_id() ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span>';
 
         }
 
         $out .= '</span></div>';
+
+        $out .= $this->get_folder_access_mode( $folder_id );
 
         return apply_filters( 'mif_bpc_docs_get_folder_statusbar', $out, $folder_id );
     }

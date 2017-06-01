@@ -59,12 +59,17 @@ jQuery( document ).ready( function( jq ) {
         var form = jq( this ).closest( 'form' );
         var inputFiles = jq( 'input[type=file]', form );
         var nonce = jq( 'input[name="nonce"]', form ).val();
+        var max_upload_size = jq( 'input[name="MAX_FILE_SIZE"]', form ).val();
+        var max_file_error = jq( 'input[name="max_file_error"]', form ).val();
         var folder_id = jq( 'input[name="folder_id"]', form ).val();
 
         var files = inputFiles.get( 0 ).files;
 
         jq.each( files, function( key, value ) { 
             
+            console.log(max_upload_size);
+            console.log(value['size']);
+
             // Отобразить блок файла на экране, клонировав его из шаблона и уточнив оформление
 
             var item = jq( '.template .file' ).clone();
@@ -72,7 +77,7 @@ jQuery( document ).ready( function( jq ) {
             // Правильная иконка файла и название
             item.addClass( value['name'].split( '.' ).pop() );
             jq( '.name', item ).html( value['name'] );
-            
+
             // Поставить порядок сортировки
             var order = __get_order();
             item.attr( 'data-order', order );
@@ -89,26 +94,45 @@ jQuery( document ).ready( function( jq ) {
             data.append( 'folder_id', folder_id );
             data.append( 'order', order );
 
-            jq.ajax( {
-                url: ajaxurl,
-                type: 'POST',
-                contentType: false,
-                processData: false,
-                data: data,
-                success: function( response ) {
 
-                    item.removeClass( 'loading' );
-                    item.replaceWith( response );
-                    folder_statusbar_info_update();
-                    // console.log( response );
+            if ( value['size'] > max_upload_size ) {
 
-                },
-                error: function( response ) {
+                item.addClass( 'error' );
+                jq( '.name', item ).html( max_file_error );
+                item.attr( 'title', value['name'] );
+                // item.attr( 'title', max_file_error );
+                
+            } else {
 
-                    item.addClass( 'error' );
+                jq.ajax( {
+                    url: ajaxurl,
+                    type: 'POST',
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    success: function( response ) {
 
-                },
-            } );
+                        if ( response ) {
+
+                            item.removeClass( 'loading' );
+                            item.replaceWith( response );
+                            folder_statusbar_info_update();
+
+                        } else {
+
+                            item.addClass( 'error' );
+
+                        }
+
+                    },
+                    error: function( response ) {
+
+                        item.addClass( 'error' );
+
+                    },
+                } );
+                    
+            }
 
         });
 

@@ -37,8 +37,16 @@ function mif_bpc_docs_group_init() {
 
         function __construct() 
         {
+            global $bp, $mif_bpc_docs;
+
+            $access_mode = groups_get_groupmeta( $bp->groups->current_group->id, $mif_bpc_docs->group_access_mode_meta_key );
+
+            if ( isset( $access_mode ) && empty( $access_mode['docs_allowed'] ) ) $this->enable_nav_item = false;
+
+            $data = $mif_bpc_docs->get_all_folders_size();
 
             $this->name = __( 'Документы', 'mif-bp-customizer' );
+            $this->nav_item_name = __( 'Документы', 'mif-bp-customizer' ) . ' <span>' . $data['count'] . '</span>';
             $this->slug = 'docs';
             // $this->create_step_position = 10;
             $this->nav_item_position = 30;
@@ -205,7 +213,7 @@ function mif_bpc_docs_group_init() {
             if ( $access_mode['everyone_delete'] ) $access_mode['everyone_create'] = true;
 
             groups_update_groupmeta( $group_id, $mif_bpc_docs->group_access_mode_meta_key, $access_mode );
-
+            groups_update_last_activity();
         }
 
 

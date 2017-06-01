@@ -29,9 +29,14 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
         add_action( 'bp_activity_setup_nav', array( $this, 'nav' ) );
         add_action( 'bp_screens', array( $this, 'doc_page' ) );
 
-        // // Экранные функции
-        // global $mif_bpc_docs_templates;
-        // $mif_bpc_docs_templates = new mif_bpc_docs_templates();
+        // Настройка типа записи
+        add_action( 'bp_init', array( $this, 'create_post_type' ) );
+
+        // Скачивание файла
+        add_action( 'bp_init', array( $this, 'force_download' ) );
+
+        // Помощник удаления файлов
+        add_action( 'before_delete_post', array( $this, 'delete_doc_helper' ) );
 
         // Функции ajax-запросов
         global $mif_bpc_docs_ajax;
@@ -47,14 +52,15 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
 
     function nav()
     {
-        // f($_POST);
-        global $bp;
+        global $bp, $mif_bpc_docs;
 
-        $url = $bp->displayed_user->domain . $this->slug . '/';
+        // $url = $bp->displayed_user->domain . $this->slug . '/';
         // $parent_slug = $bp->messages->slug;
+        $url = trailingslashit( $this->get_docs_url() );
+        $data = $mif_bpc_docs->get_all_folders_size();
 
         bp_core_new_nav_item( array(  
-                'name' => __( 'Документы', 'mif-bp-customizer' ),
+                'name' => __( 'Документы', 'mif-bp-customizer' ) . ' <span>' . $data['count'] . '</span>',
                 'slug' => $this->slug,
                 'position' => 90,
                 'show_for_displayed_user' => true,
@@ -82,6 +88,16 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
                 'position' => 20,
                 // 'user_has_access'=>  bp_is_my_profile() 
                 'user_has_access'=> $this->is_access( 'all-folders', 'write' ), 
+            ) );
+
+        bp_core_new_subnav_item( array(  
+                'name' => __( 'Статистика', 'mif-bp-customizer' ),
+                'slug' => 'stat',
+                'parent_url' => $url, 
+                'parent_slug' => $this->slug, 
+                'screen_function' => array( $this, 'screen' ), 
+                'position' => 30,
+                'user_has_access'=>  bp_is_my_profile() 
             ) );
 
     }
