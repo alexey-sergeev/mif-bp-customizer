@@ -1,3 +1,36 @@
+/* Прикрепленные файлы в ленте активности и документах */
+
+.dialogues-page .attach,
+.activity-inner .attach {
+    border: 1px dashed #ccc;
+    display: block;
+    padding: 5px 10px;
+    margin-top: 1rem;
+    margin-right: 20px;
+    overflow-wrap: break-word;
+}
+
+.dialogues-page .attach .icon, 
+.activity-inner .attach .icon {
+    padding: 5px 8px;
+    margin: 5px 0;
+    background-color: #0185B5;
+    color: #eee;
+    float: left;
+}
+
+.activity-inner .attach .folder .name {
+    font-weight: bold;
+}
+
+.dialogues-page .attach .name,
+.activity-inner .attach .name {
+    /*float: left;*/
+    margin-left: 35px;
+    display: block;
+}
+
+
 /* Страница статистики системы документов */
 
 .docs-page .stat .two {
@@ -736,29 +769,6 @@
 
 
 /* Диалоги */
-
-.dialogues-page .attach {
-    border: 1px dashed #ccc;
-    display: block;
-    padding: 5px 10px;
-    margin-top: 1rem;
-    margin-right: 20px;
-    overflow-wrap: break-word;
-}
-
-.dialogues-page .attach .icon {
-    padding: 5px 8px;
-    margin: 5px 0;
-    background-color: #0185B5;
-    color: #eee;
-    float: left;
-}
-
-.dialogues-page .attach .name {
-    /*float: left;*/
-    margin-left: 35px;
-    display: block;
-}
 
 .dialogues-page .members {
     /*background-color: yellow;*/

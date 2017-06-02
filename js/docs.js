@@ -920,17 +920,48 @@ jQuery( document ).ready( function( jq ) {
 
 
     //
+    // JS-помощник формы репоста документа
+    //
+
+    function doc_repost_helper()
+    {
+        if ( ! jq( '#doc-repost-id' ).length ) return;
+        if ( ! jq( '#whats-new-textarea #whats-new' ).length ) return;
+
+        jq.fn.setCursorPosition = function( pos ) {
+
+            if ( jq( this ).get( 0 ).setSelectionRange) {
+
+                jq( this ).get( 0 ).setSelectionRange( pos, pos );
+            
+            } else if ( jq( this ).get( 0 ).createTextRange) {
+
+                var range = jq( this ).get( 0 ).createTextRange();
+                range.collapse( true );
+                range.moveEnd( 'character', pos );
+                range.moveStart( 'character', pos );
+                range.select();
+
+            }
+        }
+
+        var doc = jq( '#doc-repost-id' ).val();
+        jq( '#whats-new-textarea #whats-new' ).val( '\n\n[[' + doc + ']]' );
+        jq( '#whats-new-textarea #whats-new' ).focus();
+        jq( '#whats-new-textarea #whats-new' ).setCursorPosition( 0 );
+    }
+
+
+
+    //
     // Инициализация параметров сразу после открытия документа
     //
 
     folder_statusbar_info_update();
     doc_statusbar_info_update();
     sortable_init();
+    doc_repost_helper();
 
-
-    //
-    // Возвращает очередной порядковый номер для списка документов или папок
-    //
 
     function __get_order()
     {

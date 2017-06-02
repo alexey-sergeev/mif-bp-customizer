@@ -10,21 +10,6 @@ defined( 'ABSPATH' ) || exit;
 
 
 
-// class mif_bpc_docs_templates extends mif_bpc_docs_screen {
-
-
-
-//     function __construct()
-//     {
-//         parent::__construct();
-//     }
-
-
-// }
-
-
-
-
 //
 // Выводит форму загрузки
 //

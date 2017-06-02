@@ -956,7 +956,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         if ( $this->is_access( $doc, 'write' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Параметры', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span>';
 
-        if ( bp_loggedin_user_id() && $this->is_access( $doc, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Опубликовать в ленте активности', 'mif-bp-customizer' ) . '"><a href="' . $this->get_repost_link() . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
+        if ( bp_loggedin_user_id() && $this->is_access( $doc, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Опубликовать в ленте активности', 'mif-bp-customizer' ) . '"><a href="' . $this->get_repost_link( $doc ) . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
 
         $out .= '</span></div>';
 
@@ -971,7 +971,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_repost_link( $doc )
     {
-        $link = bp_core_get_user_domain( bp_loggedin_user_id() );
+        $link =  wp_nonce_url( bp_core_get_user_domain( bp_loggedin_user_id() ) . '?doc=' . $doc->ID, 'mif_bpc_docs_repost_button' );
         return apply_filters( 'mif_bpc_docs_get_repost_link', $link, $doc );
     }
 
