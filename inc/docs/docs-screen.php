@@ -971,7 +971,21 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_repost_link( $doc )
     {
-        $link =  wp_nonce_url( bp_core_get_user_domain( bp_loggedin_user_id() ) . '?doc=' . $doc->ID, 'mif_bpc_docs_repost_button' );
+        $place = $this->place( $doc );
+        $place_id = $this->place( $doc, true );
+
+        if ( $place == 'group' && groups_is_user_member( bp_loggedin_user_id(), $place_id ) ) {
+
+            $group = groups_get_group( $place_id );
+            $url = bp_get_group_permalink( $group );
+
+        } else {
+
+            $url = bp_core_get_user_domain( bp_loggedin_user_id() );
+
+        }
+        
+        $link =  wp_nonce_url( $url . '?doc=' . $doc->ID, 'mif_bpc_docs_repost_button' );
         return apply_filters( 'mif_bpc_docs_get_repost_link', $link, $doc );
     }
 
@@ -1019,6 +1033,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             if ( $this->is_admin() || $folder->post_author == bp_loggedin_user_id() ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span>';
 
         }
+
+        if ( bp_loggedin_user_id() && $this->is_access( $folder, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Опубликовать в ленте активности', 'mif-bp-customizer' ) . '"><a href="' . $this->get_repost_link( $folder ) . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
 
         $out .= '</span></div>';
 

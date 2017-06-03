@@ -18,9 +18,55 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
         parent::__construct();
 
         add_action( 'bp_after_activity_post_form', array( $this, 'repost_doc_helper' ) );
+        add_action( 'bp_after_activity_post_form', array( $this, 'docs_form' ) );
         add_filter( 'bp_get_activity_content_body', array( $this, 'content_body' ), 5 );
+        add_filter( 'bp_get_activity_latest_update_excerpt', array( $this, 'latest_update' ), 10, 2 );
 
     }
+
+
+
+    //
+    // Форма загрузки документов в ленте активности
+    //
+
+    function docs_form()
+    {
+        $out = '';
+        
+        $out .= '<span class="hidden">';
+
+        $out .= '<div id="docs-form">
+        <div class="drop-box"><p>' . __( 'Перетащите сюда фотографии или файлы', 'mif-bp-customizer' ) . '</p><input type="file" name="files[]" multiple="multiple"></div>
+        <a href="#" class="button file-form-toggle"><i class="fa fa-camera"></i></a>
+        </div>';
+
+        $out .= '</span>';
+
+        $out = apply_filters( 'mif_bpc_docs_activity_docs_form', $out );
+
+        echo $out;
+    }
+
+
+
+    //
+    // Оформление документов в ленте активности
+    //
+
+    function latest_update( $content, $user_id )
+    {
+
+		if ( ! $update = bp_get_user_meta( $user_id, 'bp_latest_update', true ) ) return false;
+
+        $content = $this->content_body( $update['content'] );
+        $content = preg_replace( '/span><span/', 'span> <span', $content );
+
+        $content = wp_strip_all_tags( bp_create_excerpt( $content, 358 ) );
+
+        return apply_filters( 'mif_bpc_docs_activity_latest_update', $content, $user_id );
+    }
+
 
 
     //
@@ -58,9 +104,13 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
     function get_item( $matches )
     {
-        $item_id = array_pop( $matches );
+        $item_id = (int) array_pop( $matches );
 
-        if ( $this->is_doc( (int) $item_id ) ) {
+        if ( ! $this->is_access( $itemr_id, 'read' ) ) return;
+
+        $out = '';
+
+        if ( $this->is_doc( $item_id ) ) {
 
             $doc = get_post( $item_id );
 
@@ -72,7 +122,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
         }
 
-        if ( $this->is_folder( (int) $item_id ) ) {
+        if ( $this->is_folder( $item_id ) ) {
 
             $folder = get_post( $item_id );
 

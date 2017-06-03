@@ -1,3 +1,32 @@
+/* Форма добавления файлов в ленте активности */
+
+#docs-form a {
+    padding: 4px 8px;
+    background: #ededed;
+    color: #545557;
+    font-size: 12px;
+    display: inline-block;
+    margin-top: 12px;
+    float: left;
+}
+
+#docs-form a:hover {
+    background: #414141;
+}
+
+#docs-form a i {
+    color: #AAA;
+}
+
+#docs-form .drop-box {
+    margin-bottom: 0;
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
+
 /* Прикрепленные файлы в ленте активности и документах */
 
 .dialogues-page .attach,

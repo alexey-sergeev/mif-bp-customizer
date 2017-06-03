@@ -724,6 +724,20 @@ jQuery( document ).ready( function( jq ) {
     } );
 
 
+
+	//
+	// Показать или скрыть форму загрузки файла в ленте активности
+	//
+
+	jq( '#item-body' ).on( 'click', '.file-form-toggle', function() {
+
+        jq( '#docs-form .drop-box' ).slideToggle();
+
+        return false;
+
+    } );
+
+
     //
     // Обработка клавиш
     //
@@ -954,6 +968,20 @@ jQuery( document ).ready( function( jq ) {
 
 
     //
+    // Размещение формы загрузки файлов в ленте активности
+    //
+
+    function file_form()
+    {
+        // jq( '#docs-form' ).appendTo( '#whats-new-content' );
+        jq( '#docs-form' ).insertBefore( '#whats-new-options' );
+
+
+    }
+
+
+
+    //
     // Инициализация параметров сразу после открытия документа
     //
 
@@ -961,7 +989,12 @@ jQuery( document ).ready( function( jq ) {
     doc_statusbar_info_update();
     sortable_init();
     doc_repost_helper();
+    file_form();
 
+
+    //
+    // Вспомогательные функции
+    //
 
     function __get_order()
     {
