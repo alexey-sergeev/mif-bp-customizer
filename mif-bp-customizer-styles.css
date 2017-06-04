@@ -1,6 +1,6 @@
 /* Форма добавления файлов в ленте активности */
 
-#docs-form a {
+#docs-form a.button {
     padding: 4px 8px;
     background: #ededed;
     color: #545557;
@@ -10,11 +10,11 @@
     float: left;
 }
 
-#docs-form a:hover {
+#docs-form a.button:hover {
     background: #414141;
 }
 
-#docs-form a i {
+#docs-form a.button i {
     color: #AAA;
 }
 
@@ -24,13 +24,14 @@
 }
 
 .hidden {
-    display: none;
+    display: none ! important;
 }
 
 /* Прикрепленные файлы в ленте активности и документах */
 
 .dialogues-page .attach,
-.activity-inner .attach {
+.activity-inner .attach,
+.docs-form .attach {
     border: 1px dashed #ccc;
     display: block;
     padding: 5px 10px;
@@ -39,13 +40,22 @@
     overflow-wrap: break-word;
 }
 
+.docs-form .attach {
+    margin-right: 0;
+}
+
 .dialogues-page .attach .icon, 
-.activity-inner .attach .icon {
-    padding: 5px 8px;
+.activity-inner .attach .icon,
+.docs-form .attach .icon {
+    /*padding: 5px 8px;*/
+    padding-top: 5px;
+    padding-bottom: 5px;
     margin: 5px 0;
     background-color: #0185B5;
     color: #eee;
     float: left;
+    width: 28px;
+    text-align: center;
 }
 
 .activity-inner .attach .folder .name {
@@ -53,7 +63,8 @@
 }
 
 .dialogues-page .attach .name,
-.activity-inner .attach .name {
+.activity-inner .attach .name,
+.docs-form .attach .name {
     /*float: left;*/
     margin-left: 35px;
     display: block;

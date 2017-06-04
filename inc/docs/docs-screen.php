@@ -62,7 +62,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         // $out .= '<div class="response-box clearfix"></div>';
         $out .= '<div class="template">' . $this->get_doc_item() . '</div>
         <p>' . __( 'Перетащите файлы сюда', 'mif-bp-customizer' ) . '...</p>
-        <input type="file" name="files[]" multiple="multiple">
+        <input type="file" name="files[]" multiple="multiple" class="docs-upload-form">
         <input name="MAX_FILE_SIZE" value="' . $this->get_max_upload_size() . '" type="hidden">
         <input name="max_file_error" value="' . __( 'Слишком большой файл', 'mif-bp-customizer' ) . '" type="hidden">';
         $out .= '</div>';
@@ -74,8 +74,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         <p><input type="submit" value="' . __( 'Опубликовать', 'mif-bp-customizer' ) . '">
         </div>';
 
-        $out .= '<input type="hidden" name="nonce" value="' . wp_create_nonce( 'mif-bpc-docs-file-upload-nonce' ) . '">';
+        $out .= '<input type="hidden" name="upload_nonce" value="' . wp_create_nonce( 'mif-bpc-docs-file-upload-nonce' ) . '">';
         $out .= '<input type="hidden" name="folder_id" value="' . $folder_id . '">';
+        $out .= '<input type="hidden" name="action" value="mif-bpc-docs-upload-files">';
         
         $out .= '</form>';
         $out .= '</div>';
@@ -311,6 +312,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_docs_collection( $folder_id, $page = 1, $trashed = false )
     {
+        $folder = get_post( $folder_id );
+
         if ( ! $this->is_folder( $folder_id ) ) return;
         
         if ( ! $this->is_access( $folder_id, 'read' ) ) {
@@ -322,11 +325,11 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
+        if ( $folder->post_status == 'private' ) $out .= $this->folder_publisher_tool( $folder_id );
+
         $sortable = ( $this->is_access( $folder_id, 'write' ) ) ? ' sortable' : '';
 
         if ( $page === 1 ) $out .= '<div class="collection' . $sortable . ' response-box clearfix">';
-
-        $folder = get_post( $folder_id );
 
         if ( $folder->post_status == 'trash' ) {
             
@@ -335,11 +338,6 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        if ( $folder->post_status == 'private' ) {
-            
-            $out .= $this->folder_publisher_tool( $folder_id );
-
-        }
 
         $docs = $this->get_docs_collection_data( $folder_id, $page, $trashed );
 

@@ -12,13 +12,15 @@ jQuery( document ).ready( function( jq ) {
     // Меняем стиль бокса загрузки файла при наведении новых файлов
     //
 
-    jq( '.docs-page' ).on( 'dragenter', '.upload-form input[type=file]', function() {
+    // jq( '.docs-page' ).on( 'dragenter', '.upload-form input[type=file]', function() {
+    jq( 'form' ).on( 'dragenter', 'input[type=file].docs-upload-form', function() {
 
         jq( '.drop-box' ).addClass( 'active');
 
     } );
 
-    jq( '.docs-page' ).on( 'dragleave', '.upload-form input[type=file]', function() {
+    // jq( '.docs-page' ).on( 'dragleave', '.upload-form input[type=file]', function() {
+    jq( 'form' ).on( 'dragleave', 'input[type=file].docs-upload-form', function() {
 
         jq( '.drop-box' ).removeClass( 'active');
 
@@ -54,11 +56,15 @@ jQuery( document ).ready( function( jq ) {
 	// Отправляем файлы на сервер
 	//
 
-	jq( '.docs-page' ).on( 'change', '.upload-form input[type=file]', function() {
+	// jq( '.docs-page' ).on( 'change', '.upload-form input[type=file]', function() {
+	jq( 'form' ).on( 'change', 'input[type=file].docs-upload-form', function() {
+
+        console.log('max_upload_size');
 
         var form = jq( this ).closest( 'form' );
         var inputFiles = jq( 'input[type=file]', form );
-        var nonce = jq( 'input[name="nonce"]', form ).val();
+        var nonce = jq( 'input[name="upload_nonce"]', form ).val();
+        var action = jq( 'input[name="action"]', form ).val();
         var max_upload_size = jq( 'input[name="MAX_FILE_SIZE"]', form ).val();
         var max_file_error = jq( 'input[name="max_file_error"]', form ).val();
         var folder_id = jq( 'input[name="folder_id"]', form ).val();
@@ -67,9 +73,6 @@ jQuery( document ).ready( function( jq ) {
 
         jq.each( files, function( key, value ) { 
             
-            console.log(max_upload_size);
-            console.log(value['size']);
-
             // Отобразить блок файла на экране, клонировав его из шаблона и уточнив оформление
 
             var item = jq( '.template .file' ).clone();
@@ -82,6 +85,7 @@ jQuery( document ).ready( function( jq ) {
             var order = __get_order();
             item.attr( 'data-order', order );
 
+            jq( '.response-box' ).removeClass( 'hidden' );
             item.prependTo( '.response-box' ).hide().fadeIn();
             jq( '.folder-is-empty-msg' ).remove();
 
@@ -89,7 +93,7 @@ jQuery( document ).ready( function( jq ) {
 
             var data = new FormData();
             data.append( 'file', value ); 
-            data.append( 'action', 'mif-bpc-docs-upload-files' );
+            data.append( 'action', action );
             data.append( '_wpnonce', nonce );
             data.append( 'folder_id', folder_id );
             data.append( 'order', order );
@@ -113,6 +117,8 @@ jQuery( document ).ready( function( jq ) {
                     success: function( response ) {
 
                         if ( response ) {
+
+                            console.log(response);
 
                             item.removeClass( 'loading' );
                             item.replaceWith( response );

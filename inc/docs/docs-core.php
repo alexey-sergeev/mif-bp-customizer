@@ -43,6 +43,12 @@ abstract class mif_bpc_docs_core {
     public $default_folder_name = 'New folder';
 
     //
+    // Название папки ленты активности
+    //
+
+    public $activity_stream_folder_name = 'Activity Stream';
+
+    //
     // Мета-ключ родительского объекта папки
     //
 
@@ -55,10 +61,16 @@ abstract class mif_bpc_docs_core {
     public $folder_access_mode_meta_key = 'mif-bpc-folder-access-mode';
 
     //
-    // Мета-ключ настроек системы документов в группы
+    // Мета-ключ настроек системы документов в группе
     //
 
     public $group_access_mode_meta_key = 'mif-bpc-group-access-mode';
+
+    //
+    // Мета-ключ настроек системы документов в группе
+    //
+
+    public $activity_folder_meta_key = 'mif-bpc-activity-folder';
 
 
 
@@ -75,6 +87,7 @@ abstract class mif_bpc_docs_core {
         // add_action( 'before_delete_post', array( $this, 'delete_doc_helper' ) );
 
         $this->default_folder_name = __( 'Новая папка', 'mif-bp-customizer' );
+        $this->activity_stream_folder_name = __( 'Лента активности', 'mif-bp-customizer' );
     }
 
 
@@ -249,6 +262,8 @@ abstract class mif_bpc_docs_core {
 
     function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL,  $order = 0 )
     {
+        if ( $folder_id == 'activity_stream_folder' ) $folder_id = $this->get_activity_folder_id();
+    
         if ( ! $this->is_folder( $folder_id ) ) return false;
         if ( ! $this->is_access( $folder_id, 'write' ) ) return false;
 
@@ -280,6 +295,69 @@ abstract class mif_bpc_docs_core {
 
         return apply_filters( 'mif_bpc_docs_doc_save', $post_id, $name, $path, $user_id, $folder_id, $file_type,  $order );
     }
+
+
+
+
+    // 
+    // Получить идентификатор папки ленты активности
+    // 
+
+    function get_activity_folder_id()
+    {
+        global $bp;
+
+        $item_id = false;
+
+        if ( bp_is_user() ) {
+
+            $item_id = bp_loggedin_user_id();
+            $mode = 'user';
+            $author_id = $item_id;
+
+        }
+
+        if ( bp_is_group() ) {
+
+            $item_id = $bp->groups->current_group->id;
+            $mode = 'group';
+            $author_id = $bp->groups->current_group->creator_id;
+
+        }
+        
+        if ( $item_id ) {
+
+            $args = array(
+                'posts_per_page' => 1,
+                'paged' => 1,
+                'post_type' => 'mif-bpc-folder',
+                'post_status' => 'publish,private',
+                'meta_key' => $this->activity_folder_meta_key,
+                'meta_value' => $mode . '-' . $item_id,
+            );
+
+            $folders = get_posts( $args );
+
+            if ( isset( $folders[0]->ID ) ) {
+
+                $folder_id = $folders[0]->ID;
+
+            } else {
+
+                $name = $this->activity_stream_folder_name;
+                $desc = __( 'Файлы, опубликованные в ленте активности', 'mif-bp-customizer' );
+                $folder_id = $this->folder_save( $item_id, $mode, $name, $desc, $publish = 'on', $author_id );
+
+                update_post_meta( $folder_id, $this->activity_folder_meta_key, $mode . '-' . $item_id );
+                update_post_meta( $folder_id, $this->folder_access_mode_meta_key, 'everyone_create' );
+
+            }
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_get_activity_folder_id', $folder_id );
+    }
+
 
 
 
