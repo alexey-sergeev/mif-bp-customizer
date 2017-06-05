@@ -309,6 +309,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         wp_die();
     }
 
+
+
     // 
     // Ajax-помощник загрузки страниц коллекции документов
     // 
@@ -378,7 +380,16 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
                 // Файл успешно загружен
 
                 $post_id = $this->doc_save( $filename, $path, $user_id, $_POST['folder_id'], $_FILES['file']['type'], $_POST['order'] );
-                echo $this->get_doc_item( $post_id );
+
+                $arr = array( 
+                            'item' => $this->get_doc_item( $post_id ),
+                            'doc_id' => $post_id,
+                            );
+                $arr = apply_filters( 'mif_bpc_docs_ajax_ajax_upload_helper', $arr, $user_id, $post_id );
+
+                echo json_encode( $arr );
+                
+                // echo $this->get_doc_item( $post_id );
 
             } 
 

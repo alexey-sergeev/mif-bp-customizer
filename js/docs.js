@@ -59,8 +59,6 @@ jQuery( document ).ready( function( jq ) {
 	// jq( '.docs-page' ).on( 'change', '.upload-form input[type=file]', function() {
 	jq( 'form' ).on( 'change', 'input[type=file].docs-upload-form', function() {
 
-        console.log('max_upload_size');
-
         var form = jq( this ).closest( 'form' );
         var inputFiles = jq( 'input[type=file]', form );
         var nonce = jq( 'input[name="upload_nonce"]', form ).val();
@@ -118,11 +116,13 @@ jQuery( document ).ready( function( jq ) {
 
                         if ( response ) {
 
-                            console.log(response);
+                            // console.log(response);
+                            var data = jQuery.parseJSON( response );
 
                             item.removeClass( 'loading' );
-                            item.replaceWith( response );
+                            item.replaceWith( data['item'] );
                             folder_statusbar_info_update();
+                            activity_content_update( data['doc_id'] );
 
                         } else {
 
@@ -744,6 +744,22 @@ jQuery( document ).ready( function( jq ) {
     } );
 
 
+
+	//
+	// Сохраняем ссылку на сетевой документ
+	//
+
+	jq( '#aw-whats-new-submit' ).on( 'click', function() {
+
+        console.log('asdsdafds--');
+        jq( '.response-box.attach' ).empty();
+        jq( '.response-box.attach' ).hide();
+        jq( '.drop-box' ).slideUp();
+
+    })
+
+
+
     //
     // Обработка клавиш
     //
@@ -798,6 +814,44 @@ jQuery( document ).ready( function( jq ) {
 
         } )
 
+    }
+
+
+
+    //
+    // Обновляет содержимое записи при прикреплении документа
+    //
+
+    function activity_content_update( doc_id )
+    {
+        if ( ! doc_id ) return;
+        if ( ! jq( '#whats-new-textarea #whats-new' ).length ) return;
+        
+        var content = jq( '#whats-new-textarea #whats-new' ).val();
+        if ( content == '' ) content = '\n'; 
+
+        jq( '#whats-new-textarea #whats-new' ).val( content + '\n[[' + doc_id + ']]' );
+
+        jq.fn.setCursorPosition = function( pos ) {
+
+            if ( jq( this ).get( 0 ).setSelectionRange) {
+
+                jq( this ).get( 0 ).setSelectionRange( pos, pos );
+            
+            } else if ( jq( this ).get( 0 ).createTextRange ) {
+
+                var range = jq( this ).get( 0 ).createTextRange();
+                range.collapse( true );
+                range.moveEnd( 'character', pos );
+                range.moveStart( 'character', pos );
+                range.select();
+
+            }
+        }
+
+        jq( '#whats-new-textarea #whats-new' ).focus();
+        jq( '#whats-new-textarea #whats-new' ).setCursorPosition( 0 );
+  
     }
 
 
@@ -954,7 +1008,7 @@ jQuery( document ).ready( function( jq ) {
 
                 jq( this ).get( 0 ).setSelectionRange( pos, pos );
             
-            } else if ( jq( this ).get( 0 ).createTextRange) {
+            } else if ( jq( this ).get( 0 ).createTextRange ) {
 
                 var range = jq( this ).get( 0 ).createTextRange();
                 range.collapse( true );

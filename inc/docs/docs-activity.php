@@ -87,8 +87,16 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
                 $post_id = $this->doc_save( $filename, $path, $user_id, 'activity_stream_folder', $_FILES['file']['type'], $_POST['order'] );
 
-                echo $this->get_doc_item_activity( $post_id );
-                echo '<input type="hidden" name="attachments[]" value="' . $post_id . '">';
+                $arr = array( 
+                            'item' => $this->get_doc_item_activity( $post_id ),
+                            'doc_id' => $post_id,
+                            );
+                $arr = apply_filters( 'mif_bpc_docs_ajax_upload_activity_helper', $arr, $user_id, $post_id );
+
+                echo json_encode( $arr );
+
+                // echo $this->get_doc_item_activity( $post_id );
+                // echo '<input type="hidden" name="attachments[]" value="' . $post_id . '">';
 
             } 
 
@@ -175,7 +183,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
             $logo = $this->get_file_logo( $doc, 1 );
             $url = $this->get_doc_url( $doc->ID );
 
-            $out = '<span class="docs-item file clearfix"><a href="' . $url . '"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a></span>';
+            $out = '<span class="docs-item file clearfix"><a href="' . $url . 'download"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a></span>';
 
         } elseif ( $this->is_folder( $item_id ) ) {
 
@@ -189,7 +197,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
             $out = '<span class="docs-item folder clearfix"><a href="' . $url . '"><span class="icon"><i class="fa fa-folder-open-o"></i></span><span class="name">' . $name . '</span></a></span>';
 
-        } else {
+        } elseif ( $item_id == NULL ) {
 
             $out = '<span class="docs-item file clearfix"><span class="icon"><i class="fa fa-spinner fa-spin fa-fw"></i></span><span class="name"></span></span>';
 
