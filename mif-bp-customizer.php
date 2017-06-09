@@ -35,8 +35,14 @@ include_once dirname( __FILE__ ) . '/inc/repost-button-template.php';
 include_once dirname( __FILE__ ) . '/inc/activity-button-customize.php';
 include_once dirname( __FILE__ ) . '/inc/followers.php';
 include_once dirname( __FILE__ ) . '/inc/notifications.php';
-include_once dirname( __FILE__ ) . '/inc/dialogues.php';
 include_once dirname( __FILE__ ) . '/inc/websocket.php';
+
+
+include_once dirname( __FILE__ ) . '/inc/dialogues/dialogues-core.php';
+include_once dirname( __FILE__ ) . '/inc/dialogues/dialogues-screen.php';
+include_once dirname( __FILE__ ) . '/inc/dialogues/dialogues-templates.php';
+include_once dirname( __FILE__ ) . '/inc/dialogues/dialogues-ajax.php';
+include_once dirname( __FILE__ ) . '/inc/dialogues.php';
 
 include_once dirname( __FILE__ ) . '/inc/docs/docs-core.php';
 include_once dirname( __FILE__ ) . '/inc/docs/docs-screen.php';
