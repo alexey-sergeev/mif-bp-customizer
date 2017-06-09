@@ -244,7 +244,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     function ajax_network_link_helper()
     {
         check_ajax_referer( 'mif-bpc-docs-file-upload-nonce' );
-
+        
         $user_id = bp_loggedin_user_id();
         if ( empty( $user_id ) ) wp_die();
 

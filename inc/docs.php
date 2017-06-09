@@ -42,10 +42,13 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
         global $mif_bpc_docs_ajax;
         $mif_bpc_docs_ajax = new mif_bpc_docs_ajax();
 
-
         // Размещение документов в ленте активности
-        GLOBAL $mif_bpc_docs_activity;
+        global $mif_bpc_docs_activity;
         $mif_bpc_docs_activity = new mif_bpc_docs_activity();
+
+        // Инструменты администратора
+        global $mif_bpc_docs_admin;
+        $mif_bpc_docs_admin = new mif_bpc_docs_admin();
     }
 
 

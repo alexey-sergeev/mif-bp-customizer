@@ -160,7 +160,7 @@ jQuery( document ).ready( function( jq ) {
         var form = jq( this );
         var link = jq( 'input[name="link"]', form ).val();
         var descr = jq( 'input[name="descr"]', form ).val();
-        var nonce = jq( 'input[name="nonce"]', form ).val();
+        var nonce = jq( 'input[name="upload_nonce"]', form ).val();
         var folder_id = jq( 'input[name="folder_id"]', form ).val();
 
         if ( link ) {

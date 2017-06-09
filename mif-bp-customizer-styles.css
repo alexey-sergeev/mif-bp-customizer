@@ -27,6 +27,10 @@
     display: none ! important;
 }
 
+.attach img {
+    max-width: 100%;
+}
+
 /* Прикрепленные файлы в ленте активности и документах */
 
 .dialogues-page .attach,

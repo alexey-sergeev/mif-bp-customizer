@@ -183,7 +183,21 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
             $logo = $this->get_file_logo( $doc, 1 );
             $url = $this->get_doc_url( $doc->ID );
 
-            $out = '<span class="docs-item file clearfix"><a href="' . $url . 'download"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a></span>';
+            $doc_type = $this->get_doc_type( $doc );
+
+            if ( $doc_type == 'image' ) {
+                
+                $out = '<a href="' . $url . 'download/"><img src="' . $url . 'download/"></a>';
+
+            } elseif ( $doc_type == 'file' ) {
+
+                $out = '<span class="docs-item file clearfix"><a href="' . $url . 'download/"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a></span>';
+
+            } else {
+
+                $out = '<span class="docs-item file clearfix"><a href="' . $url . '"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a></span>';
+
+            } 
 
         } elseif ( $this->is_folder( $item_id ) ) {
 

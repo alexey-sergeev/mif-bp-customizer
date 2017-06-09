@@ -260,16 +260,16 @@ abstract class mif_bpc_docs_core {
     // Сохранить документ
     // 
 
-    function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL,  $order = 0 )
+    function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL, $order = 0, $descr = '', $post_date = NULL, $post_modified = NULL )
     {
         if ( $folder_id == 'activity_stream_folder' ) $folder_id = $this->get_activity_folder_id();
-    
+
         if ( ! $this->is_folder( $folder_id ) ) return false;
         if ( ! $this->is_access( $folder_id, 'write' ) ) return false;
 
         if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
 
-        $docs_data = array(
+        $doc_data = array(
             'post_type' => 'mif-bpc-doc',
             'post_title' => $name,
             'post_content' => $path,
@@ -278,22 +278,25 @@ abstract class mif_bpc_docs_core {
             'post_author' => (int) $user_id,
             'menu_order' => (int) $order,
             'comment_status' => 'closed',
-            'ping_status' => 'closed'
+            'ping_status' => 'closed',
+            'post_excerpt' => $descr,
         );
 
-        // if ( isset( $folder_id ) ) $docs_data['post_parent'] = (int) $folder_id;
-        if ( isset( $file_type ) ) $docs_data['post_mime_type'] = $file_type;
+        if ( isset( $file_type ) ) $doc_data['post_mime_type'] = $file_type;
 
-        $docs_data = apply_filters( 'mif_bpc_docs_doc_save_docs_data', $docs_data, $name, $path, $user_id, $folder_id, $file_type,  $order );
+        if ( isset( $post_date ) ) $doc_data['post_date'] = $post_date;
+        if ( isset( $post_modified ) ) $doc_data['post_modified'] = $post_modified;
 
-        $post_id = wp_insert_post( wp_slash( $docs_data ) );
+        $doc_data = apply_filters( 'mif_bpc_docs_doc_save_doc_data', $doc_data, $name, $path, $user_id, $folder_id, $file_type, $order, $descr, $post_date, $post_modified );
+    
+        $post_id = wp_insert_post( wp_slash( $doc_data ) );
         
         $this->clean_folder_size( $folder_id );
         $this->clean_user_size( $user_id );
 
         groups_update_last_activity();
 
-        return apply_filters( 'mif_bpc_docs_doc_save', $post_id, $name, $path, $user_id, $folder_id, $file_type,  $order );
+        return apply_filters( 'mif_bpc_docs_doc_save', $post_id, $name, $path, $user_id, $folder_id, $file_type, $order, $descr, $post_date, $post_modified );
     }
 
 
@@ -378,7 +381,7 @@ abstract class mif_bpc_docs_core {
     // Сохранить папку
     // 
 
-    function folder_save( $item_id = NULL, $mode = 'user', $name = '', $desc = '', $publish = 'on', $author_id = NULL )
+    function folder_save( $item_id = NULL, $mode = 'user', $name = '', $desc = '', $publish = 'on', $author_id = NULL, $post_date = NULL, $post_modified = NULL )
     {
         if ( $item_id == NULL ) return false;
         
@@ -405,13 +408,18 @@ abstract class mif_bpc_docs_core {
 
         );
 
+        if ( isset( $post_date ) ) $folder_data['post_date'] = $post_date;
+        if ( isset( $post_modified ) ) $folder_data['post_modified'] = $post_modified;
+
+        $folder_data = apply_filters( 'mif_bpc_docs_folder_save_folder_data', $folder_data, $item_id, $mode, $name, $desc, $publish, $author_id, $post_date, $post_modified ); 
+
         $post_id = wp_insert_post( wp_slash( $folder_data ) );
 
         if ( $mode != 'user' ) update_post_meta( $post_id, $this->folder_parent_meta_key, $mode . '-' . $item_id );
 
         groups_update_last_activity();
 
-        return apply_filters( 'mif_bpc_docs_folder_save', $post_id, $item_id, $mode, $name, $desc, $publish, $author_id );
+        return apply_filters( 'mif_bpc_docs_folder_save', $post_id, $item_id, $mode, $name, $desc, $publish, $author_id, $post_date, $post_modified );
     }
 
 
