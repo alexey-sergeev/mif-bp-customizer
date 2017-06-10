@@ -38,6 +38,9 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
         // Помощник удаления файлов
         add_action( 'before_delete_post', array( $this, 'delete_doc_helper' ) );
 
+        // Возвращает сведения о прикрепленном документе
+        add_action( 'mif_bpc_get_attachments_data', array( $this, 'attachments_data' ), 10, 2 );
+
         // Функции ajax-запросов
         global $mif_bpc_docs_ajax;
         $mif_bpc_docs_ajax = new mif_bpc_docs_ajax();
@@ -46,9 +49,18 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
         global $mif_bpc_docs_activity;
         $mif_bpc_docs_activity = new mif_bpc_docs_activity();
 
+        // Прикрепленные файлы в диалогах
+        if ( mif_bpc_options( 'dialogues' ) ) {
+
+            global $mif_bpc_docs_dialogues;
+            $mif_bpc_docs_dialogues = new mif_bpc_docs_dialogues();
+
+        }
+
         // Инструменты администратора
         global $mif_bpc_docs_admin;
         $mif_bpc_docs_admin = new mif_bpc_docs_admin();
+       
     }
 
 

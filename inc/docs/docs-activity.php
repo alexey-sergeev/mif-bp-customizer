@@ -40,7 +40,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
         $out .= '<div id="docs-form" class="docs-form">
         <div class="response-box attach clearfix hidden"></div>
-        <div class="template">' . $this->get_doc_item_activity() . '</div>
+        <div class="template">' . $this->get_item_inline() . '</div>
         <div class="drop-box"><p>' . __( 'Перетащите сюда фотографии или файлы', 'mif-bp-customizer' ) . '</p>
         <input type="file" name="files[]" multiple="multiple" class="docs-upload-form"></div>
         <input name="MAX_FILE_SIZE" value="' . $this->get_max_upload_size() . '" type="hidden">
@@ -69,41 +69,23 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
     {
         check_ajax_referer( 'mif-bpc-docs-file-upload-nonce' );
 
-        $user_id = bp_loggedin_user_id();
-        if ( empty( $user_id ) ) wp_die();
+        $post_id = $this->upload_and_save( 'activity_stream_folder' );
 
-        if ( isset( $_FILES['file']['tmp_name'] ) ) {
+        if ( $post_id ) {
 
-            $filename = basename( $_FILES['file']['name'] );
-            $path = trailingslashit( $this->get_docs_path() ) . md5( uniqid( rand(), true ) ); 
-            $upload_dir = (object) wp_upload_dir();
+            $arr = array( 
+                        'item' => $this->get_item_inline( $post_id ),
+                        'doc_id' => $post_id,
+                        );
+            $arr = apply_filters( 'mif_bpc_docs_ajax_upload_activity_helper', $arr, $user_id, $post_id );
 
-            // Проверить размер
-            if ( $_FILES['file']['size'] > $this->get_max_upload_size() ) wp_die();
+            echo json_encode( $arr );
 
-            if ( move_uploaded_file( $_FILES['file']['tmp_name'], $upload_dir->basedir . $path ) ) {
-
-                // Файл успешно загружен
-
-                $post_id = $this->doc_save( $filename, $path, $user_id, 'activity_stream_folder', $_FILES['file']['type'], $_POST['order'] );
-
-                $arr = array( 
-                            'item' => $this->get_doc_item_activity( $post_id ),
-                            'doc_id' => $post_id,
-                            );
-                $arr = apply_filters( 'mif_bpc_docs_ajax_upload_activity_helper', $arr, $user_id, $post_id );
-
-                echo json_encode( $arr );
-
-                // echo $this->get_doc_item_activity( $post_id );
-                // echo '<input type="hidden" name="attachments[]" value="' . $post_id . '">';
-
-            } 
-
-        }
+        } 
 
         wp_die();
     }
+
 
 
 
@@ -123,6 +105,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
         return apply_filters( 'mif_bpc_docs_activity_latest_update', $content, $user_id );
     }
+
 
 
 
@@ -161,64 +144,8 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
     function get_item( $matches )
     {
         $item_id = (int) array_pop( $matches );
-        $item_activity = $this->get_doc_item_activity( $item_id );
+        $item_activity = $this->get_item_inline( $item_id );
         return apply_filters( 'mif_bpc_docs_activity_get_item', $item_activity, $item_id, $matches );
-    }
-
-
-
-    //
-    // Оформление документа или папки в ленте активности
-    //
-
-    function get_doc_item_activity( $item_id = NULL )
-    {
-        if ( $this->is_doc( $item_id ) ) {
-
-            if ( ! $this->is_access( $itemr_id, 'read' ) ) return;
-    
-            $doc = get_post( $item_id );
-
-            $name = $this->get_doc_name( $doc );
-            $logo = $this->get_file_logo( $doc, 1 );
-            $url = $this->get_doc_url( $doc->ID );
-
-            $doc_type = $this->get_doc_type( $doc );
-
-            if ( $doc_type == 'image' ) {
-                
-                $out = '<a href="' . $url . 'download/"><img src="' . $url . 'download/"></a>';
-
-            } elseif ( $doc_type == 'file' ) {
-
-                $out = '<span class="docs-item file clearfix"><a href="' . $url . 'download/"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a></span>';
-
-            } else {
-
-                $out = '<span class="docs-item file clearfix"><a href="' . $url . '"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a></span>';
-
-            } 
-
-        } elseif ( $this->is_folder( $item_id ) ) {
-
-            if ( ! $this->is_access( $itemr_id, 'read' ) ) return;
-    
-            $folder = get_post( $item_id );
-
-            $name = $folder->post_title;
-            $url = $this->get_folder_url( $folder->ID );
-            $data = $this->get_folder_size( $folder->ID );
-
-            $out = '<span class="docs-item folder clearfix"><a href="' . $url . '"><span class="icon"><i class="fa fa-folder-open-o"></i></span><span class="name">' . $name . '</span></a></span>';
-
-        } elseif ( $item_id == NULL ) {
-
-            $out = '<span class="docs-item file clearfix"><span class="icon"><i class="fa fa-spinner fa-spin fa-fw"></i></span><span class="name"></span></span>';
-
-        }
-
-
-        return apply_filters( 'mif_bpc_docs_activity_get_doc_item_activity', $out, $item_id );
     }
 
 

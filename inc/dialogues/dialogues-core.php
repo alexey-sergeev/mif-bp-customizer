@@ -35,6 +35,12 @@ class mif_bpc_dialogues_core {
 
     public $message_outdate_time = 60;
 
+    //
+    // Мета-поле прикрепленных файлов
+    //
+
+    public $message_attachment_meta_key = 'mif-bpc-attachment';
+
 
 
     function __construct()
@@ -238,6 +244,17 @@ class mif_bpc_dialogues_core {
         }
 
         return apply_filters( 'mif_bpc_dialogues_get_threads_data', $arr, $page, $user_id );
+    }
+
+
+
+    //
+    // Количество непрочитанных сообщений (фильтр)
+    //
+
+    function total_unread_messages_count( $count )
+    {
+        return $this->get_unread_count();
     }
 
 
@@ -593,12 +610,9 @@ class mif_bpc_dialogues_core {
         // Узнать id получателей сообщения и отправить им уведомление (локальное уведомление, эхо-сервер, почта или др.)
 
         $recipients = $this->get_recipients_of_thread( $thread_id, $sender_id );
-        // $sql = $wpdb->prepare( "SELECT user_id FROM {$bp->messages->table_name_recipients} WHERE thread_id = %d AND user_id <> %d", $thread_id, $sender_id );
-        // $recipients = $wpdb->get_col( $sql );
-
         do_action( 'mif_bpc_dialogues_after_send', $recipients, $thread_id, $sender_id, $message, $email_status );
 
-        return apply_filters( 'mif_bpc_dialogues_send', true, $recipients, $thread_id, $sender_id, $message, $email_status, $ret );
+        return apply_filters( 'mif_bpc_dialogues_send', $message_id, $recipients, $thread_id, $sender_id, $message, $email_status, $ret );
     }
 
 
@@ -685,6 +699,29 @@ class mif_bpc_dialogues_core {
         }
 
         return apply_filters( 'mif_bpc_dialogues_delete_thread', $ret, $user_ids, $all_user_ids, $ret2, $ret3 );
+    }
+
+
+
+    //
+    // Уточнение доступа к прикрепленным документам
+    //
+
+    function access_to_attachment( $ret, $item, $level )
+    {
+        global $bp, $wpdb;
+
+        $sql = $wpdb->prepare( "SELECT DISTINCT m.thread_id FROM {$bp->messages->table_name_messages} m INNER JOIN {$bp->messages->table_name_meta} t ON m.id=t.message_id WHERE meta_key=%s AND meta_value=%d LIMIT 1", $this->message_attachment_meta_key, $item->ID );
+        $thread_id = $wpdb->get_var( $sql );
+        
+        if ( empty( $thread_id ) ) return $ret;
+
+        $sql = $wpdb->prepare( "SELECT DISTINCT user_id FROM {$bp->messages->table_name_recipients} WHERE thread_id = %d", $thread_id );
+        $user_ids = $wpdb->get_col( $sql );
+
+        $ret = ( in_array( bp_loggedin_user_id(), $user_ids ) ) ? true : $ret;
+
+        return apply_filters( 'mif_bpc_dialogues_access_to_attachment', $ret, $item, $level );
     }
 
 

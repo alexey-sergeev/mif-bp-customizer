@@ -81,7 +81,8 @@ function mif_bpc_the_dialogues_default_form()
 function mif_bpc_msgat_convert()
 {
     global $bp, $wpdb;
-
+    global $mif_bpc_dialogues;
+    
     $posts = get_posts( array(
             'numberposts' => 250,
         	'post_type'   => 'messageattachements',
@@ -97,7 +98,7 @@ function mif_bpc_msgat_convert()
 
         if ( $message_id ) {
             
-            if ( bp_messages_update_meta( $message_id, 'attach', $post->post_excerpt ) ) {
+            if ( bp_messages_update_meta( $message_id, $mif_bpc_dialogues->message_attachment_meta_key, $post->post_excerpt ) ) {
 
                 wp_delete_post( $post->ID );
                 echo $post->ID . ', ';

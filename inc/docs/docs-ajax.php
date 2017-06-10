@@ -363,35 +363,17 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     {
         check_ajax_referer( 'mif-bpc-docs-file-upload-nonce' );
 
-        $user_id = bp_loggedin_user_id();
-        if ( empty( $user_id ) ) wp_die();
+        $post_id = $this->upload_and_save( $_POST['folder_id'] );
 
-        if ( isset( $_FILES['file']['tmp_name'] ) ) {
+        if ( $post_id ) {
 
-            $filename = basename( $_FILES['file']['name'] );
-            $path = trailingslashit( $this->get_docs_path() ) . md5( uniqid( rand(), true ) ); 
-            $upload_dir = (object) wp_upload_dir();
+            $arr = array( 
+                        'item' => $this->get_doc_item( $post_id ),
+                        'doc_id' => $post_id,
+                        );
+            $arr = apply_filters( 'mif_bpc_docs_ajax_ajax_upload_helper', $arr, $user_id, $post_id );
 
-            // Проверить размер
-            if ( $_FILES['file']['size'] > $this->get_max_upload_size() ) wp_die();
-
-            if ( move_uploaded_file( $_FILES['file']['tmp_name'], $upload_dir->basedir . $path ) ) {
-
-                // Файл успешно загружен
-
-                $post_id = $this->doc_save( $filename, $path, $user_id, $_POST['folder_id'], $_FILES['file']['type'], $_POST['order'] );
-
-                $arr = array( 
-                            'item' => $this->get_doc_item( $post_id ),
-                            'doc_id' => $post_id,
-                            );
-                $arr = apply_filters( 'mif_bpc_docs_ajax_ajax_upload_helper', $arr, $user_id, $post_id );
-
-                echo json_encode( $arr );
-                
-                // echo $this->get_doc_item( $post_id );
-
-            } 
+            echo json_encode( $arr );
 
         }
 

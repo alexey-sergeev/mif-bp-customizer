@@ -144,10 +144,16 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
         $last_message_id = (int) $_POST['last_message_id'];
         $threads_update_timestamp = (int) $_POST['threads_update_timestamp'];
         $message = esc_html( $_POST['message'] );
+        
+        $attachments = array();
+        $aid_arr = explode( '&', $_POST['attachments'] );
+        foreach ( (array) $aid_arr as $aid ) $attachments[] = (int) end( explode( '=', $aid ) );
 
-        $res = $this->send( $message, $thread_id );
+        $message_id = $this->send( $message, $thread_id );
 
-        if ( $res ) {
+        if ( $message_id ) {
+
+            foreach ( $attachments as $attachment ) bp_messages_add_meta( $message_id, $this->message_attachment_meta_key, $attachment );
 
             $messages = $this->get_messages_items( $thread_id, $last_message_id );
 

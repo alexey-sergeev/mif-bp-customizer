@@ -50,6 +50,7 @@ include_once dirname( __FILE__ ) . '/inc/docs/docs-templates.php';
 include_once dirname( __FILE__ ) . '/inc/docs/docs-ajax.php';
 include_once dirname( __FILE__ ) . '/inc/docs/docs-group.php';
 include_once dirname( __FILE__ ) . '/inc/docs/docs-activity.php';
+include_once dirname( __FILE__ ) . '/inc/docs/docs-dialogues.php';
 include_once dirname( __FILE__ ) . '/inc/docs/docs-admin.php';
 include_once dirname( __FILE__ ) . '/inc/docs.php';
 

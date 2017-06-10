@@ -120,23 +120,13 @@ jQuery( document ).ready( function( jq ) {
             },
             function( response ) { 
 
-                // console.log(response);
-                // modify_page( response ); 
-
             });
 
-            // console.log(thread_id);
             recently_flag = true;
             clearTimeout( write_notification_timeout );
             write_notification_timeout = setTimeout( function(){ recently_flag = false }, 5000 );
 
         }
-
-        // var search = jq( '#search' ).val();
-        // var mode = jq( '#threads_mode' ).val();
-
-        // var action = ( mode == 'compose' ) ? 'mif-bpc-dialogues-member-search' : 'mif-bpc-dialogues-thread-search';
-
 
     } )
 
@@ -145,7 +135,6 @@ jQuery( document ).ready( function( jq ) {
 	// Выбрать пользователя для диалога
 	//
 
-	// jq( '.thread-wrap' ).on( 'click', 'a.member-add', function() {
 	jq( '.thread-wrap' ).on( 'click', '.member-item', function() {
 
         var item = jq( this ).closest( '.member-item' );
@@ -172,6 +161,7 @@ jQuery( document ).ready( function( jq ) {
         return false;
 
     });
+
 
 
     //
@@ -431,6 +421,37 @@ jQuery( document ).ready( function( jq ) {
 
 
     //
+	// Открыть или закрыть форму прикрепления файлов
+	//
+
+	jq( '.messages-form' ).on( 'click', 'a.clip', function() {
+
+        // message_items_height_correct();
+        jq( '.response-box .docs-item' ).remove();
+        jq( '.response-box' ).addClass( 'hidden' );
+
+        
+        if ( jq( '#attachment-form' ).is( ':visible' ) ) {
+
+            jq( '#attachment-form' ).fadeOut( function() { message_items_height_correct(); } );
+
+        } else {
+
+            jq( '#attachment-form' ).show( 0, function() { 
+
+                message_items_height_correct();
+                jq( '#attachment-form' ).hide( 0, function() { jq( '#attachment-form' ).fadeIn(); } );
+
+            } );
+
+        }
+
+        return false;
+
+    } )
+
+
+    //
 	// Отправить сообщение
 	//
 
@@ -442,11 +463,15 @@ jQuery( document ).ready( function( jq ) {
         var nonce = jq( '#nonce', form ).val();
         var message = jq( '#message', form ).val();
         var threads_update_timestamp = jq( '#threads_update_timestamp' ).val();
+        var attachments = jq( 'input.attachment', form ).serialize();
 
-        if ( ! message ) return false;
+        if ( ! ( message || attachments ) ) return false;
 
         // Очистить форму
         jq( '#message', form ).val( '' );
+
+        // Закрыть форму прикрепления файлов, если она открыта
+        if ( jq( '#attachment-form' ).is( ':visible' ) ) jq( '.messages-form a.clip' ).trigger( 'click' );
 
         // Временно вывести новое сообщение
         var rand =  Math.floor( Math.random() * 9999 );
@@ -469,6 +494,7 @@ jQuery( document ).ready( function( jq ) {
             last_message_id: last_message_id,
             threads_update_timestamp: threads_update_timestamp,
             message: message,
+            attachments: attachments,
             _wpnonce: nonce,
         },
         function( response ) {

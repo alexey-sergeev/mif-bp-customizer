@@ -13,14 +13,14 @@ jQuery( document ).ready( function( jq ) {
     //
 
     // jq( '.docs-page' ).on( 'dragenter', '.upload-form input[type=file]', function() {
-    jq( 'form' ).on( 'dragenter', 'input[type=file].docs-upload-form', function() {
+    jq( 'body' ).on( 'dragenter', 'form input[type=file].docs-upload-form', function() {
 
         jq( '.drop-box' ).addClass( 'active');
 
     } );
 
     // jq( '.docs-page' ).on( 'dragleave', '.upload-form input[type=file]', function() {
-    jq( 'form' ).on( 'dragleave', 'input[type=file].docs-upload-form', function() {
+    jq( 'body' ).on( 'dragleave', 'form input[type=file].docs-upload-form', function() {
 
         jq( '.drop-box' ).removeClass( 'active');
 
@@ -50,14 +50,14 @@ jQuery( document ).ready( function( jq ) {
 
     } );
 
-    
 
 	//
 	// Отправляем файлы на сервер
 	//
 
 	// jq( '.docs-page' ).on( 'change', '.upload-form input[type=file]', function() {
-	jq( 'form' ).on( 'change', 'input[type=file].docs-upload-form', function() {
+	// jq( 'form' ).on( 'change', 'input[type=file].docs-upload-form', function() {
+	jq( 'body' ).on( 'change', 'form input[type=file].docs-upload-form', function() {
 
         var form = jq( this ).closest( 'form' );
         var inputFiles = jq( 'input[type=file]', form );
@@ -66,6 +66,7 @@ jQuery( document ).ready( function( jq ) {
         var max_upload_size = jq( 'input[name="MAX_FILE_SIZE"]', form ).val();
         var max_file_error = jq( 'input[name="max_file_error"]', form ).val();
         var folder_id = jq( 'input[name="folder_id"]', form ).val();
+        var thread_id = jq( 'input[name="thread_id"]', form ).val();
 
         var files = inputFiles.get( 0 ).files;
 
@@ -83,9 +84,13 @@ jQuery( document ).ready( function( jq ) {
             var order = __get_order();
             item.attr( 'data-order', order );
 
+            // Показать блок
             jq( '.response-box' ).removeClass( 'hidden' );
             item.prependTo( '.response-box' ).hide().fadeIn();
             jq( '.folder-is-empty-msg' ).remove();
+
+            // Скорректировать высоту формы, если это диалог
+            if ( typeof message_items_height_correct == 'function') message_items_height_correct();
 
             // Сформировать данные для отправки
 
@@ -93,8 +98,9 @@ jQuery( document ).ready( function( jq ) {
             data.append( 'file', value ); 
             data.append( 'action', action );
             data.append( '_wpnonce', nonce );
-            data.append( 'folder_id', folder_id );
-            data.append( 'order', order );
+            if ( folder_id ) data.append( 'folder_id', folder_id );
+            if ( thread_id ) data.append( 'thread_id', thread_id );
+            if ( order ) data.append( 'order', order );
 
 
             if ( value['size'] > max_upload_size ) {
@@ -123,6 +129,9 @@ jQuery( document ).ready( function( jq ) {
                             item.replaceWith( data['item'] );
                             folder_statusbar_info_update();
                             activity_content_update( data['doc_id'] );
+
+                            // Снова скорректировать высоту формы, если это диалог
+                            if ( typeof message_items_height_correct == 'function') setTimeout( function() { message_items_height_correct(); }, 200 );
 
                         } else {
 

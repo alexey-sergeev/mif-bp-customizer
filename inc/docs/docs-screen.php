@@ -318,7 +318,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         
         if ( ! $this->is_access( $folder_id, 'read' ) ) {
 
-            $out = __( 'Доступ ограничен', 'mif-bp-customizer' );   
+            $out = mif_bpc_message( __( 'Доступ ограничен', 'mif-bp-customizer' ) );
             return apply_filters( 'mif_bpc_docs_get_docs_collection_access_denied', $out, $folder_id );
 
         }
@@ -652,6 +652,67 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
 
+    //
+    // Оформление документа или папки в списках (лента активности, диалоги)
+    //
+
+    function get_item_inline( $item_id = NULL, $hidden_field = false )
+    {
+        if ( $this->is_doc( $item_id ) ) {
+
+            if ( ! $this->is_access( $itemr_id, 'read' ) ) return;
+    
+            $doc = get_post( $item_id );
+
+            $name = $this->get_doc_name( $doc );
+            $logo = $this->get_file_logo( $doc, 1 );
+            $url = $this->get_doc_url( $doc->ID );
+
+            $doc_type = $this->get_doc_type( $doc );
+
+            $out = '';
+
+            if ( $doc_type == 'image' ) {
+                
+                $out .= '<span class="docs-item image clearfix"><a href="' . $url . 'download/"><img src="' . $url . 'download/"></a>';
+
+            } elseif ( $doc_type == 'file' ) {
+
+                $out .= '<span class="docs-item file clearfix"><a href="' . $url . 'download/"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a>';
+
+            } else {
+
+                $out .= '<span class="docs-item file clearfix"><a href="' . $url . '"><span class="icon">' . $logo . '</span><span class="name">' . $name . '</span></a>';
+
+            } 
+
+            if ( $hidden_field ) $out .= '<input type="hidden" class="attachment" name="a_id[]" value="' . $item_id . '">';
+
+            $out .= '</span>';
+
+        } elseif ( $this->is_folder( $item_id ) ) {
+
+            if ( ! $this->is_access( $itemr_id, 'read' ) ) return;
+    
+            $folder = get_post( $item_id );
+
+            $name = $folder->post_title;
+            $url = $this->get_folder_url( $folder->ID );
+            $data = $this->get_folder_size( $folder->ID );
+
+            $out = '<span class="docs-item folder clearfix"><a href="' . $url . '"><span class="icon"><i class="fa fa-folder-open-o"></i></span><span class="name">' . $name . '</span></a></span>';
+
+        } elseif ( $item_id == NULL ) {
+
+            $out = '<span class="docs-item file clearfix"><span class="icon"><i class="fa fa-spinner fa-spin fa-fw"></i></span><span class="name"></span></span>';
+
+        }
+
+
+        return apply_filters( 'mif_bpc_docs_get_item_inline', $out, $item_id );
+    }
+
+
     // 
     // Выводит заголовок на странице папки
     // 
@@ -730,6 +791,12 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     {
         if ( ! is_object( $doc ) ) $doc = get_post( $doc );
         if ( empty( $doc ) ) return;
+
+        if ( ! $this->is_access( $doc, 'read' ) ) {
+
+            $out = mif_bpc_message( __( 'Доступ ограничен', 'mif-bp-customizer' ) );
+            return apply_filters( 'mif_bpc_docs_get_doc_content_access_denied', $out, $doc );
+        }
 
         $out = '<div class="doc clearfix">';
 

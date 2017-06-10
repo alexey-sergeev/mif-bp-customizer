@@ -156,7 +156,7 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         $time_since = apply_filters( 'mif_bpc_dialogues_message_item_time_since', $this->time_since( $message->date_sent ) );
         $message_message = apply_filters( 'mif_bpc_dialogues_message_item_message', $message->message );
         $new = ( $message->new ) ? ' new' : '';
-        $attach = bp_messages_get_meta( $message->id, 'attach' );
+        $attachments = bp_messages_get_meta( $message->id, $this->message_attachment_meta_key, false );
 
         $out = '';
 
@@ -167,7 +167,7 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         $out .= '<span class="title">' . $title . '</span> ';
         $out .= '<span class="time-since">' . $time_since . '</span>';
         $out .= '<span class="message">' . $message_message . '</span>';
-        $out .= $this->attach( $attach );
+        $out .= $this->attachments( $attachments );
         $out .= '</div>';
         $out .= '</div>';
 
@@ -180,24 +180,47 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
     // Сформировать ссылку на прикрепленный файл
     //
 
-    function attach( $attach )
+    function attachments( $attachments )
     {
-        if ( empty( $attach ) ) return;
-
-        $arr = explode( '/', $attach );
-        $name = array_pop( $arr );
-
-        $arr = explode( '.', $attach );
-        $type = array_pop( $arr );
-
-        $icon = mif_bpc_get_file_icon( $type );
+        if ( empty( $attachments ) ) return;
 
         $out = '';
-        $out .= '<span class="clearfix attach ' .  $type . '">';
-        $out .= '<a href="' . $attach . '" target="blank"><span class="icon">' . $icon . '</span><span class="name">' . $name . '</span></a>';
-        $out .= '</span>';
 
-        return apply_filters( 'mif_bpc_dialogues_attach', $out, $attach );
+        foreach ( (array) $attachments as $attach ) {
+
+            if ( is_numeric( $attach ) ) {
+
+                // Найден номер стандартной системы документов
+
+                $attach_data = apply_filters( 'mif_bpc_get_attachments_data', array(), $attach );
+
+                $name = $attach_data['name'];
+                $type = $attach_data['type'];
+                $icon = $attach_data['icon'];
+                $url = trailingslashit( $attach_data['url'] ) . 'download/';
+
+            } else {
+
+                // Хранится просто адрес документа
+
+                $name = array_pop( explode( '/', $attach ) );
+                $type = array_pop( explode( '.', $attach ) );
+                $icon = mif_bpc_get_file_icon( $type );
+                $url = $attach;
+
+            }
+            
+            if ( ! empty( $name ) ) {
+
+                $out .= '<span class="clearfix attach ' .  $type . '">';
+                $out .= '<a href="' . $url . '" target="blank"><span class="icon">' . $icon . '</span><span class="name">' . $name . '</span></a>';
+                $out .= '</span>';
+
+            }
+            
+        }
+
+        return apply_filters( 'mif_bpc_dialogues_attachments', $out, $attachments );
     }
 
 
@@ -251,13 +274,18 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         $last_message_id = $this->get_last_message_id( $thread_id );
         $url = $this->get_dialogues_url();
 
+        $form_attachment = apply_filters( 'mif_bpc_dialogues_get_messages_form_attachment', '', $thread_id );
+        $clip = ( $form_attachment ) ? '<td class="clip"><a href="' . $url . '" class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></a></td>' : '<td class="message">&nbsp;</td>';
+
         $out = '';
         $out .= '<form>';
         $out .= '<table><tr>';
-        $out .= '<td class="clip"><a href="' . $url . '" class="clip"><i class="fa fa-2x fa-paperclip" aria-hidden="true"></i></a></td>';
+        $out .= $clip;
         $out .= '<td class="message"><textarea name="message" id="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
         $out .= '<td class="send"><div class="custom-button"><a href="' . $url . '" class="send button"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></div></td>';
-        $out .= '</tr></table>';
+        $out .= '</tr>';
+        $out .= $form_attachment;
+        $out .= '</table>';
         $out .= wp_nonce_field( 'mif-bpc-dialogues-messages-send-nonce', 'nonce', true, false );
         $out .= '<input type="hidden" name="thread_id" id="thread_id" value="' . $thread_id . '">';
         $out .= '<input type="hidden" name="last_message_id" id="last_message_id" value="' . $last_message_id . '">';

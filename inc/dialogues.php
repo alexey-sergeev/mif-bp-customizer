@@ -45,6 +45,10 @@ class mif_bpc_dialogues extends mif_bpc_dialogues_screen {
         // add_filter( 'mif_bpc_dialogues_message_item_message', 'convert_chars' );
         // add_filter( 'mif_bpc_dialogues_message_item_message', 'wpautop' );
 
+        add_filter( 'mif_bpc_docs_dialogues_doc_access', array( $this, 'access_to_attachment' ), 10, 3 );
+
+                    
+
         // Функции ajax-запросов
         global $mif_bpc_dialogues_ajax;
         $mif_bpc_dialogues_ajax = new mif_bpc_dialogues_ajax();

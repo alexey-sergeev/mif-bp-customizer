@@ -1,3 +1,30 @@
+/* Форма добавления файлов в диалогах */
+
+#attachment-form {
+    display: none;
+}
+
+#attachment-form td {
+    padding: 0 15px;
+}
+
+#attachment-form .docs-item.file {
+    float: none;
+}
+
+#attachment-form .attach {
+    margin-right: 0;
+}
+
+#attachment-form .attach img {
+    max-height: 100px;
+}
+
+#attachment-form .attach .name {
+    float: none;
+}
+
+
 /* Форма добавления файлов в ленте активности */
 
 #docs-form a.button {
@@ -1127,6 +1154,7 @@
     color: #777;
     padding: 5px 0;
     display: inline-block;
+    outline: none;
 }
 
 .dialogues-page .messages-form a.button {

@@ -49,6 +49,12 @@ abstract class mif_bpc_docs_core {
     public $activity_stream_folder_name = 'Activity Stream';
 
     //
+    // Название папки диалогов
+    //
+
+    public $dialogues_folder_name = 'Private Messages';
+
+    //
     // Мета-ключ родительского объекта папки
     //
 
@@ -67,10 +73,17 @@ abstract class mif_bpc_docs_core {
     public $group_access_mode_meta_key = 'mif-bpc-group-access-mode';
 
     //
-    // Мета-ключ настроек системы документов в группе
+    // Мета-ключ папки ленты активности
     //
 
     public $activity_folder_meta_key = 'mif-bpc-activity-folder';
+
+    //
+    // Мета-ключ папки прикрепленных файлов в диалогах
+    //
+
+    public $dialogues_folder_meta_key = 'mif-bpc-dialogues-folder';
+
 
 
 
@@ -88,6 +101,7 @@ abstract class mif_bpc_docs_core {
 
         $this->default_folder_name = __( 'Новая папка', 'mif-bp-customizer' );
         $this->activity_stream_folder_name = __( 'Лента активности', 'mif-bp-customizer' );
+        $this->dialogues_folder_name = __( 'Личные сообщения', 'mif-bp-customizer' );
     }
 
 
@@ -263,6 +277,7 @@ abstract class mif_bpc_docs_core {
     function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL, $order = 0, $descr = '', $post_date = NULL, $post_modified = NULL )
     {
         if ( $folder_id == 'activity_stream_folder' ) $folder_id = $this->get_activity_folder_id();
+        if ( $folder_id == 'dialogues_folder' ) $folder_id = $this->get_dialogues_folder_id();
 
         if ( ! $this->is_folder( $folder_id ) ) return false;
         if ( ! $this->is_access( $folder_id, 'write' ) ) return false;
@@ -297,6 +312,44 @@ abstract class mif_bpc_docs_core {
         groups_update_last_activity();
 
         return apply_filters( 'mif_bpc_docs_doc_save', $post_id, $name, $path, $user_id, $folder_id, $file_type, $order, $descr, $post_date, $post_modified );
+    }
+
+
+
+
+    // 
+    // Принять файл и сохранить как документ
+    // 
+
+    function upload_and_save( $target_id = NULL, $user_id = NULL )
+    {
+        if ( $target_id == NULL ) return false;
+        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+        if ( empty( $user_id ) ) return false;
+
+        if ( isset( $_FILES['file']['tmp_name'] ) ) {
+
+            // Проверить размер
+            if ( $_FILES['file']['size'] > $this->get_max_upload_size() ) return false;
+
+            $filename = basename( $_FILES['file']['name'] );
+            $path = trailingslashit( $this->get_docs_path() ) . md5( uniqid( rand(), true ) ); 
+            $upload_dir = (object) wp_upload_dir();
+            $order = ( isset( $_POST['order'] ) ) ? $_POST['order'] : time();
+
+            if ( move_uploaded_file( $_FILES['file']['tmp_name'], $upload_dir->basedir . $path ) ) {
+
+                $post_id = $this->doc_save( $filename, $path, $user_id, $target_id, $_FILES['file']['type'], $order );
+
+            } else {
+                
+                return false;
+
+            }
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_upload_and_save', $post_id );
     }
 
 
@@ -359,6 +412,47 @@ abstract class mif_bpc_docs_core {
         }
 
         return apply_filters( 'mif_bpc_docs_get_activity_folder_id', $folder_id );
+    }
+
+
+
+
+    // 
+    // Получить идентификатор папки диалогов
+    // 
+
+    function get_dialogues_folder_id( $user_id = NULL )
+    {
+        global $bp;
+
+        if ( $user_id == NULL ) $user_id = bp_loggedin_user_id();
+        
+        $args = array(
+            'posts_per_page' => 1,
+            'paged' => 1,
+            'post_type' => 'mif-bpc-folder',
+            'post_status' => 'private',
+            'meta_key' => $this->dialogues_folder_meta_key,
+            'meta_value' => $user_id,
+        );
+
+        $folders = get_posts( $args );
+
+        if ( isset( $folders[0]->ID ) ) {
+
+            $folder_id = $folders[0]->ID;
+
+        } else {
+
+            $name = $this->dialogues_folder_name;
+            $desc = __( 'Файлы, прикрепленные к личным сообщениям', 'mif-bp-customizer' );
+            $folder_id = $this->folder_save( $user_id, 'user', $name, $desc, $publish = 'off', $user_id );
+
+            update_post_meta( $folder_id, $this->dialogues_folder_meta_key, $user_id );
+
+        }
+
+        return apply_filters( 'mif_bpc_docs_get_dialogues_folder_id', $folder_id, $user_id );
     }
 
 
@@ -905,6 +999,31 @@ abstract class mif_bpc_docs_core {
 
 
 
+
+    //
+    // Возвращает сведения о прикрепленном документе
+    //
+
+    function attachments_data( $empty, $doc_id )
+    {
+        if ( ! $this->is_doc( $doc_id ) ) return false;
+        if ( ! $this->is_access( $doc_id, 'read' ) ) return false;
+
+        $doc = get_post( $doc_id );
+
+        $arr = array();
+
+        $arr['name'] = $this->get_doc_name( $doc );
+        $arr['icon'] = $this->get_file_logo( $doc, 1 );
+        $arr['url'] = $this->get_doc_url( $doc->ID );
+        $arr['ext'] = $this->get_doc_ext( $doc->post_title );
+
+        return apply_filters( 'mif_bpc_docs_attachments_data', $arr, $doc_id );
+    }
+
+
+
+
     //
     // Закрывает базовый каталог от прямого доступа
     //
@@ -1162,6 +1281,9 @@ abstract class mif_bpc_docs_core {
         if ( bp_current_component() != 'docs' || ! is_numeric( bp_current_action() ) ) return false;
 
         $doc_id = bp_current_action();
+
+        // if ( ! $this->is_access( $doc_id, 'read' ) ) return false;
+
         $doc_data = get_post( $doc_id );
 
         return apply_filters( 'mif_bpc_docs_get_doc_data', $doc_data, $doc_id );
@@ -1316,6 +1438,24 @@ abstract class mif_bpc_docs_core {
     }
 
 
+
+    //
+    // Является ли папка - папкой диалогов?
+    //
+
+    function is_dialogues_folder( $folder = NULL )
+    {
+        if ( is_numeric( $folder ) ) $folder = get_post( $folder );
+        if ( ! $this->is_folder( $folder ) ) return false;
+
+        $meta = get_post_meta( $folder->ID, $this->dialogues_folder_meta_key, true );
+        $ret = ( empty( $meta ) ) ? false : true;
+
+        return apply_filters( 'mif_bpc_docs_is_dialogues_folder', $ret, $folder );
+    }
+
+
+
     //
     // Есть ли доступ к объекту?
     // режимы - read, write, delete
@@ -1324,7 +1464,6 @@ abstract class mif_bpc_docs_core {
     function is_access( $item, $level = 'write' ) 
     {
         // Админ сайта всегда может всё
-
         if ( $this->is_admin() ) return apply_filters( 'mif_bpc_docs_is_access_admin', true, $item, $level );
 
         // Настройки доступа в целом для системы документов
@@ -1369,9 +1508,8 @@ abstract class mif_bpc_docs_core {
         if ( $this->is_folder( $item ) ) {
 
             switch ( $level ) {
-
                 case 'read' :
-                    if ( $place_mode == 'user' ) $ret = true;
+                    if ( $place_mode == 'user' ) $ret = ( $item->post_status == 'publish' || $item->post_author == bp_loggedin_user_id() ) ? true : false;
                     if ( $place_mode == 'group' ) $ret = $this->is_access_to_group( 'read', $place_id );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_folder_read', $ret, $item, $level );
                     break;
@@ -1399,10 +1537,13 @@ abstract class mif_bpc_docs_core {
 
         } elseif ( $this->is_doc( $item ) ) {
 
+            $folder = get_post( $item->post_parent );
+
             switch ( $level ) {
 
                 case 'read' :
-                    if ( $place_mode == 'user' ) $ret = true;
+                    if ( $place_mode == 'user' ) $ret = ( ( $item->post_status == 'publish' && $folder->post_status == 'publish' ) || 
+                                                                $item->post_author == bp_loggedin_user_id() ) ? true : false;
                     if ( $place_mode == 'group' ) $ret = $this->is_access_to_group( 'read', $place_id );
                     $ret = apply_filters( 'mif_bpc_docs_is_access_doc_read', $ret, $item, $level );
                     break;
@@ -1426,6 +1567,8 @@ abstract class mif_bpc_docs_core {
                     break;
 
             }
+
+            if ( $this->is_dialogues_folder( $folder ) && $place_mode == 'user' ) $ret = apply_filters( 'mif_bpc_docs_dialogues_doc_access', $ret, $item, $level );
 
         }
 
