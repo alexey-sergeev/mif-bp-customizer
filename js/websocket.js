@@ -5,49 +5,53 @@
 
 jQuery( document ).ready( function( jq ) {
 
-    // Подключиться к эхо-серверу
+    if ( typeof websocket_param !== 'undefined' ) {
 
-    var socket = io.connect( websocket_param['url'] + ':' + websocket_param['port'] );
+        // Подключиться к эхо-серверу
 
-    // Подключиться к своему каналу
+        var socket = io.connect( websocket_param['url'] + ':' + websocket_param['port'] );
 
-    socket.emit( 'joinToRoom', { room: websocket_param['room'] } );
+        // Подключиться к своему каналу
 
-
-    // Обновление всплывающих уведомлений
-
-    socket.on( 'float_notification_update', function( data ) {
-
-        if ( typeof float_notification_update == 'function') float_notification_update( jq );
-        notify_alarm( data );
-        
-    });
+        socket.emit( 'joinToRoom', { room: websocket_param['room'] } );
 
 
-    // Обновление диалогов
+        // Обновление всплывающих уведомлений
 
-    socket.on( 'dialogues_update', function( data ) {
+        socket.on( 'float_notification_update', function( data ) {
 
-        if ( typeof dialogues_update_page == 'function') dialogues_update_page();
-        notify_alarm( data );
+            if ( typeof float_notification_update == 'function') float_notification_update( jq );
+            notify_alarm( data );
+            
+        });
 
-    });
+
+        // Обновление диалогов
+
+        socket.on( 'dialogues_update', function( data ) {
+
+            if ( typeof dialogues_update_page == 'function') dialogues_update_page();
+            notify_alarm( data );
+
+        });
 
 
-    // Информация о том, что кто-то пишет сообщение
+        // Информация о том, что кто-то пишет сообщение
 
-    socket.on( 'dialogues_write', function( data ) {
+        socket.on( 'dialogues_write', function( data ) {
 
-        if ( typeof writing_notification_show == 'function') writing_notification_show( data['thread_id'], data['sender_id'] );
-        // console.log(data);
+            if ( typeof writing_notification_show == 'function') writing_notification_show( data['thread_id'], data['sender_id'] );
+            // console.log(data);
 
-    });
+        });
+
+    }
 
 })
 
 
 //
-// Звуковоле оповещение
+// Звуковое оповещение
 //
 
 function notify_alarm( data )

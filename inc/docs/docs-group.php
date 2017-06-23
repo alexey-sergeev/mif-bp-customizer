@@ -39,8 +39,7 @@ function mif_bpc_docs_group_init() {
         {
             global $bp, $mif_bpc_docs;
 
-            $access_mode = groups_get_groupmeta( $bp->groups->current_group->id, $mif_bpc_docs->group_access_mode_meta_key );
-
+            if ( isset( $bp->groups->current_group->id ) ) $access_mode = groups_get_groupmeta( $bp->groups->current_group->id, $mif_bpc_docs->group_access_mode_meta_key );
             if ( isset( $access_mode ) && empty( $access_mode['docs_allowed'] ) ) $this->enable_nav_item = false;
 
             $data = $mif_bpc_docs->get_all_folders_size();

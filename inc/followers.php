@@ -330,6 +330,8 @@ class mif_bpc_followers {
 
     function following_user_menu( $arr )
     {
+        global $bp;
+
         $user_id = bp_displayed_user_id();
         $following_url = $bp->loggedin_user->domain . $bp->profile->slug;
         $following_url_request = wp_nonce_url( $following_url . '/following/requests/' . $user_id . '/', 'mif_bpc_following_user_button' );

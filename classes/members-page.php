@@ -69,7 +69,7 @@ class mif_bpc_members_page {
 
     function user_has_access()
     {
-        return apply_filters( 'mif_bpc_members_page_user_has_access_' . $this->argd['slug'], true );
+        return apply_filters( 'mif_bpc_members_page_user_has_access_' . $this->args['slug'], true );
     }
 
 

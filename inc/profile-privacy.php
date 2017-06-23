@@ -147,7 +147,7 @@ class mif_bpc_profile_privacy {
         $friendship_sheme = array( 'awaiting_response' => 20, 'pending' => 30, 'is_friend' => 40 );
 
         // Уровень 20, 30 и 40 - показывать в зависимости от состояния дружбы
-        if ( $privacy_level <= $friendship_sheme[$friendship_status] ) return true;
+        if ( isset( $friendship_sheme[$friendship_status] ) && $privacy_level <= $friendship_sheme[$friendship_status] ) return true;
 
         return apply_filters( 'mif_bpc_profile_privacy_is_displayed', false, $privacy_level, $current_user_id, $profile_user_id );
     }

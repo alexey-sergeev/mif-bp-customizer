@@ -90,11 +90,12 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
 
     //
-    // Оформление документов в ленте активности
+    // Оформление документов в ленте активности (корректировка последнего обновления)
     //
 
-    function latest_update( $content, $user_id )
+    function latest_update( $content, $user_id = NULL )
     {
+        if ( $user_id == NULL ) return false;
 
 		if ( ! $update = bp_get_user_meta( $user_id, 'bp_latest_update', true ) ) return false;
 
@@ -157,6 +158,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
     function repost_doc_helper()
     {
+        if ( !  isset( $_GET['_wpnonce'] ) ) return;
         if( ! wp_verify_nonce( $_GET['_wpnonce'], 'mif_bpc_docs_repost_button' ) ) return;
 
         if ( $this->is_doc( $_GET['doc'] ) || $this->is_folder( $_GET['doc'] ) ) {

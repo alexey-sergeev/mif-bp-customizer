@@ -747,6 +747,7 @@ jQuery( document ).ready( function( jq ) {
 	jq( '#item-body' ).on( 'click', '.file-form-toggle', function() {
 
         jq( '#docs-form .drop-box' ).slideToggle();
+        // jq( '#docs-form .drop-box' ).fadeToggle();
 
         return false;
 

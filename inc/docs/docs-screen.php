@@ -658,9 +658,11 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_item_inline( $item_id = NULL, $hidden_field = false )
     {
+        $out = '';
         if ( $this->is_doc( $item_id ) ) {
 
-            if ( ! $this->is_access( $itemr_id, 'read' ) ) return;
+
+            if ( ! $this->is_access( $item_id, 'read' ) ) return;
     
             $doc = get_post( $item_id );
 
@@ -669,8 +671,6 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $url = $this->get_doc_url( $doc->ID );
 
             $doc_type = $this->get_doc_type( $doc );
-
-            $out = '';
 
             if ( $doc_type == 'image' ) {
                 
@@ -700,11 +700,11 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $url = $this->get_folder_url( $folder->ID );
             $data = $this->get_folder_size( $folder->ID );
 
-            $out = '<span class="docs-item folder clearfix"><a href="' . $url . '"><span class="icon"><i class="fa fa-folder-open-o"></i></span><span class="name">' . $name . '</span></a></span>';
+            $out .= '<span class="docs-item folder clearfix"><a href="' . $url . '"><span class="icon"><i class="fa fa-folder-open-o"></i></span><span class="name">' . $name . '</span></a></span>';
 
         } elseif ( $item_id == NULL ) {
 
-            $out = '<span class="docs-item file clearfix"><span class="icon"><i class="fa fa-spinner fa-spin fa-fw"></i></span><span class="name"></span></span>';
+            $out .= '<span class="docs-item file clearfix"><span class="icon"><i class="fa fa-spinner fa-spin fa-fw"></i></span><span class="name"></span></span>';
 
         }
 

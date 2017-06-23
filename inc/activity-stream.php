@@ -285,7 +285,7 @@ class mif_bpc_activity_stream {
 
             	
                 $favs = bp_activity_get_user_favorites( $current_user_id );
-            	$fav_ids = implode( ',', (array) $favs );
+            	$fav_ids = ( ! empty( $favs ) ) ? implode( ',', (array) $favs ) : 0;
 
                 $or = '';
               
@@ -299,9 +299,6 @@ class mif_bpc_activity_stream {
                 }
 
                 $filter_sql = '(a.id IN (' . $fav_ids . ')) AND (a.hide_sitewide = 0' . $or . ')';
-
-                $where['filter_sql'] = $filter_sql;
-                unset( $where['scope_query_sql'] );
 
             }
 

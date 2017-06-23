@@ -134,7 +134,7 @@ class mif_bpc_like_button {
         $out = '';
 
         $avatars = $this->get_avatars();
-        $user_ids = $this->get_likes( $activity_id );
+        $user_ids = $this->get_likes();
 
         if ( $avatars && ! bp_is_single_activity() ) {
 
@@ -491,15 +491,8 @@ class mif_bpc_like_button {
     {
 
         if ( $activity_id == NULL ) $activity_id = bp_get_activity_id();
-        // if ( $activity_id == NULL ) return;
 
         if ( ! $likes_arr = wp_cache_get( 'likes_arr', $activity_id ) ) {
-
-            // $likes_ids = bp_activity_get_meta( $activity_id, $this->meta_key, true );
-            // $likes_arr = ( $likes_ids ) ? explode( ',', $likes_ids ) : NULL;
-
-            // $likes_arr = array_unique( (array) $likes_arr );
-            // $likes_arr = array_diff( (array) $likes_arr, array( '' ) );
 
             $likes_arr = $this->get_likes_raw( $activity_id );
 

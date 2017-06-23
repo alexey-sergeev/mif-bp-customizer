@@ -113,8 +113,8 @@ class mif_bpc_notifications {
         $icon = ( isset( $icons[$type] ) ) ? $icons[$type] : $icons['default'];
 
         global $bp;
-        $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
         $id = bp_get_the_notification_id();
+        $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
 
         $out .= '<div id="div-notification-' . $id . '">';
         $out .= '<span class="hint">' . bp_get_the_notification_description() . '</span>';

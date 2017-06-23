@@ -54,7 +54,7 @@ function mif_bpc_get_last_activity_timestamp( $user_id )
 
         $last_activity = bp_get_user_last_activity( $user_id );
 
-        if ( isset( $last_activity ) ) {
+        if ( isset( $last_activity ) && $last_activity ) {
 
             $time_chunks = explode( ':', str_replace( ' ', ':', $last_activity ) );
             $date_chunks = explode( '-', str_replace( ' ', '-', $last_activity ) );
@@ -110,7 +110,8 @@ function mif_bpc_get_file_icon( $file, $class = '' )
     $default = 'file-o';
     $icon = $default;
 
-    $ext = end( explode( ".", $file ) );
+    $arr = explode( ".", $file );
+    $ext = end( $arr );
 
     if ( in_array( $ext, array( 'doc', 'docx', 'odt', 'rtf' ) ) ) $icon = 'file-word-o noext';
     if ( in_array( $ext, array( 'xls', 'xlsx', 'ods' ) ) ) $icon = 'file-excel-o noext';

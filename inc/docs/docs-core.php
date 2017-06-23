@@ -1468,6 +1468,7 @@ abstract class mif_bpc_docs_core {
 
         // Настройки доступа в целом для системы документов
         
+        $ret = false;
         if ( $item == '' ) $item = 'all-folders';
         if ( $item === 'all-folders' ) {
 
