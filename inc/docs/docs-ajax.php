@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы (функции ajax-запросов)
+// Documents (функции ajax-запросов)
 // 
 //
 
@@ -67,7 +67,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         wp_publish_post( $item_id );
         
-        echo mif_bpc_message( __( 'Документ опубликован', 'mif-bp-customizer' ) );
+        echo mif_bpc_message( __( 'The document is published', 'mif-bp-customizer' ) );
 
         wp_die();
     }
@@ -93,7 +93,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         wp_publish_post( $item_id );
         
-        echo mif_bpc_message( __( 'Папка опубликована', 'mif-bp-customizer' ) );
+        echo mif_bpc_message( __( 'The folder is published', 'mif-bp-customizer' ) );
 
         wp_die();
     }
@@ -101,7 +101,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
 
     // 
-    // Ajax-помощник удаления или восстановления папки или документа
+    // Ajax-помощник удаления or восстановления папки or документа
     // 
 
     function ajax_remove_helper()
@@ -129,14 +129,14 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
             if ( isset( $_POST['restore'] ) && $_POST['restore'] == 1) {
 
-                // Восстановить документ или папку
+                // Restore документ or папку
 
                 if ( $is_doc ) if ( $this->untrash_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc', $mode );
                 if ( $is_folder ) if ( $this->untrash_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder', $mode );
 
             } else {
 
-                // Удалить документ или папку навсегда
+                // Delete document or папку навсегда
 
                 if ( $is_doc ) if ( $this->delete_doc( $item_id ) ) echo $this->show_response( $folder_id, 'doc-empty', $mode, $item->post_title );
                 if ( $is_folder ) if ( $this->delete_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder-empty', $mode, $item->post_title );
@@ -145,7 +145,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         } else {
 
-            // Поместить документ или папку в корзину
+            // Поместить документ or папку в корзину
 
             if ( $is_doc ) if ( $this->trash_doc( $item_id ) ) echo $this->show_response( $item_id, 'doc', $mode );
             if ( $is_folder ) if ( $this->trash_folder( $item_id ) ) echo $this->show_response( $item_id, 'folder', $mode );
@@ -180,24 +180,24 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         if ( $mode == 'page' ) {
 
-            if( $item_type == 'doc' ) $out = $this->get_doc_content( $item_id, __( 'Документ восстановлен', 'mif-bp-customizer' ) );
-            if( $item_type == 'doc-empty' ) {
+            if ( $item_type == 'doc' ) $out = $this->get_doc_content( $item_id, __( 'Document is restored', 'mif-bp-customizer' ) );
+            if ( $item_type == 'doc-empty' ) {
                 
-                $msg = sprintf( __( 'Документ «%s» окончательно удален', 'mif-bp-customizer' ), '<strong>' . $name . '</strong>' );
+                $msg = sprintf( __( 'Document "%s" is deleted permanently', 'mif-bp-customizer' ), '<strong>' . $name . '</strong>' );
 
                 $folder = get_post( $item_id );
 
-                $msg .= '<p>' . __( 'Вернуться', 'mif-bp-customizer' ) . ': <strong><a href="' . $this->get_folder_url( $folder->ID ) . '">' . $folder->post_title . '</a></strong>';
+                $msg .= '<p>' . __( 'Return', 'mif-bp-customizer' ) . ': <strong><a href="' . $this->get_folder_url( $folder->ID ) . '">' . $folder->post_title . '</a></strong>';
                 
                 $out = mif_bpc_message( $msg );
 
             }           
 
-            if ( $item_type == 'folder' ) $out = $this->get_folder_content( $item_id, __( 'Папка и все удалённые вместе с ней документы восстановлены', 'mif-bp-customizer' ) );
+            if ( $item_type == 'folder' ) $out = $this->get_folder_content( $item_id, __( 'The folder and all of the documents, deleted with it, are restored', 'mif-bp-customizer' ) );
             if ( $item_type == 'folder-empty' ) {
                 
-                $msg = sprintf( __( 'Папка «%s» окончательно удалена', 'mif-bp-customizer' ), '<strong>' . $name . '</strong>' );
-                $msg .= '<p>' . __( 'Вернуться', 'mif-bp-customizer' ) . ': <strong><a href="' . $this->get_docs_url() . '">' . __( 'документы', 'mif-bp-customizer' ) . '</a></strong>';
+                $msg = sprintf( __( 'Folder "%s" is deleted permanently', 'mif-bp-customizer' ), '<strong>' . $name . '</strong>' );
+                $msg .= '<p>' . __( 'Return', 'mif-bp-customizer' ) . ': <strong><a href="' . $this->get_docs_url() . '">' . __( 'documents', 'mif-bp-customizer' ) . '</a></strong>';
                 
                 $out = mif_bpc_message( $msg );
 
@@ -260,7 +260,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         } else {
 
-            echo __( 'Ошибка', 'mif-bp-customizer' );
+            echo __( 'Error', 'mif-bpc' );
 
         }
 
@@ -270,7 +270,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
 
     // 
-    // Ajax-помощник загрузки страниц коллекции документов
+    // Ajax-помощник сортировки папок or документов
     // 
 
     function ajax_collection_reorder_helper()
@@ -279,7 +279,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         if ( isset( $_POST['folder_id'] ) ) {
 
-            // Папка (сортируем документы)
+            // Folder (сортируем documents)
 
             $folder_id = (int) $_POST['folder_id'];
             $order = json_decode( stripcslashes( $_POST['order'] ), true );
@@ -291,8 +291,14 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
             // Список папок (сортируем папки)
 
-            $item_id = bp_displayed_user_id(); //!!! как быть для групп?
-            $mode = 'user';
+            // $item_id = bp_displayed_user_id(); //!!! как быть для групп?
+            // $mode = 'user';
+
+            $parents_data = $this->get_parents_data();
+            
+            $item_id = $parents_data['item_id'];
+            $mode = $parents_data['mode'];
+
             $order = json_decode( stripcslashes( $_POST['order'] ), true );
             $this->folders_reorder( $item_id, $mode, $order );
 
@@ -300,7 +306,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
             
         } else {
 
-            // Не ясно, это папки или документы?
+            // Не ясно, это папки or documents?
 
             echo 0;
 
@@ -416,13 +422,13 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
             if ( $_POST['do'] == 'cancel' ) {
 
-                // Нажали "Отмена" - просто показать папки
+                // Нажали "Cancel" - просто показать папки
 
                 echo $this->get_doc_content( $doc_id );
 
             } elseif ( $_POST['do'] == 'to-trash' ) {
 
-                // Удалить в корзину
+                // Delete в корзину
 
                 $ret = ( $this->trash_doc( $doc_id ) ) ? $this->get_doc_content( $doc_id ) : $this->error_msg( '005' );
                 echo $ret;
@@ -503,13 +509,13 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
             if ( $_POST['do'] == 'cancel' ) {
 
-                // Нажали "Отмена" - просто показать папки
+                // Нажали "Cancel" - просто показать папки
 
                 echo $this->get_docs_content();
 
             } elseif ( $_POST['do'] == 'to-trash' ) {
 
-                // Удалить в корзину
+                // Delete в корзину
 
                 // $ret = ( $this->trash_folder( $folder_id ) ) ? $this->get_docs_content() : $this->error_msg( '004' );
                 // echo $ret;

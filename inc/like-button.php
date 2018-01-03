@@ -259,7 +259,7 @@ class mif_bpc_like_button {
 
 
     //
-    // Выбирает данные аватарок из кэша или формирует этот кэш
+    // Выбирает данные аватарок из кэша or формирует этот кэш
     //
 
     function get_cache_avatar_data( $activity_id = NULL, $nocache = false )
@@ -400,7 +400,7 @@ class mif_bpc_like_button {
 
 
     //
-    // Добавить новую отметку "Нравится"
+    // Add new отметку "Нравится"
     //
 
     function liked( $activity_id = NULL, $user_id = NULL )
@@ -511,7 +511,7 @@ class mif_bpc_like_button {
 
     //
     // Получить массив ID пользователей, которым нравится элемент активности
-    // Без кэша и фильтров
+    // Bез кэша и фильтров
     //
 
     function get_likes_raw( $activity_id = NULL )

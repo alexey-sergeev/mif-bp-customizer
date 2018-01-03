@@ -18,15 +18,15 @@ class mif_bpc_console_settings_page {
 
     function register_menu_page()
     {
-        add_options_page( __( 'Настройка плагина BP Customizer', 'mif-bp-customizer' ), __( 'BP Customizer', 'mif-bp-customizer' ), 'manage_options', 'mif-bp-customizer', array( $this, 'page' ) );
+        add_options_page( __( 'BP Customizer plugin configuration', 'mif-bpc' ), __( 'BP Customizer', 'mif-bpc' ), 'manage_options', 'mif-bpc', array( $this, 'page' ) );
         wp_register_style( 'mif-bp-customizer-styles', plugins_url( '../mif-bp-customizer-styles.css', __FILE__ ) );
         wp_enqueue_style( 'mif-bp-customizer-styles' );
     }
 
     function page()
     {
-        $out = '<h1>' . __( 'Настройка плагина BP Customizer', 'mif-bp-customizer' ) . '</h1>';
-        $out .= '<p>' . __( 'Плагин MIF BP Customizer добавляет новые возможности к BuddyPress. Здесь вы можете указать, что именно надо применить в вашей социальной сети.', 'mif-bp-customizer' );
+        $out = '<h1>' . __( 'BP Customizer plugin configuration', 'mif-bpc' ) . '</h1>';
+        $out .= '<p>' . __( 'MIF BP Customizer plugin adds new features to BuddyPress. Here you can specify what exactly should be applied in your social network.', 'mif-bpc' );
         $out .= '<p>&nbsp;';
       
         $out .= $this->update_mif_bpc_options();
@@ -36,121 +36,107 @@ class mif_bpc_console_settings_page {
             $chk[$key] = ( $value ) ? ' checked' : '';
         }
 
-        // $chk_jtm_mm[$args['join-to-multisite-mode']] = ' checked';
-
-        // $select_user_role = mif_wpc_wp_dropdown_roles( $args['join-to-multisite-default-role'] );
-
         $out .= '<form method="POST">';
         $out .= '<table class="form-table">';
-        // $out .= '<tr>
-        //         <th class="one">' . __( 'Меню «Войти/Выйти»', 'mif-wp-customizer' ) . '</th>
-        //         <td class="two"><input type="checkbox"' . $chk['login-logout-menu'] . ' value="yes" name="login-logout-menu" id="login-logout-menu"></td>
-        //         <td class="three"><label for="login-logout-menu">' . __( 'Разрешить использовать элемент меню «Войти/Выйти». В меню отображается ссылка «Войти» или «Выйти» в зависимости от текущего статуса авторизации пользователя.', 'mif-wp-customizer' ) . '</label></td>
-        //         </tr>';
-        // $out .= '<tr>
-        //         <th>' . __( 'Виджет авторизации', 'mif-wp-customizer' ) . '</th>
-        //         <td><input type="checkbox"' . $chk['login-logout-widget'] . ' value="yes" name="login-logout-widget" id="login-logout-widget"></td>
-        //         <td><label for="login-logout-widget">' . __( 'Разрешить использовать виджет авторизации. В зависимости от текущего статуса авторизации пользователя виджет отображает форму авторизации, либо аватар и имя пользователя.', 'mif-wp-customizer' ) . '</label></td>
-        //         </tr>';
 
         if ( is_main_site() ) {
 
             $out .= '<tr><td colspan="3">
-                    <h2>' . __( 'Лента активности', 'mif-bp-customizer' ) . '</h2>
+                    <h2>' . __( 'Activity feed', 'mif-bpc' ) . '</h2>
                     </td></tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Особая лента активности', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Special activity feed', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['activity-stream'] . ' value="yes" name="activity-stream" id="activity-stream"></td>
-                    <td><label for="activity-stream">' . __( 'Меняет вид и поведение ленты активности на страницах пользователей (на личной старнице - "Вся лента", на страницах других пользователей - только их активность). Позволяет использовать инструменты блокировки контента.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="activity-stream">' . __( 'Changes the appearance and behavior of the activity feed on users’ pages (on personal page - "Whole feed", on other users’ pages – only their activity). Allows to use content blocking tools.', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Типы записей ленты активности', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Post types of activity feed', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['activity-exclude'] . ' value="yes" name="activity-exclude" id="activity-exclude"></td>
-                    <td><label for="activity-exclude">' . __( 'Позволяет указывать типы активности, которые должны отображаться в ленте пользователя (требуется установка опции "Особая лента активности").', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="activity-exclude">' . __( 'Allows to specify activity types, which should be displayed in user’s feed ("Special activity feed" option is required).', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Блокировка пользователей', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'User blocking', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['banned-users'] . ' value="yes" name="banned-users" id="banned-users"></td>
-                    <td><label for="banned-users">' . __( 'Позволяет вести списки пользователей, информация которых блокируется в вашей ленте активности (требуется установка опции "Особая лента активности").', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="banned-users">' . __( 'Allows to maintain a list of users, whose information is blocked in your activity feed ("Special activity feed" option is required).', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr><td colspan="3">
-                    <h2>' . __( 'Поведение сайта', 'mif-bp-customizer' ) . '</h2>
+                    <h2>' . __( 'Site behavior', 'mif-bpc' ) . '</h2>
                     </td></tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Профиль как домашняя страница', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Profile as a homepage', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['profile-as-homepage'] . ' value="yes" name="profile-as-homepage" id="profile-as-homepage"></td>
-                    <td><label for="profile-as-homepage">' . __( 'Назначить профиль пользователя его домашней страницей.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="profile-as-homepage">' . __( 'Set user profile as his home page.', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Приватность профиля', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Profile privacy', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['profile-privacy'] . ' value="yes" name="profile-privacy" id="profile-privacy"></td>
-                    <td><label for="profile-privacy">' . __( 'Разрешить пользователям ограничивать доступ к своему профилю.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="profile-privacy">' . __( 'Allow users to restrict access to their profiles.', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Подписчики', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Subscribers', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['followers'] . ' value="yes" name="followers" id="followers"></td>
-                    <td><label for="followers">' . __( 'Включить возможность подписки на обновления пользователей (подписка = односторонняя дружба).', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="followers">' . __( 'Enable subscription option for user updates (subscription = one-way friendship).', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Уведомления', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Notifications', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['notifications'] . ' value="yes" name="notifications" id="notifications"></td>
-                    <td><label for="notifications">' . __( 'Включить продвинутый режим уведомлений.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="notifications">' . __( 'Enable advanced notification mode.', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Диалоги', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Dialogues', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['dialogues'] . ' value="yes" name="dialogues" id="dialogues"></td>
-                    <td><label for="dialogues">' . __( 'Включить простые и удобные диалоги вместо стандартной системы личных сообщений.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="dialogues">' . __( 'Enable simple and convenient dialogues instead of the standard system of private messages.', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Всплывающие сообщения', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Pop-up messages', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['websocket'] . ' value="yes" name="websocket" id="websocket"></td>
-                    <td><label for="websocket">' . __( 'Включить механизм всплывающих сообщений. Требуется настройка эхо-сервера.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="websocket">' . __( 'Enable mechanism of pop-up messages. Echo-server configuration is required.', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Документы', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Documents', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['docs'] . ' value="yes" name="docs" id="docs"></td>
-                    <td><label for="docs">' . __( 'Загрузка файлов и документов', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="docs">' . __( 'Documents and files upload', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Background image', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['custom-background'] . ' value="yes" name="custom-background" id="custom-background"></td>
-                    <td><label for="custom-background">' . __( 'Разрешить использовать пользовательское изображение в качестве фона для профиля пользователя или группы.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="custom-background">' . __( 'Allow to use custom image as a background for user profile or group.', 'mif-bpc' ) . '</label></td>
                     </tr>';
 
             $out .= '<tr>
-                    <th>' . __( 'Адрес группы', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( 'Group address', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['edit-group-slug'] . ' value="yes" name="edit-group-slug" id="edit-group-slug"></td>
-                    <td><label for="edit-group-slug">' . __( 'Разрешить изменять адрес группы в её настройках и при создании.', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="edit-group-slug">' . __( 'Allow to change the group address in its settings and at creation.', 'mif-bpc' ) . '</label></td>
                     </tr>';
             
             $out .= '<tr>
-                    <th>' . __( 'Кнопка «Нравится»', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( '"Like" button', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['like-button'] . ' value="yes" name="like-button" id="like-button"></td>
-                    <td><label for="like-button">' . __( 'Разрешить использовать кнопку «Нравится».', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="like-button">' . __( 'Allow to use the "Like" button.', 'mif-bpc' ) . '</label></td>
                     </tr>';
             
             $out .= '<tr>
-                    <th>' . __( 'Кнопка «Репост»', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( '"Repost" button', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['repost-button'] . ' value="yes" name="repost-button" id="repost-button"></td>
-                    <td><label for="repost-button">' . __( 'Разрешить использовать кнопку «Репост».', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="repost-button">' . __( 'Allow to use the "Repost" button.', 'mif-bpc' ) . '</label></td>
                     </tr>';
             
             $out .= '<tr>
-                    <th>' . __( 'Кнопки «Избранное», «Удалить»', 'mif-bp-customizer' ) . '</th>
+                    <th>' . __( '"Favorite", "Delete" buttons', 'mif-bpc' ) . '</th>
                     <td><input type="checkbox"' . $chk['activity-button-customize'] . ' value="yes" name="activity-button-customize" id="activity-button-customize"></td>
-                    <td><label for="activity-button-customize">' . __( 'Использовать особые кнопки  «Избранное», «Удалить».', 'mif-bp-customizer' ) . '</label></td>
+                    <td><label for="activity-button-customize">' . __( 'Use special buttons "Favorite", "Remove".', 'mif-bpc' ) . '</label></td>
                     </tr>';
             
 
@@ -158,43 +144,24 @@ class mif_bpc_console_settings_page {
         }
 
         $out .= '<tr><td colspan="3">';
-        $out .= '<h2>' . __( 'Визуальные элементы', 'mif-wp-customizer' ) . '</h2>';
+        $out .= '<h2>' . __( 'Visual elements', 'mif-bpc' ) . '</h2>';
         $out .= '</td></tr>';
 
         $out .= '<tr>
-                <th>' . __( 'Виджет участников сайта', 'mif-bp-customizer' ) . '</th>
+                <th>' . __( 'Site members widget', 'mif-bpc' ) . '</th>
                 <td><input type="checkbox"' . $chk['members-widget'] . ' value="yes" name="members-widget" id="members-widget"></td>
-                <td><label for="members-widget">' . __( 'Разрешить использовать виджет участников сайта. Показывает аватары участников в области виджетов.', 'mif-bp-customizer' ) . '</label></td>
+                <td><label for="members-widget">' . __( 'Allow to use site member widget. Displays member’s avatars in the widget area.', 'mif-bpc' ) . '</label></td>
                 </tr>';
 
         $out .= '<tr>
-                <th>' . __( 'Виджет групп', 'mif-bp-customizer' ) . '</th>
+                <th>' . __( 'Group widget', 'mif-bpc' ) . '</th>
                 <td><input type="checkbox"' . $chk['groups-widget'] . ' value="yes" name="groups-widget" id="groups-widget"></td>
-                <td><label for="groups-widget">' . __( 'Разрешить использовать виджет групп. Показывает аватры групп в области виджетов.', 'mif-bp-customizer' ) . '</label></td>
+                <td><label for="groups-widget">' . __( 'Allow to use group widget. Displays group avatars in the widget area.', 'mif-bpc' ) . '</label></td>
                 </tr>';
             
-        // $out .= '<tr>
-        //         <th>' . __( 'Кнопка «Наверх»', 'mif-wp-customizer' ) . '</th>
-        //         <td><input type="checkbox"' . $chk['button-to-top'] . ' value="yes" name="button-to-top" id="button-to-top"></td>
-        //         <td><label for="button-to-top">' . __( 'Показывать кнопку «Наверх». Кнопка включается при пролистывании страницы вниз и позволяет быстро вернуться на начало.', 'mif-wp-customizer' ) . '</label></td>
-        //         </tr>';
-        // $out .= '<tr>
-        //         <th>' . __( 'Верхняя панель', 'mif-wp-customizer' ) . '</th>
-        //         <td><input type="checkbox"' . $chk['disable-admin-bar'] . ' value="yes" name="disable-admin-bar" id="disable-admin-bar"></td>
-        //         <td><label for="disable-admin-bar">' . __( 'Убрать верхнюю панель (админ-бар) для всех пользователей сайта.', 'mif-wp-customizer' ) . '</label></td>
-        //         </tr>';
-
-
-        // $out .= '<tr>
-        //         <th>' . __( 'MIME типы', 'mif-wp-customizer' ) . '</th>
-        //         <td><input type="checkbox"' . $chk['mif-wpc-mime-types'] . ' value="yes" name="mif-wpc-mime-types" id="mif-wpc-mime-types"></td>
-        //         <td><label for="mif-wpc-mime-types">' . __( 'Разрешить добавление пользовательских MIME типов.', 'mif-wp-customizer' ) . '</label></td>
-        //         </tr>';
-
-
         $out .= '<tr><td colspan="3">';
         $out .= wp_nonce_field( "mif-bpc-admin-settings-page-nonce", "_wpnonce", true, false );
-        $out .= '<p><input type="submit" class="button button-primary" name="update-mif-bpc-settings" value="' . __( 'Сохранить изменения', 'mif-bp-customizer' ) . '">';
+        $out .= '<p><input type="submit" class="button button-primary" name="update-mif-bpc-settings" value="' . __( 'Save the changes', 'mif-bpc' ) . '">';
         $out .= '</td></tr>';
 
         $out .= '</table>';
@@ -206,7 +173,7 @@ class mif_bpc_console_settings_page {
     function update_mif_bpc_options()
     {
         if ( ! $_POST['update-mif-bpc-settings'] ) return;
-        if ( ! wp_verify_nonce( $_POST['_wpnonce'], "mif-bpc-admin-settings-page-nonce" ) ) return '<div class="err">' . __( 'Ошибка авторизации', 'mif-bp-customizer' ) . '</div>';
+        if ( ! wp_verify_nonce( $_POST['_wpnonce'], "mif-bpc-admin-settings-page-nonce" ) ) return '<div class="err">' . __( 'Authorization error', 'mif-bpc' ) . '</div>';
 
         $args = get_mif_bpc_options();
         foreach ( $args as $key => $value ) {
@@ -220,7 +187,7 @@ class mif_bpc_console_settings_page {
             update_option( $key, $new_value );
         }
 
-        return '<div class="note">' . __( 'Изменения сохранены', 'mif-bp-customizer' ) . '</div>';
+        return '<div class="note">' . __( 'Changes saved', 'mif-bpc' ) . '</div>';
     }
 
 

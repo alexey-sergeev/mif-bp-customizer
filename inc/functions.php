@@ -13,8 +13,8 @@ defined( 'ABSPATH' ) || exit;
 //
 // Выводит всплывающие подсказки с меню по массиву
 // $arr = array(
-//             array( 'href' => $exclude_url, 'descr' => __( 'Не показывать такие записи', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $param )  ),
-//             array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+//             array( 'href' => $exclude_url, 'descr' => __( 'Don’t show such posts', 'mif-bpc' ), 'class' => 'ajax', 'data' => array( 'exclude' => $param )  ),
+//             array( 'href' => $settings_url, 'descr' => __( 'Configuration', 'mif-bpc' ) ),
 //         );
 //
 
@@ -183,18 +183,18 @@ function mif_bpc_time_since( $time, $reverse = false )
 {
 
     $month = array( 
-        '01' => __( 'января', 'mif-bp-customizer' ),
-        '02' => __( 'февраля', 'mif-bp-customizer' ),
-        '03' => __( 'марта', 'mif-bp-customizer' ),
-        '04' => __( 'апреля', 'mif-bp-customizer' ),
-        '05' => __( 'мая', 'mif-bp-customizer' ),
-        '06' => __( 'июня', 'mif-bp-customizer' ),
-        '07' => __( 'июля', 'mif-bp-customizer' ),
-        '08' => __( 'августа', 'mif-bp-customizer' ),
-        '09' => __( 'сентября', 'mif-bp-customizer' ),
-        '10' => __( 'октября', 'mif-bp-customizer' ),
-        '11' => __( 'ноября', 'mif-bp-customizer' ),
-        '12' => __( 'декабря', 'mif-bp-customizer' ),
+        '01' => __( 'of January', 'mif-bpc' ),
+        '02' => __( 'of February', 'mif-bpc' ),
+        '03' => __( 'of March', 'mif-bpc' ),
+        '04' => __( 'of April', 'mif-bpc' ),
+        '05' => __( 'of May', 'mif-bpc' ),
+        '06' => __( 'of June', 'mif-bpc' ),
+        '07' => __( 'of July', 'mif-bpc' ),
+        '08' => __( 'of August', 'mif-bpc' ),
+        '09' => __( 'of September', 'mif-bpc' ),
+        '10' => __( 'of October', 'mif-bpc' ),
+        '11' => __( 'of November', 'mif-bpc' ),
+        '12' => __( 'of December', 'mif-bpc' ),
     );
 
     $out = '';
@@ -209,9 +209,9 @@ function mif_bpc_time_since( $time, $reverse = false )
 
     } elseif ( get_date_from_gmt( $time, 'Y-m-d' ) == get_date_from_gmt( $yesterday, 'Y-m-d' ) ) {
 
-        // Если вчера, то вывести время, минуты и сообщение, что это вчера
-        // $out = get_date_from_gmt( $time, 'H:i' ) . ', ' . __( 'вчера', 'mif-bp-customizer' );
-        $arr[0] = __( 'вчера', 'mif-bp-customizer' );
+        // Если yesterday, то вывести время, минуты и сообщение, что это yesterday
+        // $out = get_date_from_gmt( $time, 'H:i' ) . ', ' . __( 'yesterday', 'mif-bpc' );
+        $arr[0] = __( 'yesterday', 'mif-bpc' );
         $arr[1] = get_date_from_gmt( $time, 'H:i' );
 
     } elseif ( get_date_from_gmt( $time, 'Y' ) == get_date_from_gmt( $now, 'Y' ) ) {
@@ -227,7 +227,7 @@ function mif_bpc_time_since( $time, $reverse = false )
         // В остальных случаях вывести время, минуты, день с ведущими нулями, номер месяца и год
         // // $out = get_date_from_gmt( $time, 'H:i, j ' );
         // // $out .= $month[get_date_from_gmt( $time, 'm' )];
-        // // $out .= get_date_from_gmt( $time, ' Y ' ) . __( 'года', 'mif-bp-customizer' );
+        // // $out .= get_date_from_gmt( $time, ' Y ' ) . __( 'year', 'mif-bpc' );
         // $out = get_date_from_gmt( $time, 'H:i, d.m.Y' );
         $arr[0] = get_date_from_gmt( $time, 'd.m.Y' );
         $arr[1] = get_date_from_gmt( $time, 'H:i' );
@@ -249,12 +249,12 @@ function mif_bpc_format_file_size( $size = 0 )
     if ( $size == 0 ) return 0;
 
     $arr = array(
-        __( 'Б', 'mif-bp-customizer' ),
-        __( 'Кб', 'mif-bp-customizer' ),
-        __( 'Мб', 'mif-bp-customizer' ),
-        __( 'Гб', 'mif-bp-customizer' ),
-        __( 'Тб', 'mif-bp-customizer' ),
-        __( 'Пб', 'mif-bp-customizer' ),
+        __( 'B', 'mif-bpc' ),
+        __( 'kB', 'mif-bpc' ),
+        __( 'MB', 'mif-bpc' ),
+        __( 'Gb', 'mif-bpc' ),
+        __( 'TB', 'mif-bpc' ),
+        __( 'PB', 'mif-bpc' ),
         );
 
     $i = 0;
@@ -270,6 +270,7 @@ function mif_bpc_format_file_size( $size = 0 )
 
     return apply_filters( 'mif_bpc_format_file_size', $ret, $size );
 }
+
 
 
 //

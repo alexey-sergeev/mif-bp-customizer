@@ -9,10 +9,10 @@
 		<thead>
 			<tr>
                 <td class="cn-check"><input id="select-all-notifications" type="checkbox"></td>
-                <td class="cn-head" colspan="3"><label for="select-all-notifications"><strong><?php echo __( 'Все уведомления', 'mif-bp-customizer' ); ?></strong></label></td>
+                <td class="cn-head" colspan="3"><label for="select-all-notifications"><strong><?php echo __( 'All notifications', 'mif-bpc' ); ?></strong></label></td>
                 <td class="cn-actions" colspan="2">
-                    <div class="custom-button"><a href="<?php mif_bpc_the_notification_bulk_url( 'delete' ); ?>" class="button notification-bulk-delete" title="<?php echo __( 'Удалить', 'mif-bp-customizer' ); ?>"><i class="fa fa-trash-o" aria-hidden="true"></i></a></div>
-                    <div class="custom-button"><a href="<?php mif_bpc_the_notification_bulk_url( 'not_is_new' ); ?>" class="button notification-bulk-not-is-new" title="<?php echo __( 'Отметить как прочитанное', 'mif-bp-customizer' ); ?>"><i class="fa  fa-envelope-open-o" aria-hidden="true"></i></a></div> 
+                    <div class="custom-button"><a href="<?php mif_bpc_the_notification_bulk_url( 'delete' ); ?>" class="button notification-bulk-delete" title="<?php echo __( 'Delete', 'mif-bpc' ); ?>"><i class="fa fa-trash-o" aria-hidden="true"></i></a></div>
+                    <div class="custom-button"><a href="<?php mif_bpc_the_notification_bulk_url( 'not_is_new' ); ?>" class="button notification-bulk-not-is-new" title="<?php echo __( 'Mark as read', 'mif-bpc' ); ?>"><i class="fa  fa-envelope-open-o" aria-hidden="true"></i></a></div> 
                 
                 </td>
 			</tr>

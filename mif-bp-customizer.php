@@ -60,6 +60,10 @@ include_once dirname( __FILE__ ) . '/inc/banned-users-admin.php';
 include_once dirname( __FILE__ ) . '/inc/functions.php';
 
 
+// Подключение языкового файла
+
+load_plugin_textdomain( 'mif-bpc', false, basename( dirname( __FILE__ ) ) . '/lang' );
+
 
  
 // Проверка опций
@@ -120,7 +124,7 @@ add_action( 'wp_enqueue_scripts', 'mif_bp_customizer_styles' );
 
 function mif_bp_customizer_styles() 
 {
-	wp_register_style( 'mif-bp-customizer-styles', plugins_url( 'mif-bp-customizer-styles.css', __FILE__ ) );
+	wp_register_style( 'mif-bp-customizer-styles', plugins_url( 'mif-bpc-styles.css', __FILE__ ) );
 	wp_enqueue_style( 'mif-bp-customizer-styles' );
 
 }
@@ -155,7 +159,7 @@ function mif_bpс_template_stack( $stack )
 
 
 //
-// Перемещаем кнопку "Добавить в друзья" на третье место
+// Перемещаем кнопку "Add to friends" на третье место
 //
 //
 
@@ -192,34 +196,5 @@ if ( ! function_exists( 'f' ) ) {
 
 }
 
-
-
-//
-// Удаляем лишние вкладки профиля (сайты, уведомления)
-// Корректируем названия некоторых вкладок
-//
-
-// add_action( 'bp_init', 'mif_bp_nav_customize' );
-
-// function mif_bp_nav_customize()
-// {
-// 	bp_core_remove_nav_item( 'blogs' );
-// }
-
-// add_filter( 'bp_get_options_nav_change-avatar', 'mif_bp_nav_change_avatar_customize', 10, 3 );
-
-// function mif_bp_nav_change_avatar_customize( $link, $subnav_item, $selected_item )
-// {
-// 	$txt = __( 'Аватар', 'mif-bp-customizer' );
-// 	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
-// }
-
-// add_filter( 'bp_get_options_nav_change-cover-image', 'mif_bp_nav_change_cover_image_customize', 10, 3 );
-
-// function mif_bp_nav_change_cover_image_customize( $link, $subnav_item, $selected_item )
-// {
-// 	$txt = __( 'Обложка', 'mif-bp-customizer' );
-// 	return preg_replace('/(<li.+><a.+>).+(<\/a><\/li>)/isU', "$1" . $txt . "$2", $link );
-// }
 
 ?>

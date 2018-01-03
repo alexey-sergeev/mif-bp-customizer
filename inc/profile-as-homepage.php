@@ -1,7 +1,7 @@
 <?php
 
 //
-// Настройка профиля как домашней страницы
+// Configuration профиля как домашней страницы
 //
 //
 
@@ -34,5 +34,4 @@ function mif_bpc_logout_redirection()
 	$redirect = $bp->root_domain;
 	wp_logout_url( $redirect );	
 }
-
 

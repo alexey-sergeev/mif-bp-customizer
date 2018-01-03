@@ -1,7 +1,7 @@
 <?php
 
 //
-// Диалоги
+// Dialogues
 // 
 //
 
@@ -27,7 +27,7 @@ class mif_bpc_dialogues extends mif_bpc_dialogues_screen {
     {
         parent::__construct();       
 
-        // Настройка страницы диалогов
+        // Configuration страницы диалогов
         add_action( 'bp_init', array( $this, 'dialogues_nav' ) );
         add_action( 'bp_screens', array( $this, 'compose_screen' ) );
         add_filter( 'messages_template_view_message', array( $this, 'view_screen' ) );
@@ -57,7 +57,7 @@ class mif_bpc_dialogues extends mif_bpc_dialogues_screen {
 
 
     // 
-    // Настройка страницы прямого создания сообщения
+    // Configuration страницы прямого создания сообщения
     // 
 
     function compose_screen()
@@ -69,7 +69,7 @@ class mif_bpc_dialogues extends mif_bpc_dialogues_screen {
 
 
     // 
-    // Настройка кнопки прямого создания сообщения
+    // Configuration кнопки прямого создания сообщения
     // 
 
     function message_link()
@@ -80,7 +80,7 @@ class mif_bpc_dialogues extends mif_bpc_dialogues_screen {
 
 
     // 
-    // Настройка страницы прямого просмотра диалога
+    // Configuration страницы прямого просмотра диалога
     // 
 
     function view_screen( $template )
@@ -116,7 +116,7 @@ class mif_bpc_dialogues extends mif_bpc_dialogues_screen {
         $parent_slug = $bp->messages->slug;
 
         $sub_nav = array(  
-                'name' => __( 'Диалоги', 'mif-bp-customizer' ), 
+                'name' => __( 'Dialogues', 'mif-bpc' ), 
                 'slug' => 'inbox', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 

@@ -74,11 +74,11 @@ class mif_bpc_banned_users {
     function banned_users_nav()
     {
         $args = array(
-                    'name' => __( 'Блокировки', 'mif-bp-customizer' ),
+                    'name' => __( 'Blockings', 'mif-bpc' ),
                     'slug' => 'banned-members',
                     'position' => 60,
-                    'title' => __( 'Блокировка пользователей', 'mif-bp-customizer' ),
-                    'body_comment' => __( 'Список пользователей, для которых ограничены контакты с вами. Эти пользователи не могут предлагать дружбу, оставлять комментарии и нажимать «Нравится» для ваших записей. Их информация не отображается в ленте активности вашей страницы. Изменить статус блокировки вы можете здесь или на странице самих пользователей.', 'mif-bp-customizer' ),
+                    'title' => __( 'User blocking', 'mif-bpc' ),
+                    'body_comment' => __( 'The list of users, for whom contacts with you are restricted. These users can’t offer friendship, leave comments and press "Like" for your posts. Their information is not shown in the activity feed of your page. You can change the blocking status here or on the pages of users themselves.', 'mif-bpc' ),
                     'can_edit' => true,
                     'members_usermeta' => $this->meta_key,
                     'exclude_users' => $this->get_unbanned_users(),
@@ -114,7 +114,7 @@ class mif_bpc_banned_users {
 
         $arr = array(
                     array( 'href' => $banned_url_request, 'descr' => $caption, 'class' => 'ajax', 'data' => array( 'userid' => $user_id ) ),
-                    array( 'href' => $banned_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+                    array( 'href' => $banned_url, 'descr' => __( 'Configuration', 'mif-bpc' ) ),
                 );
 
         $arr = apply_filters( 'mif_bpc_banned_user_button', $arr );
@@ -170,7 +170,7 @@ class mif_bpc_banned_users {
 
     function get_caption()
     {
-        $caption = ( $this->is_banned() ) ? __( 'Снять ограничения', 'mif-bp-customizer' ) : __( 'Ограничить контакты', 'mif-bp-customizer' );
+        $caption = ( $this->is_banned() ) ? __( 'Take off the restrictions', 'mif-bpc' ) : __( 'Restrict contacts', 'mif-bpc' );
         return $caption;
     }
 
@@ -193,7 +193,7 @@ class mif_bpc_banned_users {
 
 
     // 
-    // Удалить кнопку "Нравится" для заблокированных пользователей
+    // Delete кнопку "Нравится" для заблокированных пользователей
     // 
 
     public function remove_like_button( $button )
@@ -210,7 +210,7 @@ class mif_bpc_banned_users {
 
 
     // 
-    // Удалить кнопку "Добавить в друзья", если пользователь тебя заблокировал
+    // Delete кнопку "Add to friends", если пользователь тебя заблокировал
     // 
 
     public function remove_friendship_button( $button )
@@ -230,7 +230,7 @@ class mif_bpc_banned_users {
 
 
     // 
-    // Удалить кнопку "Оставить комментарий", если пользователь тебя заблокировал
+    // Delete кнопку "Оставить комментарий", если пользователь тебя заблокировал
     // 
 
     public function remove_comment_button( $can_comment )
@@ -248,7 +248,7 @@ class mif_bpc_banned_users {
 
 
     // 
-    // Удалить кнопку "Репост", если пользователь тебя заблокировал
+    // Delete кнопку "Репост", если пользователь тебя заблокировал
     // 
 
     public function remove_repost_button( $can_reposted )
@@ -304,42 +304,8 @@ class mif_bpc_banned_users {
     }
 
 
-
-
-
-
-    // // 
-    // // Удалить комментарии пользователя, если пользователь заблокирован
-    // // 
-
-    // public function before_activity_comment()
-    // {
-    //     if ( ! bp_is_my_profile() ) return;
-
-    //     $msg = '<li class="hidden-comment"><div>' . __( 'Комментарий скрыт', 'mif-bp-customizer' ) . '</div></li>';
-
-    //     if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
-
-    //         // echo $msg;
-    //         echo '<!--';
-        
-    //     }
-    // }
-
-    // public function after_activity_comment()
-    // {
-    //     if ( ! bp_is_my_profile() ) return;
-
-    //     if ( $this->is_banned( bp_loggedin_user_id(), bp_get_activity_comment_user_id() ) ) {
-
-    //         echo '-->';
-        
-    //     }
-    // }
-
-
     // 
-    // Удалить запросы в друзья для заблокироанных пользователей
+    // Delete запросы в друзья для заблокироанных пользователей
     // 
 
     public function remove_friendship_requests( $requests, $user_id )
@@ -420,7 +386,7 @@ class mif_bpc_banned_users {
 
     public function get_unbanned_users( $mode = 'ids' )
     {
-        // возвращает массив или строку пользователей, которых нельзя блокировать
+        // возвращает массив or строку пользователей, которых нельзя блокировать
         
         // Здесь можно менять список неблокируемых пользователей (массив nicenames)
         $unbanned_users = apply_filters( 'mif_bpc_activity_stream_get_unbanned_users', $this->unbanned_users );

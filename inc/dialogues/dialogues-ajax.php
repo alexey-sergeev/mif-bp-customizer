@@ -1,7 +1,7 @@
 <?php
 
 //
-// Диалоги (функции ajax-запросов)
+// Dialogues (функции ajax-запросов)
 // 
 //
 
@@ -59,7 +59,7 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
 
 
     //
-    // Поиск диалогов
+    // Search диалогов
     //
 
     function ajax_thread_search_helper()
@@ -222,7 +222,7 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
 
             $arr = array( 
                         'messages_header' => '<!-- empty -->',
-                        'messages_page' => __( 'Ошибка. Указанные вами пользователи не существуют', 'mif-bp-customizer' ),
+                        'messages_page' => __( 'Error. The users you specified don’t exist', 'mif-bpc' ),
                         'threads_window' => $this->get_threads_items(),
                         );
             $arr = apply_filters( 'mif_bpc_dialogues_ajax_compose_send_helper_no_send', $arr, $message, $recipient_ids, $subject, $email_status );
@@ -233,7 +233,7 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
 
         } 
 
-        // Сохранить сообщение
+        // Save сообщение
 
         $thread_id = $this->get_thread_id( $recipient_clean_ids );
         $res = $this->send( $message, $thread_id, NULL, $subject, $email_status );
@@ -308,11 +308,11 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
         $out .= '<div class="remove-window">';
         $out .= '<i class="fa fa-5x  fa-exclamation-circle " aria-hidden="true"></i>';
         $out .= '<p>';
-        $out .=  __( 'Вы хотите <strong>удалить все сообщения</strong> этого диалога.', 'mif-bp-customizer' );
+        $out .=  __( 'You want to <strong>delete all messages</strong> in this dialogue.', 'mif-bpc' );
         $out .= '<br />';
-        $out .=  __( 'Будьте внимательны, эту операцию <strong>нельзя отменить</strong>.', 'mif-bp-customizer' );
-        $out .=  '<p><div class="generic-button"><a href="' . $url . '" class="thread-remove">' . __( 'Удалить', 'mif-bp-customizer' ) . '</a></div>';
-        $out .=  '<div class="generic-button"><a href="' . $url . '" class="thread-no-remove">' . __( 'Не удалять', 'mif-bp-customizer' ) . '</a></div>';
+        $out .=  __( 'Be careful, this operation <strong>can not be undone</strong>.', 'mif-bpc' );
+        $out .=  '<p><div class="generic-button"><a href="' . $url . '" class="thread-remove">' . __( 'Delete', 'mif-bpc' ) . '</a></div>';
+        $out .=  '<div class="generic-button"><a href="' . $url . '" class="thread-no-remove">' . __( 'Don’t delete', 'mif-bpc' ) . '</a></div>';
         $out .= '</div>';
 
         $arr = array( 
@@ -400,7 +400,7 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
 
 
     //
-    // Поиск пользователей 
+    // Search пользователей 
     //
 
     function ajax_member_search_helper()
@@ -458,7 +458,7 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
 
         $arr = array();
 
-        // Что показывается - диалоги или пользователи?
+        // Что показывается - диалоги or пользователи?
 
         if ( $threads_mode == 'threads' ) {
 

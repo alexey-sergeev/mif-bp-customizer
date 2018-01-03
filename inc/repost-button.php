@@ -23,7 +23,7 @@ class mif_bpc_repost_button {
     //      'type' => 'activity_repost',
     //      'item_id' => id repost-записи
     //      'secondary_item_id' => id автора repost-записи
-    //      'content' => комментарий или <!-- none -->
+    //      'content' => комментарий or <!-- none -->
     // При выводе такой записи вызывается шаблон, в который выводится нужная запись по item_id
     // Шаблон хранится в плагине, но можно определить и в теме. В шаблоне используются
     // специфические функции, определенные в repost-button-template.php
@@ -140,7 +140,7 @@ class mif_bpc_repost_button {
 
 
     //
-    // Добавить класс в body, если отображается форма repost-записи
+    // Add класс в body, если отображается форма repost-записи
     // Позволяет настроить вид формы (убрать стандарный submit и др.)
     //
 
@@ -249,8 +249,8 @@ class mif_bpc_repost_button {
     //     $user_id = bp_loggedin_user_id();
         
     //     $args = array(
-	// 	                // 'action' => '<a href="' . bp_core_get_user_domain( $user_id ) . '">' . bp_members_get_user_nicename( $user_id ) . '</a> ' . __( 'поделился записью', 'mif-bp-customizer' ),
-	// 	                'action' => bp_core_get_userlink( $user_id ) . ': ' . __( 'поделился записью', 'mif-bp-customizer' ),
+	// 	                // 'action' => '<a href="' . bp_core_get_user_domain( $user_id ) . '">' . bp_members_get_user_nicename( $user_id ) . '</a> ' . __( 'shared a post', 'mif-bpc' ),
+	// 	                'action' => bp_core_get_userlink( $user_id ) . ': ' . __( 'shared a post', 'mif-bpc' ),
 	// 	                'component' => 'activity',
 	// 	                'type' => 'activity_repost',
 	// 	                'item_id' => $activity_id,
@@ -305,8 +305,8 @@ class mif_bpc_repost_button {
             if ( empty( trim( $content ) ) ) $content = '<!-- none -->';
 
             $args = array(
-                            // 'action' => '<a href="' . bp_core_get_user_domain( $user_id ) . '">' . bp_members_get_user_nicename( $user_id ) . '</a> ' . __( 'поделился записью', 'mif-bp-customizer' ),
-                            'action' => bp_core_get_userlink( $user_id ) . ': ' . __( 'поделился записью', 'mif-bp-customizer' ),
+                            // 'action' => '<a href="' . bp_core_get_user_domain( $user_id ) . '">' . bp_members_get_user_nicename( $user_id ) . '</a> ' . __( 'shared a post', 'mif-bpc' ),
+                            'action' => bp_core_get_userlink( $user_id ) . ': ' . __( 'shared a post', 'mif-bpc' ),
                             'component' => 'activity',
                             'type' => 'activity_repost',
                             'item_id' => $item_id,
@@ -420,8 +420,9 @@ class mif_bpc_repost_button {
     // Вывести запись repost-активности в ленту активности
     //
 
-    function activity_content( $content, $activity )
+    function activity_content( $content, $activity = NULL )
     {
+        if ( $activity == NULL ) return $content;
         if ( $activity->type != 'activity_repost' ) return $content;
 
         echo $content;

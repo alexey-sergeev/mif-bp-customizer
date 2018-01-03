@@ -1,7 +1,7 @@
 <?php
 
 //
-// Диалоги (экранные функции)
+// Dialogues (экранные функции)
 // 
 //
 
@@ -85,7 +85,7 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         $out .= '<span class="avatar">' . $avatar . '</span>';
         $out .= '<span class="content">';
         if ( $unread_count ) $out .= '<span class="unread_count">' . $unread_count . '</span>';
-        $out .= '<div class="remove"><div class="custom-button"><a href="' . $this->get_dialogues_url() . '" class="button thread-remove" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div>';
+        $out .= '<div class="remove"><div class="custom-button"><a href="' . $this->get_dialogues_url() . '" class="button thread-remove" title="' . __( 'Delete', 'mif-bpc' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div>';
         $out .= '<span class="title">' . $title . '</span>';
         $out .= '<div><span class="time-since">' . $time_since . '</span></div>';
         $out .= '<div><span class="message-excerpt">' . $message_excerpt . '</span></div>';
@@ -162,7 +162,7 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
 
         $out .= '<div class="message-item' . $new . '" id="message-' . $message->id . '" data-message-id="' . $message->id . '" data-sent="' . $message->date_sent . '">';
         $out .= '<div class="avatar">' . $avatar . '</div>';
-        $out .= '<div class="remove"><div class="custom-button"><a href="' . $this->get_dialogues_url() . '" class="button message-remove" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div>';
+        $out .= '<div class="remove"><div class="custom-button"><a href="' . $this->get_dialogues_url() . '" class="button message-remove" title="' . __( 'Delete', 'mif-bpc' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div>';
         $out .= '<div class="content">';
         $out .= '<span class="title">' . $title . '</span> ';
         $out .= '<span class="time-since">' . $time_since . '</span>';
@@ -281,7 +281,7 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         $out .= '<form>';
         $out .= '<table><tr>';
         $out .= $clip;
-        $out .= '<td class="message"><textarea name="message" id="message" placeholder="' . __( 'Напишите сообщение...', 'mif-bp-customizer' ) . '" rows="1"></textarea></td>';
+        $out .= '<td class="message"><textarea name="message" id="message" placeholder="' . __( 'Type a message…', 'mif-bpc' ) . '" rows="1"></textarea></td>';
         $out .= '<td class="send"><div class="custom-button"><a href="' . $url . '" class="send button"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></div></td>';
         $out .= '</tr>';
         $out .= $form_attachment;
@@ -317,12 +317,12 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         $out .= '<div>';
         $out .= '<div class="compose-wrap">';
         $out .= '<form>';
-        $out .= '<div>' . __( 'Кому:', 'mif-bp-customizer' ) . '</div>';
+        $out .= '<div>' . __( 'To:', 'mif-bpc' ) . '</div>';
         $out .= '<div class="recipients">' . $recipients . '</div>';
-        $out .= '<div>' . __( 'Сообщение:', 'mif-bp-customizer' ) . '</div>';
+        $out .= '<div>' . __( 'Message:', 'mif-bpc' ) . '</div>';
         $out .= '<div class="textarea"><textarea name="message" id="message"></textarea></div>';
-        $out .= '<div><label><input type="checkbox" value="on" name="email" id="email"> ' . __( 'Оповестить по почте', 'mif-bp-customizer' ) . '</label></div>';
-        $out .= '<div><input type="submit" value="' . __( 'Отправить', 'mif-bp-customizer' ) . '"></div>';
+        $out .= '<div><label><input type="checkbox" value="on" name="email" id="email"> ' . __( 'Notify by email', 'mif-bpc' ) . '</label></div>';
+        $out .= '<div><input type="submit" value="' . __( 'Send', 'mif-bpc' ) . '"></div>';
         $out .= '<input type="hidden" name="nonce" id="nonce" value="' . wp_create_nonce( 'mif-bpc-dialogues-compose-send-nonce' ) . '">';
         $out .= '</form>';
         $out .= '</div>';
@@ -349,7 +349,7 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         foreach ( (array) $recipients as $recipient_id ) {
 
             $name = mif_bpc_get_member_name( $recipient_id );
-            $writing .= '<div class="writing thread-' . $thread_id . ' user-' . $recipient_id . '"><span class="s1"></span><span class="s2"></span><span class="s3"></span> ' . $name . ' ' . __( 'печатает', 'mif-bp-customizer' ) . '</div>';
+            $writing .= '<div class="writing thread-' . $thread_id . ' user-' . $recipient_id . '"><span class="s1"></span><span class="s2"></span><span class="s3"></span> ' . $name . ' ' . __( 'is typing', 'mif-bpc' ) . '</div>';
 
         }
 
@@ -368,8 +368,8 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
     {
         $out = '';
 
-        $out .= '<div class="custom-button"><a href="' . $this->get_dialogues_url() . '" class="button dialogues-refresh" title="' . __( 'Отменить', 'mif-bp-customizer' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div>';
-        $out .= '<span class="title">' . __( 'Новое сообщение', 'mif-bp-customizer' ) . '</span>';
+        $out .= '<div class="custom-button"><a href="' . $this->get_dialogues_url() . '" class="button dialogues-refresh" title="' . __( 'Cancel', 'mif-bpc' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div>';
+        $out .= '<span class="title">' . __( 'New message', 'mif-bpc' ) . '</span>';
 
         return apply_filters( 'mif_bpc_dialogues_get_compose_header', $out );
     }
@@ -447,11 +447,11 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
         $checked_class = ( $checked ) ? ' checked' : '';
 
         $out .= '<div class="member-item member-' . $user_id . $checked_class . '" data-uid="' . $user_id . '">';
-        $out .= '<div class="m-check checked"><a href="' . $url . '" class="member-add" title="' . __( 'Добавить', 'mif-bp-customizer' ) . '"><i class="fa fa-circle" aria-hidden="true"></i></a></div>';
-        $out .= '<div class="m-check unchecked"><a href="' . $url . '" class="member-add" title="' . __( 'Добавить', 'mif-bp-customizer' ) . '"><i class="fa fa-circle-thin" aria-hidden="true"></i></a></div>';
+        $out .= '<div class="m-check checked"><a href="' . $url . '" class="member-add" title="' . __( 'Add', 'mif-bpc' ) . '"><i class="fa fa-circle" aria-hidden="true"></i></a></div>';
+        $out .= '<div class="m-check unchecked"><a href="' . $url . '" class="member-add" title="' . __( 'Add', 'mif-bpc' ) . '"><i class="fa fa-circle-thin" aria-hidden="true"></i></a></div>';
         $out .= '<span class="avatar"><a href="' . $user_url . '" target="blank">' . $avatar . '</a></span>';
         $out .= '<span class="name"><a href="' . $user_url . '" target="blank">' . $name . '</a></span>';
-        $out .= '<span class="m-remove"><div class="custom-button"><a href="' . $url . '" class="button member-remove" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></span>';
+        $out .= '<span class="m-remove"><div class="custom-button"><a href="' . $url . '" class="button member-remove" title="' . __( 'Delete', 'mif-bpc' ) . '"><i class="fa fa-times" aria-hidden="true"></i></a></div></span>';
         $out .= '</div>';
 
         return apply_filters( 'mif_bpc_dialogues_member_item', $out, $user_id );
@@ -469,10 +469,10 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
 
         $out .= '<div class="messages-empty"><div>';
         $out .= '<i class="fa fa-5x fa-compress" aria-hidden="true"></i>';
-        // $out .= '<p><strong>' . __( 'Группировка выполнена успешно', 'mif-bp-customizer' ) . '</strong>';
+        // $out .= '<p><strong>' . __( 'Grouping completed successfully', 'mif-bpc' ) . '</strong>';
         $out .= '<p><strong>' . $msg . '</strong>';
-        $out .= '<p>' . __( 'Выберите диалог или', 'mif-bp-customizer' ) . '<br />';
-        $out .= '<a href="' . $this->get_dialogues_url() . '" class="dialogues-compose">' . __( 'начните новый', 'mif-bp-customizer' ) . '</a></p>';
+        $out .= '<p>' . __( 'Select a dialogue or', 'mif-bpc' ) . '<br />';
+        $out .= '<a href="' . $this->get_dialogues_url() . '" class="dialogues-compose">' . __( 'start new', 'mif-bpc' ) . '</a></p>';
         $out .= '</div></div>';
 
         return $out;
@@ -505,7 +505,7 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
 
 
     //
-    // Список диалогов или пользователей
+    // Список диалогов or пользователей
     //
 
     function get_dialogues_default_threads( $ajax = false )
@@ -584,8 +584,8 @@ class mif_bpc_dialogues_screen extends mif_bpc_dialogues_core {
 
             $out .= '<div class="messages-empty"><div>';
             $out .= '<i class="fa fa-5x fa-comments-o" aria-hidden="true"></i>';
-            $out .= '<p>' . __( 'Выберите диалог или', 'mif-bp-customizer' ) . '<br />';
-            $out .= '<a href="' . $this->get_dialogues_url() . '" class="dialogues-compose">' . __( 'начните новый', 'mif-bp-customizer' ) . '</a></p>';
+            $out .= '<p>' . __( 'Select a dialogue or', 'mif-bpc' ) . '<br />';
+            $out .= '<a href="' . $this->get_dialogues_url() . '" class="dialogues-compose">' . __( 'start new', 'mif-bpc' ) . '</a></p>';
             $out .= '</div></div>';
 
         }

@@ -6,15 +6,15 @@
 
         <div class="custom-button">
 
-            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-fix" title="<?php echo __( 'Зафиксировать', 'mif-bp-customizer' ) ?>"><i class="fa fa-anchor" aria-hidden="true"></i></a>
+            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-fix" title="<?php echo __( 'Fix', 'mif-bpc' ) ?>"><i class="fa fa-anchor" aria-hidden="true"></i></a>
             
         </div>
 
         <div class="custom-button">
 
-            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-compose" title="<?php echo __( 'Новое сообщение', 'mif-bp-customizer' ) ?>"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-refresh" title="<?php echo __( 'Обновить', 'mif-bp-customizer' ) ?>"><i class="fa fa-refresh" aria-hidden="true"></i></a>
-            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-join" title="<?php echo __( 'Группировать диалоги', 'mif-bp-customizer' ) ?>"><i class="fa fa-compress" aria-hidden="true"></i></a>
+            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-compose" title="<?php echo __( 'New message', 'mif-bpc' ) ?>"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-refresh" title="<?php echo __( 'Update', 'mif-bpc' ) ?>"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+            <a href="<?php mif_bpc_the_dialogues_url() ?>" class="button dialogues-join" title="<?php echo __( 'Group dialogues', 'mif-bpc' ) ?>"><i class="fa fa-compress" aria-hidden="true"></i></a>
 
         </div>
 
@@ -23,7 +23,7 @@
     <div class="dialogues-body clearfix">
         <div class="members">
 
-            <div class="search"><input type="text" id="search" placeholder="<?php echo __( 'Поиск', 'mif-bp-customizer' ) ?>"></div>
+            <div class="search"><input type="text" id="search" placeholder="<?php echo __( 'Search', 'mif-bpc' ) ?>"></div>
 
             <div class="thread-wrap">
 

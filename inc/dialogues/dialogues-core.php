@@ -1,7 +1,7 @@
 <?php
 
 //
-// Диалоги (параметры и методы ядра)
+// Dialogues (параметры и методы ядра)
 // 
 //
 
@@ -30,7 +30,7 @@ class mif_bpc_dialogues_core {
     public $members_on_page = 20;
 
     //
-    // Время устаревания сообщения (секунд). Используется для определения - обновлять текущее сообщение, или создавать новое
+    // Время устаревания сообщения (секунд). Используется для определения - обновлять текущее сообщение, or создавать новое
     //
 
     public $message_outdate_time = 60;
@@ -68,7 +68,7 @@ class mif_bpc_dialogues_core {
                 $arr[] = $this->get_username( $sender_ids_without_sender_id[0], $links );
 
                 $title = implode( ', ', $arr );
-                $title .= ' ' . sprintf( __( 'и другие (всего %s)', 'mif-bp-customizer' ), number_format_i18n( count( $sender_ids ) ) );
+                $title .= ' ' . sprintf( __( 'And others (%s in total)', 'mif-bpc' ), number_format_i18n( count( $sender_ids ) ) );
 
         } else {
 
@@ -304,7 +304,7 @@ class mif_bpc_dialogues_core {
 
         global $bp, $wpdb;
 
-        // Выбрать страницу сообщений или всё с последнего обновления?
+        // Выбрать страницу сообщений or всё с последнего обновления?
 
         if ( $last_message_id == NULL ) {
 
@@ -426,9 +426,9 @@ class mif_bpc_dialogues_core {
         foreach ( (array) $results as $result ) if ( $result->is_deleted == 0 ) $present = true;
 
         $msg = '';
-        if ( ! $present && count( $results ) == 0 ) $msg = __( 'Собеседники не найдены', 'mif-bp-customizer' );
-        if ( ! $present && count( $results ) == 1 ) $msg = __( 'Пользователь покинул диалог', 'mif-bp-customizer' );
-        if ( ! $present && count( $results ) > 1 ) $msg = __( 'Все пользователи покинули диалог', 'mif-bp-customizer' );
+        if ( ! $present && count( $results ) == 0 ) $msg = __( 'The companions were not found', 'mif-bpc' );
+        if ( ! $present && count( $results ) == 1 ) $msg = __( 'User left the dialogue', 'mif-bpc' );
+        if ( ! $present && count( $results ) > 1 ) $msg = __( 'All users have left the dialogue', 'mif-bpc' );
 
         return apply_filters( 'mif_bpc_dialogues_is_alone', $msg, $thread_id, $user_id );
     }
@@ -535,7 +535,7 @@ class mif_bpc_dialogues_core {
 
 
     //
-    // Отправить сообщение
+    // Send сообщение
     //
 
     function send( $message, $thread_id = NULL, $sender_id = NULL, $subject = 'default', $email_status = 'no' )
@@ -550,7 +550,7 @@ class mif_bpc_dialogues_core {
         $result = $wpdb->get_row( $sql );
         $message_id = $result->id;
 
-        // Обновлять существующую, или добавлять новую?
+        // Обновлять существующую, or добавлять новую?
         
         $update_flag = false;
         
@@ -564,18 +564,18 @@ class mif_bpc_dialogues_core {
 
         }
 
-        // Сохранить в базе новое сообщение
+        // Save в базе новое сообщение
 
         if ( $update_flag ) {
 
-            // Обновить существующую
+            // Update существующую
             $message = $result->message . "\n" . $message;
             $sql = $wpdb->prepare( "UPDATE {$bp->messages->table_name_messages} SET message = %s WHERE id = %d", $message, $message_id );
             if ( ! $wpdb->query( $sql ) ) return false;
 
         } else {
 
-            // Добавить новую
+            // Add new
             $date_sent = bp_core_current_time();
             $sql = $wpdb->prepare( "INSERT INTO {$bp->messages->table_name_messages} ( thread_id, sender_id, subject, message, date_sent ) VALUES ( %d, %d, %s, %s, %s )", $thread_id, $sender_id, $subject, $message, $date_sent );
             if ( ! $wpdb->query( $sql ) ) return false;
@@ -584,12 +584,12 @@ class mif_bpc_dialogues_core {
 
         }
 
-        // Обновить метку последнего обновления
+        // Update метку последнего обновления
 
         $now = time();
         bp_messages_update_meta( $message_id, 'last_updated', $now );
 
-        // Обновить для других пользователей информацию о непрочитанных
+        // Update для других пользователей информацию о непрочитанных
 
         if ( $update_flag ) {
 
@@ -607,7 +607,7 @@ class mif_bpc_dialogues_core {
 
         $ret = $this->mark_as_read( $thread_id, $sender_id );
 
-        // Узнать id получателей сообщения и отправить им уведомление (локальное уведомление, эхо-сервер, почта или др.)
+        // Узнать id получателей сообщения и отправить им уведомление (локальное уведомление, эхо-сервер, почта or др.)
 
         $recipients = $this->get_recipients_of_thread( $thread_id, $sender_id );
         do_action( 'mif_bpc_dialogues_after_send', $recipients, $thread_id, $sender_id, $message, $email_status );
@@ -659,7 +659,7 @@ class mif_bpc_dialogues_core {
 
 
     //
-    // Удалить диалог
+    // Delete диалог
     //
 
     function delete_thread( $thread_id = NULL, $user_id = NULL )
@@ -760,7 +760,7 @@ class mif_bpc_dialogues_core {
             
         }
 
-        $ret = __( 'Все диалоги уже сгруппированы', 'mif-bp-customizer' );
+        $ret = __( 'All dialogues are already grouped', 'mif-bpc' );
 
         foreach ( (array) $arr as $threads_arr ) {
 
@@ -770,14 +770,14 @@ class mif_bpc_dialogues_core {
             $thread_id = array_pop( $threads_arr );
             $threads_list = implode( ',', $threads_arr );
 
-            // Обновить номера диалогов в таблице сообщений
+            // Update номера диалогов в таблице сообщений
 
             $sql = $wpdb->prepare( "UPDATE {$bp->messages->table_name_messages} SET thread_id = %d WHERE thread_id IN ({$threads_list})", $thread_id );
             if ( $wpdb->query( $sql ) ) {
 
                 // Если обновление прошло успешно, то удалить старые номера диалогов в таблице диалогов
                 $sql = "DELETE FROM {$bp->messages->table_name_recipients} WHERE thread_id IN ({$threads_list})";
-                $ret = __( 'Группировка выполнена успешно', 'mif-bp-customizer' );
+                $ret = __( 'Grouping completed successfully', 'mif-bpc' );
                 $ret2 = $wpdb->query( $sql );
 
                 
@@ -795,7 +795,7 @@ class mif_bpc_dialogues_core {
 
 
     //
-    // Адрес страницы диалогов
+    // Address страницы диалогов
     //
 
     function get_dialogues_url()

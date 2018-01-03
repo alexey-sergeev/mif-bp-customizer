@@ -1,7 +1,7 @@
 <?php
 
 //
-// Виджет "Группы"
+// Виджет "Groups"
 //
 //
 
@@ -24,10 +24,10 @@ class mif_bpc_groups_widget extends WP_Widget {
     {
 		$widget_options = apply_filters( 'mif_wpc_groups_widget_options', array(
 			'classname'   =>    'groups_widget',
-			'description' => __( 'Простой, умный и быстрый виджет групп социальной сети', 'mif-bp-customizer' )
+			'description' => __( 'Simple, smart and fast widget of social networks groups', 'mif-bpc' )
 		) );
 
-		parent::__construct( false, __( 'Группы', 'mif-bp-customizer' ), $widget_options );
+		parent::__construct( false, __( 'Groups', 'mif-bpc' ), $widget_options );
 	}
 
 
@@ -197,17 +197,17 @@ class mif_bpc_groups_widget extends WP_Widget {
 
         $out = '';
 
-        $out .= '<p><label for="' . $this->get_field_id( 'title' ) . '">' . __( 'Заголовок:', 'mif-bp-customizer' ) . '
+        $out .= '<p><label for="' . $this->get_field_id( 'title' ) . '">' . __( 'Title:', 'mif-bpc' ) . '
                 <input class="widefat" id="' . $this->get_field_id( 'title' ) . ' " name="' . $this->get_field_name( 'title' ) . '" type="text" value="' . $title . '" /></label>';
-        $out .= '<p><label for="' . $this->get_field_id( 'number' ) . '">' . __( 'Количество аватарок:', 'mif-bp-customizer' ) . '
+        $out .= '<p><label for="' . $this->get_field_id( 'number' ) . '">' . __( 'Number of avatars:', 'mif-bpc' ) . '
                 <input class="tiny-text" id="' . $this->get_field_id( 'number' ) . ' " name="' . $this->get_field_name( 'number' ) . '" type="number" value="' . $number . '" /></label>';
-		$out .= '<p><label for="' . $this->get_field_id( 'groups_type' ) . '">' . __( 'Параметры выбора:', 'mif-bp-customizer' ) . '</label>
+		$out .= '<p><label for="' . $this->get_field_id( 'groups_type' ) . '">' . __( 'Selection options:', 'mif-bpc' ) . '</label>
 			    <select name="' . $this->get_field_name( 'groups_type' ) . '" id="' . $this->get_field_id( 'groups_type' ) . '" class="widefat">
-				<option value="active"' . selected( $groups_type, 'active', false ) . '>' . __( 'Активные', 'mif-bp-customizer' ) . '</option>
-				<option value="popular"' . selected( $groups_type, 'popular', false ) . '>' . __( 'Популярные', 'mif-bp-customizer' ) . '</option>
-				<option value="random"' . selected( $groups_type, 'random', false ) . '>' . __( 'Случайные', 'mif-bp-customizer' ) . '</option></select>';
-        $out .= '<p><label for="' . $this->get_field_id( 'cache_expires' ) . '">' . __( 'Срок хранения в кэше:', 'mif-bp-customizer' ) . '
-                <input class="tiny-text" id="' . $this->get_field_id( 'cache_expires' ) . ' " name="' . $this->get_field_name( 'cache_expires' ) . '" type="text" value="' . $cache_expires . '" /> ' . __( 'сек.', 'mif-bp-customizer' ) . '</label>';
+				<option value="active"' . selected( $groups_type, 'active', false ) . '>' . __( 'Active', 'mif-bpc' ) . '</option>
+				<option value="popular"' . selected( $groups_type, 'popular', false ) . '>' . __( 'Popular', 'mif-bpc' ) . '</option>
+				<option value="random"' . selected( $groups_type, 'random', false ) . '>' . __( 'Random', 'mif-bpc' ) . '</option></select>';
+        $out .= '<p><label for="' . $this->get_field_id( 'cache_expires' ) . '">' . __( 'Cache lifetime:', 'mif-bpc' ) . '
+                <input class="tiny-text" id="' . $this->get_field_id( 'cache_expires' ) . ' " name="' . $this->get_field_name( 'cache_expires' ) . '" type="text" value="' . $cache_expires . '" /> ' . __( 'sec', 'mif-bpc' ) . '</label>';
 
         echo $out;    
     }

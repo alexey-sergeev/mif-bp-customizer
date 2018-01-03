@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы
+// Documents
 // 
 //
 
@@ -25,11 +25,11 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
 
         parent::__construct();
 
-        // Настройка страницы документов
+        // Configuration страницы документов
         add_action( 'bp_activity_setup_nav', array( $this, 'nav' ) );
         add_action( 'bp_screens', array( $this, 'doc_page' ) );
 
-        // Настройка типа записи
+        // Configuration типа записи
         add_action( 'bp_init', array( $this, 'create_post_type' ) );
 
         // Скачивание файла
@@ -79,7 +79,7 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
         $data = $mif_bpc_docs->get_all_folders_size();
 
         bp_core_new_nav_item( array(  
-                'name' => __( 'Документы', 'mif-bp-customizer' ) . ' <span>' . $data['count'] . '</span>',
+                'name' => __( 'Documents', 'mif-bpc' ) . ' <span>' . $data['count'] . '</span>',
                 'slug' => $this->slug,
                 'position' => 90,
                 'show_for_displayed_user' => true,
@@ -89,7 +89,7 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
             ) );
 
         bp_core_new_subnav_item( array(  
-                'name' => __( 'Папки', 'mif-bp-customizer' ),
+                'name' => __( 'Folders', 'mif-bpc' ),
                 'slug' => 'folder',
                 'parent_url' => $url, 
                 'parent_slug' => $this->slug, 
@@ -99,7 +99,7 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
             ) );
 
         bp_core_new_subnav_item( array(  
-                'name' => __( 'Создать папку', 'mif-bp-customizer' ),
+                'name' => __( 'Create folder', 'mif-bpc' ),
                 'slug' => 'new-folder',
                 'parent_url' => $url, 
                 'parent_slug' => $this->slug, 
@@ -110,7 +110,7 @@ class mif_bpc_docs extends mif_bpc_docs_screen {
             ) );
 
         bp_core_new_subnav_item( array(  
-                'name' => __( 'Статистика', 'mif-bp-customizer' ),
+                'name' => __( 'Statistics', 'mif-bpc' ),
                 'slug' => 'stat',
                 'parent_url' => $url, 
                 'parent_slug' => $this->slug, 

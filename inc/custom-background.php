@@ -1,7 +1,7 @@
 <?php
 
 //
-// Настройка фона для страниц пользователя и групп
+// Configuration фона для страниц пользователя и групп
 // 
 //
 
@@ -9,7 +9,7 @@
 defined( 'ABSPATH' ) || exit;
 
 //
-// Описание инструмента настройки для группы. 
+// Description инструмента настройки для группы. 
 // Использует методы общего класса mif_bpc_custom_background
 //
 
@@ -28,7 +28,7 @@ function mif_bpc_custom_background_groups_init() {
         function __construct() 
         {
 
-            $this->name = __( 'Фон', 'mif-bp-customizer' );
+            $this->name = __( 'Background', 'mif-bpc' );
             $this->slug = 'custom-background';
             $this->nav_item_position = 30;
 
@@ -38,7 +38,7 @@ function mif_bpc_custom_background_groups_init() {
         function settings_screen( $group_id = NULL ) 
         {
 
-            echo '<h3>' . __( 'Фоновое изображение', 'mif-bp-customizer' ) . '</h3>';
+            echo '<h3>' . __( 'Background image', 'mif-bpc' ) . '</h3>';
 
             echo mif_bpc_custom_background::admin_page();
 
@@ -97,7 +97,7 @@ class mif_bpc_custom_background {
         }
 
         bp_core_new_subnav_item( array( 
-                                    'name' => __( 'Фон', 'mif-bp-customizer' ), 
+                                    'name' => __( 'Background', 'mif-bpc' ), 
                                     'slug' => 'custom-background', 
                                     'parent_url' => $parent_url, 
                                     'parent_slug' => $parent_slug, 
@@ -119,7 +119,7 @@ class mif_bpc_custom_background {
 
     public function settings_title()
     {
-        echo __( 'Фоновое изображение', 'mif-bp-customizer' );
+        echo __( 'Background image', 'mif-bpc' );
     }
 
 
@@ -148,7 +148,7 @@ class mif_bpc_custom_background {
         if ( empty( $_POST['save'] ) && empty( $_POST['delete'] ) ) return;
 
         // if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-custom-background-submit' ) ) {
-        //     bp_core_add_message( sprintf( __( 'Ошибка авторизации', 'mif-bp-customizer' ) ), 'error' );
+        //     bp_core_add_message( sprintf( __( 'Authorization error', 'mif-bpc' ) ), 'error' );
         //     return false;
         // }
 
@@ -216,15 +216,15 @@ class mif_bpc_custom_background {
         $image = ( $image_url ) ? '<div class="custom-background-image"><img src="' . $image_url . '"></div>' : '';
 
         $out .= '<div class="custom-background-wrapper">';
-        $out .= '<p>' . __( 'Фоновое изображение используется для оформления страницы. Вы можете выбрать на своем компьютере и загрузить изображение в формате JPG, GIF или PNG.', 'mif-bp-customizer' ) . '</p>';
+        $out .= '<p>' . __( 'The background image is used for the page design. You can select on your computer and upload JPG, GIF or PNG image.', 'mif-bpc' ) . '</p>';
         $out .= '<p>&nbsp;</p>';
 
         $out .= $image;
 
         $out .= '<p>&nbsp;<p><input type="file" name="file" id="custom-background-upload" accept="image/jpeg,image/png,image/gif" />';
         $out .= '<p>&nbsp;</div>';
-        $out .= '<p><input type="submit" name="save" value="' . __( 'Сохранить изменения', 'mif-bp-customizer' ) . '" /> ';
-        if ( $image_url ) $out .= '<input type="submit" name="delete" value="' . __( 'Удалить файл', 'mif-bp-customizer' ) . '" />';
+        $out .= '<p><input type="submit" name="save" value="' . __( 'Save the changes', 'mif-bpc' ) . '" /> ';
+        if ( $image_url ) $out .= '<input type="submit" name="delete" value="' . __( 'Delete file', 'mif-bpc' ) . '" />';
 
         return $out;
 
@@ -238,7 +238,7 @@ class mif_bpc_custom_background {
         if ( $_POST['delete'] ) {
 
             $image_url = self::get_image();
-            if ( $image_url ) bp_core_add_message( __( 'Изображение удалено', 'mif-bp-customizer' ) );
+            if ( $image_url ) bp_core_add_message( __( 'Image is removed', 'mif-bpc' ) );
 
             self::delete_custom_background();
 
@@ -254,29 +254,29 @@ class mif_bpc_custom_background {
         $file=$_FILES;
 
         if ( $file['error'] ) {
-            bp_core_add_message( __( 'Ошибка загрузки файла', 'mif-bp-customizer' ), 'error' );
+            bp_core_add_message( __( 'File upload error', 'mif-bpc' ), 'error' );
             return false;
         }
 
         if ( $max_upload_size && $file['file']['size'] > $max_upload_size ) {
-            bp_core_add_message( sprintf( __( 'Файл слишком большой. Вы можете загрузить файл размером не более %s.', 'mif-bp-customizer' ), size_format( $max_upload_size ) ), 'error' );
+            bp_core_add_message( sprintf( __( 'The file is too large. You can upload file not larger than %s.', 'mif-bpc' ), size_format( $max_upload_size ) ), 'error' );
             return false;
         }
             
         if ( empty( $file['file']['name'] ) ) {
-            bp_core_add_message( __( 'Вы забыли прикрепить файл.', 'mif-bp-customizer' ), 'error' );
+            bp_core_add_message( __( 'You forgot to attach a file.', 'mif-bpc' ), 'error' );
             return false;
         }
 
         if ( ( ! empty( $file['file']['type'] ) && ! preg_match( '/(jpe?g|gif|png)$/i', $file['file']['type'] ) ) || ! preg_match( '/(jpe?g|gif|png)$/i', $file['file']['name'] ) ) {
-            bp_core_add_message( __( 'Неверный формат файла. Вы можете использовать только JPG, GIF или PNG изображения.', 'mif-bp-customizer' ), 'error' );
+            bp_core_add_message( __( 'Invalid file type. You can use only JPG, GIF or PNG images.', 'mif-bpc' ), 'error' );
             return false;
         }
 
         $uploaded_file = wp_handle_upload( $file['file'], array( 'test_form' => false ) );
 
         if ( ! empty( $uploaded_file['error'] ) ) {
-            bp_core_add_message( sprintf( __( 'Ошибка загрузки файла: %s', 'buddypress' ), $uploaded_file['error'] ), 'error' );
+            bp_core_add_message( sprintf( __( 'File upload error: %s', 'buddypress' ), $uploaded_file['error'] ), 'error' );
             return false;
         }
 
@@ -295,7 +295,7 @@ class mif_bpc_custom_background {
 
         }
 
-        bp_core_add_message( sprintf( __( 'Изображение успешно загружено', 'buddypress' ) ) );
+        bp_core_add_message( sprintf( __( 'The image is uploaded successfully', 'buddypress' ) ) );
 
         do_action( 'mif_bpc_custom_background_uploaded', $uploaded_file, $uploaded_file );
 

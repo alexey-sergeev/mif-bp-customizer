@@ -21,16 +21,16 @@ class mif_bpc_admin_banned_members {
 
     function register_menu_page()
     {
-        add_users_page( __( 'Блокировки пользователей', 'mif-bp-customizer' ), __( 'Блокировки пользователей', 'mif-bp-customizer' ), 'manage_options', 'banned-members', array( $this, 'page' ) );
-        // add_submenu_page( 'users.php', __( 'Блокировки пользователей', 'mif-bp-customizer' ), __( 'Блокировки пользователей', 'mif-bp-customizer' ), 'manage_options', 'banned-members', array( $this, 'page' ) );
+        add_users_page( __( 'User blockings', 'mif-bpc' ), __( 'User blockings', 'mif-bpc' ), 'manage_options', 'banned-members', array( $this, 'page' ) );
+        // add_submenu_page( 'users.php', __( 'User blockings', 'mif-bpc' ), __( 'User blockings', 'mif-bpc' ), 'manage_options', 'banned-members', array( $this, 'page' ) );
         wp_register_style( 'mif-bp-customizer-styles', plugins_url( '../mif-bp-customizer-styles.css', __FILE__ ) );
         wp_enqueue_style( 'mif-bp-customizer-styles' );
     }
 
     function page()
     {
-        $out = '<h1>' . __( 'Блокировки пользователей', 'mif-bp-customizer' ) . '</h1>';
-        $out .= '<p>' . __( 'На этой странице представлена информация о блокировках пользователей в сети BuddyPress.', 'mif-bp-customizer' );
+        $out = '<h1>' . __( 'User blockings', 'mif-bpc' ) . '</h1>';
+        $out .= '<p>' . __( 'This page displays information about user blockings in BuddyPress network.', 'mif-bpc' );
         $out .= '<p>&nbsp;';
 
 
@@ -102,7 +102,7 @@ class mif_bpc_admin_banned_members {
 
     // 
     // Возвращает список заблокированных пользователей
-    // (массив id, или индекс с номерами тех, кто заблокировал)
+    // (массив id, or индекс с номерами тех, кто заблокировал)
     // 
 
     function get_all_banned_users( $mode = "ids" )

@@ -1,7 +1,7 @@
 <?php
 
 //
-// Настройка короткого адреса для группы
+// Configuration короткого адреса для группы
 // 
 //
 
@@ -27,7 +27,7 @@ function mif_bpc_edit_group_slug_init() {
 		function __construct() 
         {
 
-            $this->name = __( 'Адрес', 'mif-bp-customizer' );
+            $this->name = __( 'Address', 'mif-bpc' );
             $this->slug = 'group-slug';
 
 			$this->create_step_position = 11;
@@ -45,16 +45,16 @@ function mif_bpc_edit_group_slug_init() {
 
             $out = '';
 
-            $out .= '<h3>' . __( 'Адрес', 'mif-bp-customizer' ) . '</h3>';
-            $out .= '<p>' . __( 'Настройка имени группы в адресной строке', 'mif-bp-customizer' ) . '</p>';
-            $out .= '<p>' . __( 'Имя группы в адресной строке задается автоматически на основе названия группы, указанного при её создании. Вы можете оставить существующее имя или указать другое.', 'mif-bp-customizer' ) . '</p>';
+            $out .= '<h3>' . __( 'Address', 'mif-bpc' ) . '</h3>';
+            $out .= '<p>' . __( 'Configuration of the group name in the address bar', 'mif-bpc' ) . '</p>';
+            $out .= '<p>' . __( 'The group name in the address bar is set automatically based on the group name, specified when it was created. You can leave the existing name or set another one.', 'mif-bpc' ) . '</p>';
 
             $out .= '<div class="slug-edit">';
             $out .= '<div>' . $group_url . '</div>';
             $out .= '<input type="text" name="slug" value="' . $slug . '">';
             $out .= '</div>';
 
-            $out .= '<p>' . __( '** Придумайте адрес, который будет коротким и запоминающимся. Вы можете использовать строчные латинские буквы, цифры, подчёркивание и тире.', 'mif-bp-customizer' ) . '</p>';
+            $out .= '<p>' . __( '** Придумайте адрес, который будет коротким и запоминающимся. Вы можете использовать строчные латинские буквы, цифры, подчёркивание и тире.', 'mif-bpc' ) . '</p>';
             $out .= '<p>&nbsp;';
 
             echo $out;
@@ -79,11 +79,11 @@ function mif_bpc_edit_group_slug_init() {
         {
             global $bp;
 
-            $msg = array(   0 => __( 'Адрес группы успешно изменён.', 'mif-bp-customizer' ), 
-                            1 => __( 'Адрес группы не изменился.', 'mif-bp-customizer' ),
-                            2 => __( 'Указанный адрес уже используется. Пожалуйста, придумайте другой.', 'mif-bp-customizer' ),
-                            3 => __( 'Такой адрес не допускается. Пожалуйста, придумайте другой.', 'mif-bp-customizer' ),
-                            4 => __( 'Адрес содержит недопустимые символы. Используйте только строчные латинские буквы, цифры, подчёркивание и тире.', 'mif-bp-customizer' )
+            $msg = array(   0 => __( 'The group address has been successfully changed.', 'mif-bpc' ), 
+                            1 => __( 'The group address has not changed.', 'mif-bpc' ),
+                            2 => __( 'Specified address is already in use. Please, come up with another one.', 'mif-bpc' ),
+                            3 => __( 'Such address is not allowed. Please, come up with another one.', 'mif-bpc' ),
+                            4 => __( 'The address contains invalid characters. Use only lowercase Latin letters, numbers, underscore and dash.', 'mif-bpc' )
                         );
 
 
@@ -104,7 +104,7 @@ function mif_bpc_edit_group_slug_init() {
 
                     } else {
 
-                        bp_core_add_message( __( 'При изменении адреса произошла ошибка.', 'mif-bp-customizer' ), 'error' );
+                        bp_core_add_message( __( 'Error occurred while changing the address.', 'mif-bpc' ), 'error' );
 
                     }
 
@@ -119,7 +119,7 @@ function mif_bpc_edit_group_slug_init() {
                 if ( $error_code == 0 ) {
                     
                     bp_core_add_message( $msg[$error_code] );
-                    if ( ! $this->save_slug( $slug, $group_id ) ) bp_core_add_message( __( 'При изменении адреса произошла ошибка.', 'mif-bp-customizer' ), 'error' );
+                    if ( ! $this->save_slug( $slug, $group_id ) ) bp_core_add_message( __( 'Error occurred while changing the address.', 'mif-bpc' ), 'error' );
 
                 }
 

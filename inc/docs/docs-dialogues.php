@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы (прикрепленные сообщения в диалогах)
+// Documents (прикрепленные сообщения в диалогах)
 // 
 //
 
@@ -55,10 +55,10 @@ class mif_bpc_docs_dialogues extends mif_bpc_docs_screen {
 
         $out .= '<div class="response-box attach clearfix hidden"></div>
         <div class="template">' . $this->get_item_inline() . '</div>
-        <div class="drop-box"><p>' . __( 'Перетащите файлы сюда', 'mif-bp-customizer' ) . '</p>
+        <div class="drop-box"><p>' . __( 'Drag files here', 'mif-bpc' ) . '</p>
         <input type="file" name="files[]" multiple="multiple" class="docs-upload-form"></div>
         <input name="MAX_FILE_SIZE" value="' . $this->get_max_upload_size() . '" type="hidden">
-        <input name="max_file_error" value="' . __( 'Слишком большой файл', 'mif-bp-customizer' ) . '" type="hidden">
+        <input name="max_file_error" value="' . __( 'The file is too large', 'mif-bpc' ) . '" type="hidden">
         <input type="hidden" name="upload_nonce" value="' . wp_create_nonce( 'mif-bpc-docs-file-upload-nonce' ) . '">
         <input type="hidden" name="action" value="mif-bpc-docs-upload-files-dialogues">';
 
@@ -99,7 +99,7 @@ class mif_bpc_docs_dialogues extends mif_bpc_docs_screen {
 
 
     //
-    // Помощник публикации документа или папки в ленте активности
+    // Помощник публикации документа or папки в ленте активности
     //
 
     function repost_doc_helper()

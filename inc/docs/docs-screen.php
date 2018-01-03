@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы (экранные функции)
+// Documents (экранные функции)
 // 
 //
 
@@ -20,7 +20,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     public $avatar_size = 50;
 
     //
-    // Описание уровней доступа к папке
+    // Description уровней доступа к папке
     //
 
     public $access_mode_descr = array();
@@ -31,10 +31,10 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     {
         
         $this->access_mode_descr = apply_filters( 'mif_bpc_docs_access_mode_descr', array(
-            'default' => __( 'Как в настройках группы', 'mif-bp-customizer' ),
-            'only_admin' => __( 'Только владелец папки и администратор могут размещать и удалять документы', 'mif-bp-customizer' ),
-            'everyone_create' => __( 'Каждый может размещать документы, но удалять – только свои', 'mif-bp-customizer' ),
-            'everyone_delete' => __( 'Каждый может размещать и удалять любые документы', 'mif-bp-customizer' ),
+            'default' => __( 'As in group settings', 'mif-bpc' ),
+            'only_admin' => __( 'Only the folder owner and administrator can publish and delete documents', 'mif-bpc' ),
+            'everyone_create' => __( 'Everyone can upload documents, but delete only their own', 'mif-bpc' ),
+            'everyone_delete' => __( 'Everyone can upload and delete any documents', 'mif-bpc' ),
         ) );
         
         parent::__construct();
@@ -61,17 +61,17 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $out .= '<div class="drop-box">';
         // $out .= '<div class="response-box clearfix"></div>';
         $out .= '<div class="template">' . $this->get_doc_item() . '</div>
-        <p>' . __( 'Перетащите файлы сюда', 'mif-bp-customizer' ) . '...</p>
+        <p>' . __( 'Drag files here', 'mif-bpc' ) . '...</p>
         <input type="file" name="files[]" multiple="multiple" class="docs-upload-form">
         <input name="MAX_FILE_SIZE" value="' . $this->get_max_upload_size() . '" type="hidden">
-        <input name="max_file_error" value="' . __( 'Слишком большой файл', 'mif-bp-customizer' ) . '" type="hidden">';
+        <input name="max_file_error" value="' . __( 'The file is too large', 'mif-bpc' ) . '" type="hidden">';
         $out .= '</div>';
-        $out .= '<p>... ' . __( 'или', 'mif-bp-customizer' ) . ' <a href="#" class="show-link-box">' . __( 'укажите ссылку Интернета', 'mif-bp-customizer' ) . '</a></p>';
+        $out .= '<p>... ' . __( 'or', 'mif-bpc' ) . ' <a href="#" class="show-link-box">' . __( 'specify Internet link', 'mif-bpc' ) . '</a></p>';
 
         $out .= '<div class="link-box">
-        <p><input type="text" name="link" placeholder="' . __( 'URL', 'mif-bp-customizer' ) . '">
-        <p><input type="text" name="descr" placeholder="' . __( 'Описание', 'mif-bp-customizer' ) . '">
-        <p><input type="submit" value="' . __( 'Опубликовать', 'mif-bp-customizer' ) . '">
+        <p><input type="text" name="link" placeholder="' . __( 'URL', 'mif-bpc' ) . '">
+        <p><input type="text" name="descr" placeholder="' . __( 'Description', 'mif-bpc' ) . '">
+        <p><input type="submit" value="' . __( 'Publish', 'mif-bpc' ) . '">
         </div>';
 
         $out .= '<input type="hidden" name="upload_nonce" value="' . wp_create_nonce( 'mif-bpc-docs-file-upload-nonce' ) . '">';
@@ -87,7 +87,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
-    // Все папки пользователя или группы
+    // Все папки пользователя or группы
     // 
 
     function get_folders( $page = 1, $item_id = NULL, $mode = NULL, $trashed = false )
@@ -124,7 +124,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         } else {
 
-            if ( $page === 1 ) $out = mif_bpc_message( __( 'Папки не обнаружены', 'mif-bp-customizer' ) );
+            if ( $page === 1 ) $out = mif_bpc_message( __( 'Folders were not located', 'mif-bpc' ) );
 
         }
 
@@ -136,7 +136,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
-    // Выводит страницу создания или настройки папки
+    // Выводит страницу создания or настройки папки
     // 
 
     function get_folder_settings( $folder_id = NULL )
@@ -151,7 +151,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $item_id = $parents_data['item_id'];
             $mode = $parents_data['mode'];
 
-            $out .= '<h2>' . __( 'Новая папка', 'mif-bp-customizer' ) . '</h2>
+            $out .= '<h2>' . __( 'New folder', 'mif-bpc' ) . '</h2>
             <form id="new-folder">
             <input type="hidden" name="item_id" value="' . $item_id . '">
             <input type="hidden" name="mode" value="' . $mode . '">
@@ -173,13 +173,13 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             if ( ! ( $this->is_admin() || $folder->post_author == bp_loggedin_user_id() ) ) return false;
             if ( ! $this->is_folder( $folder ) ) return false;
 
-            $out .= '<h2>' . __( 'Настройки папки', 'mif-bp-customizer' ) . '</h2>';
+            $out .= '<h2>' . __( 'Folder settings', 'mif-bpc' ) . '</h2>';
             
-            $remove_box = '<p><a href="' . $this->get_folder_url( $folder_id ) . '" class="remove-box-toggle dotted">' . __( 'Удалить папку', 'mif-bp-customizer' ) . '</a></p>
+            $remove_box = '<p><a href="' . $this->get_folder_url( $folder_id ) . '" class="remove-box-toggle dotted">' . __( 'Delete folder', 'mif-bpc' ) . '</a></p>
             <div class="remove-box">
             <div class="message warning">
-            <p>' . __( 'Папка и все её документы будут перемещены в корзину и через несколько дней окончательно удалены. Пока материалы хранятся в корзине, вы их сможете восстановить.', 'mif-bp-customizer' ) . '</p>
-            <p><input type="button" class="remove to-trash" value="' . __( 'Удалить', 'mif-bp-customizer' ) . '"></p>
+            <p>' . __( 'The folder and all of its documents will be moved to the Recycle Bin and will be deleted permanently in a few days. While the materials are stored in the Recycle Bin, you can restore them.', 'mif-bpc' ) . '</p>
+            <p><input type="button" class="remove to-trash" value="' . __( 'Delete', 'mif-bpc' ) . '"></p>
             </div>
             </div>';
 
@@ -202,12 +202,12 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        $out .= '<p>' . __( 'Название', 'mif-bp-customizer' ) . ':</p>
+        $out .= '<p>' . __( 'Name', 'mif-bpc' ) . ':</p>
         <p><input type="text" name="name" value="' . $name .'"' . $disabled . '></p>
-        <p>' . __( 'Описание', 'mif-bp-customizer' ) . ':</p>
+        <p>' . __( 'Description', 'mif-bpc' ) . ':</p>
         <p><textarea name="desc"' . $disabled . '>' . $desc . '</textarea></p>
-        <p>' . __( 'Режим доступа', 'mif-bp-customizer' ) . ':</p>
-        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Опубликована', 'mif-bp-customizer' ) . '</label></p><p>';
+        <p>' . __( 'Access mode', 'mif-bpc' ) . ':</p>
+        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Is published', 'mif-bpc' ) . '</label></p><p>';
 
         if ( bp_is_group() ) {
 
@@ -219,16 +219,16 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $access_mode = $this->get_access_mode_to_folder( $folder_id, false );
             $arr[$access_mode] = ' checked';
 
-            $out .= '<p>' . __( 'Возможности размещения и удаления документов', 'mif-bp-customizer' ) . ':</p>';
+            $out .= '<p>' . __( 'Possibilities to upload and delete documents', 'mif-bpc' ) . ':</p>';
             $out .= '<p><label><input type="radio" name="access_mode" value="default"' . $arr['default']  . $disabled . '> ' . $this->access_mode_descr['default'] . '</label><br />';
             $out .= '<label><input type="radio" name="access_mode" value="only_admin"' . $arr['only_admin']  . $disabled . '> ' . $this->access_mode_descr['only_admin'] . '</label><br />';
             $out .= '<label><input type="radio" name="access_mode" value="everyone_create"' . $arr['everyone_create']  . $disabled . '> ' . $this->access_mode_descr['everyone_create'] . '</label><br />';
             $out .= '<label><input type="radio" name="access_mode" value="everyone_delete"' . $arr['everyone_delete']  . $disabled . '> ' . $this->access_mode_descr['everyone_delete'] . '</label><p>';
         }
 
-        if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Сохранить', 'mif-bp-customizer' ) . '"> ';
+        if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Save', 'mif-bpc' ) . '"> ';
 
-        $out .= '<input type="button" id="cancel" value="' . __( 'Отмена', 'mif-bp-customizer' ) . '">
+        $out .= '<input type="button" id="cancel" value="' . __( 'Cancel', 'mif-bpc' ) . '">
         </p>' . $remove_box . '</form>';
 
         $out .= '</div>';
@@ -307,7 +307,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
-    // Все документы, расположенные в папке
+    // Все documents, расположенные в папке
     // 
 
     function get_docs_collection( $folder_id, $page = 1, $trashed = false )
@@ -318,7 +318,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         
         if ( ! $this->is_access( $folder_id, 'read' ) ) {
 
-            $out = mif_bpc_message( __( 'Доступ ограничен', 'mif-bp-customizer' ) );
+            $out = mif_bpc_message( __( 'Access is restricted', 'mif-bpc' ) );
             return apply_filters( 'mif_bpc_docs_get_docs_collection_access_denied', $out, $folder_id );
 
         }
@@ -351,7 +351,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         
         } else {
 
-            if ( $page === 1 ) $out .= '</div><div class="folder-is-empty-msg">' . mif_bpc_message( __( 'Документы не обнаружены', 'mif-bp-customizer' ) ) . '</div><div>';
+            if ( $page === 1 ) $out .= '</div><div class="folder-is-empty-msg">' . mif_bpc_message( __( 'Documents were not located', 'mif-bpc' ) ) . '</div><div>';
             
         }
 
@@ -373,9 +373,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        $out .= __( 'Документ не опубликован и доступен только вам', 'mif-bp-customizer' );
+        $out .= __( 'The document isn’t published and only you can access it', 'mif-bpc' );
         $out .= '<form>
-        <input type="button" name="publish" class="publish" value="' . __( 'Опубликовать', 'mif-bp-customizer' ) . '">
+        <input type="button" name="publish" class="publish" value="' . __( 'Publish', 'mif-bpc' ) . '">
         <input type="hidden" name="item_id" value="' . $doc_id . '">
         </form>';
 
@@ -388,7 +388,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
-    // Окно восстановления или окончательного удаления документа
+    // Окно восстановления or окончательного удаления документа
     // 
 
     function doc_restore_delete_tool( $doc_id )
@@ -397,11 +397,11 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        $out .= __( 'Документ находится в корзине и через некоторое время будет окончательно удален. Пока это не произошло, вы можете его восстановить или самостоятельно удалить из корзины.', 'mif-bp-customizer' );
+        $out .= __( 'The document is in the Recycle Bin and will be deleted permanently in a few days. While it hasn’t happened, you can restore it or delete from the Recycle Bin by yourself.', 'mif-bpc' );
         $out .= '<div class="doc-restore-delete">
         <form>
-        <input type="button" name="delete" class="delete" value="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '">
-        <input type="button" name="restore" class="restore" value="' . __( 'Восстановить', 'mif-bp-customizer' ) . '">
+        <input type="button" name="delete" class="delete" value="' . __( 'Delete permanently', 'mif-bpc' ) . '">
+        <input type="button" name="restore" class="restore" value="' . __( 'Restore', 'mif-bpc' ) . '">
         <input type="hidden" name="item_id" value="' . $doc_id . '">
         </form>
         </div>';
@@ -423,9 +423,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        $out .= __( 'Папка не опубликована и доступна только вам', 'mif-bp-customizer' );
+        $out .= __( 'The folder isn’t published and only you can access it', 'mif-bpc' );
         $out .= '<form>
-        <input type="button" name="publish" class="publish" value="' . __( 'Опубликовать', 'mif-bp-customizer' ) . '">
+        <input type="button" name="publish" class="publish" value="' . __( 'Publish', 'mif-bpc' ) . '">
         <input type="hidden" name="item_id" value="' . $folder_id . '">
         </form>';
 
@@ -438,7 +438,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
-    // Окно восстановления или окончательного удаления папки
+    // Окно восстановления or окончательного удаления папки
     // 
 
     function folder_restore_delete_tool( $folder_id )
@@ -447,11 +447,11 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '';
 
-        $out .= __( 'Папка находится в корзине и через некоторое время будет окончательно удалена. Пока это не произошло, вы можете её восстановить или самостоятельно удалить из корзины.', 'mif-bp-customizer' );
+        $out .= __( 'The folder is in the Recycle Bin and will be deleted permanently in a few days. While it hasn’t happened, you can restore it or delete from the Recycle Bin by yourself.', 'mif-bpc' );
         $out .= '<div class="folder-restore-delete">
         <form>
-        <input type="button" name="delete" class="delete" value="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '">
-        <input type="button" name="restore" class="restore" value="' . __( 'Восстановить', 'mif-bp-customizer' ) . '">
+        <input type="button" name="delete" class="delete" value="' . __( 'Delete permanently', 'mif-bpc' ) . '">
+        <input type="button" name="restore" class="restore" value="' . __( 'Restore', 'mif-bpc' ) . '">
         <input type="hidden" name="item_id" value="' . $folder_id . '">
         </form>
         </div>';
@@ -465,7 +465,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     // 
-    // Выводит кнопку "Показать ещё"
+    // Выводит кнопку "Show more"
     // 
 
     function get_more_button( $page, $args = array() )
@@ -473,7 +473,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $out = '';
 
         $out .= '<div class="more"><form>
-        <button>' . __( 'Показать ещё', 'mif-bp-customizer' ) . '</button>
+        <button>' . __( 'Show more', 'mif-bpc' ) . '</button>
         <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>';
         $out .= '<input type="hidden" name="_wpnonce" value="' . wp_create_nonce( 'mif-bpc-docs-nonce' ) . '">';
 
@@ -497,8 +497,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $out = '';
 
         $out .= '<div class="stat">';
-        $out .= '<p>' . __( 'На этой странице отображается статистика по всем личным документам профиля пользователя и групп', 'mif-bp-customizer' ) . '</p>';
-        $out .= '<span class="one">' . __( 'Занято', 'mif-bp-customizer' ) . ':</span> ';
+        $out .= '<p>' . __( 'This page displays statistics for all personal documents of user and group profile', 'mif-bpc' ) . '</p>';
+        $out .= '<span class="one">' . __( 'Used', 'mif-bpc' ) . ':</span> ';
         $out .= '<span class="two">' . mif_bpc_format_file_size( $this->get_user_size() ) . '</span>';
         $out .= '<p>&nbsp;';
         $out .= '</div>';
@@ -545,17 +545,17 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $url = $this->get_doc_url( $doc->ID );
             $a1 = '<a href="' . $url . '">';
             $a2 = '</a>';
-            if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+            if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove left" title="' . __( 'Delete', 'mif-bpc' ) . '"><i class="fa fa-times"></i></a>';
 
             $doc_type = $this->get_doc_type( $doc );
 
             if ( $doc_type == 'file' || $doc_type == 'image' ) {
 
-                $right = '<a href="' . $url . 'download/" class="button doc-download right" title="' . __( 'Скачать', 'mif-bp-customizer' ) . '"><i class="fa fa-download"></i></a>';
+                $right = '<a href="' . $url . 'download/" class="button doc-download right" title="' . __( 'Download', 'mif-bpc' ) . '"><i class="fa fa-download"></i></a>';
             
             } elseif ( $doc_type == 'link' ) {
 
-                $right = '<a href="' . $doc->post_content . '" target="blank" class="button doc-download right" title="' . __( 'Открыть', 'mif-bp-customizer' ) . '"><i class="fa fa-arrow-up"></i></a>';
+                $right = '<a href="' . $doc->post_content . '" target="blank" class="button doc-download right" title="' . __( 'Open', 'mif-bpc' ) . '"><i class="fa fa-arrow-up"></i></a>';
 
             } else {
 
@@ -567,16 +567,16 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
             if ( $doc->post_status == 'trash' ) {
 
-                if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'restore/" data-item-id="' . $doc->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
-                if ( $this->is_access( $doc, 'delete' ) ) $right = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+                if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'restore/" data-item-id="' . $doc->ID . '" class="button item-remove restore left" title="' . __( 'Restore', 'mif-bpc' ) . '"><i class="fa fa-undo"></i></a>';
+                if ( $this->is_access( $doc, 'delete' ) ) $right = '<a href="' . $url . 'remove/" data-item-id="' . $doc->ID . '" class="button item-remove right" title="' . __( 'Delete permanently', 'mif-bpc' ) . '"><i class="fa fa-times"></i></a>';
 
-                $title = ' title="' . __( 'Документ находится в корзине', 'mif-bp-customizer' ) . '"';
+                $title = ' title="' . __( 'Document is in the Recycle Bin', 'mif-bpc' ) . '"';
 
             }
 
             if ( $doc->post_status == 'private' ) {
 
-                $title = ' title="' . __( 'Документ доступен только вам', 'mif-bp-customizer' ) . '"';
+                $title = ' title="' . __( 'Only you can access the document', 'mif-bpc' ) . '"';
 
             }
 
@@ -618,20 +618,20 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         if ( $folder->post_status == 'trash' ) {
 
-            if ( $this->is_access( $folder, 'delete' ) ) $left = '<a href="' . $url . '/restore/" data-item-id="' . $folder->ID . '" class="button item-remove restore left" title="' . __( 'Восстановить', 'mif-bp-customizer' ) . '"><i class="fa fa-undo"></i></a>';
-            if ( $this->is_access( $folder, 'delete' ) ) $right = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove right" title="' . __( 'Удалить совсем', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+            if ( $this->is_access( $folder, 'delete' ) ) $left = '<a href="' . $url . '/restore/" data-item-id="' . $folder->ID . '" class="button item-remove restore left" title="' . __( 'Restore', 'mif-bpc' ) . '"><i class="fa fa-undo"></i></a>';
+            if ( $this->is_access( $folder, 'delete' ) ) $right = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove right" title="' . __( 'Delete permanently', 'mif-bpc' ) . '"><i class="fa fa-times"></i></a>';
 
-            $title = ' title="' . __( 'Папка находится в корзине', 'mif-bp-customizer' ) . '"';
+            $title = ' title="' . __( 'The folder is in the Recycle Bin', 'mif-bpc' ) . '"';
 
         } else {
 
-            if ( $this->is_access( $folder, 'delete' ) ) if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove left" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-times"></i></a>';
+            if ( $this->is_access( $folder, 'delete' ) ) if ( $data['count'] == 0 ) $left = '<a href="' . $url . '/remove/" data-item-id="' . $folder->ID . '" class="button item-remove left" title="' . __( 'Delete', 'mif-bpc' ) . '"><i class="fa fa-times"></i></a>';
 
         }
 
         if ( $folder->post_status == 'private' ) {
 
-            $title = ' title="' . __( 'Папка доступна только вам', 'mif-bp-customizer' ) . '"';
+            $title = ' title="' . __( 'Only you can access the folder', 'mif-bpc' ) . '"';
 
         }
 
@@ -653,7 +653,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
 
     //
-    // Оформление документа или папки в списках (лента активности, диалоги)
+    // Оформление документа or папки в списках (лента активности, диалоги)
     //
 
     function get_item_inline( $item_id = NULL, $hidden_field = false )
@@ -721,7 +721,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     {
         $folder = get_post( $folder_id );
 
-        $out = '<h2><a href="' . $this->get_docs_url() . '/">' . __( 'Папки', 'mif-bp-customizer' ) . '</a> /  
+        $out = '<h2><a href="' . $this->get_docs_url() . '/">' . __( 'Folders', 'mif-bpc' ) . '</a> /  
         <a href="' . $this->get_folder_url( $folder->ID ) . '">' . $folder->post_title . '</a></h2>
         <div class="folder-description">' . $folder->post_content . '</div>';
 
@@ -741,7 +741,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         if ( $this->place( $folder_id ) == 'group' ) {
 
             $access_mode = $this->get_access_mode_to_folder( $folder_id, true );
-            if ( isset( $this->access_mode_descr[$access_mode] ) ) $out .= '<div class="access_mode"><span class="one">' . __( 'Уровень доступа', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $this->access_mode_descr[$access_mode] . '</span></div>';
+            if ( isset( $this->access_mode_descr[$access_mode] ) ) $out .= '<div class="access_mode"><span class="one">' . __( 'Access level', 'mif-bpc' ) . ':</span> <span class="two">' . $this->access_mode_descr[$access_mode] . '</span></div>';
 
             $folder = get_post( $folder_id );
             
@@ -794,7 +794,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         if ( ! $this->is_access( $doc, 'read' ) ) {
 
-            $out = mif_bpc_message( __( 'Доступ ограничен', 'mif-bp-customizer' ) );
+            $out = mif_bpc_message( __( 'Access is restricted', 'mif-bpc' ) );
             return apply_filters( 'mif_bpc_docs_get_doc_content_access_denied', $out, $doc );
         }
 
@@ -809,7 +809,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $url = $this->get_doc_url( $doc->ID ) . 'download';
         $html = $doc->the_content;
 
-        // Если ссылка, то решить, отображать ее как HTML или как простую ссылку (оформляется как файл)
+        // Если link, то решить, отображать ее как HTML or как простую ссылку (оформляется как файл)
 
         if ( $doc_type == 'link' ) {
 
@@ -828,7 +828,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        // Показать HTML (из базы данных, или сформироанную выше через oembed)
+        // Показать HTML (из базы данных, or сформироанную выше через oembed)
 
         if ( $doc_type == 'html' ) {
 
@@ -843,7 +843,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        // Показать файл (или простую ссылку)
+        // Показать файл (or простую ссылку)
 
         if ( $doc_type == 'file' ) {
 
@@ -871,7 +871,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
                 <a href="' . $url . '"><img src="' . $url . '"></a>
             </div>
             <div>
-                <div class="name"><span class="one">' . __( 'Файл', 'mif-bp-customizer' ) . ':</span> <span class="two"><a href="' . $url . '">' . $doc->post_title . '</a></span></div>
+                <div class="name"><span class="one">' . __( 'File', 'mif-bpc' ) . ':</span> <span class="two"><a href="' . $url . '">' . $doc->post_title . '</a></span></div>
                 <div class="description">' . $doc->post_excerpt . '</div>
             </div>';
 
@@ -923,13 +923,13 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out = '<div class="doc-settings clearfix">';
 
-        $out .= '<h2>' . __( 'Параметры документа', 'mif-bp-customizer' ) . '</h2>';
+        $out .= '<h2>' . __( 'Document options', 'mif-bpc' ) . '</h2>';
 
-        $remove_box = '<p><a href="' . $this->get_doc_url( $doc->ID ) . '" class="remove-box-toggle dotted">' . __( 'Удалить документ', 'mif-bp-customizer' ) . '</a></p>
+        $remove_box = '<p><a href="' . $this->get_doc_url( $doc->ID ) . '" class="remove-box-toggle dotted">' . __( 'Delete document', 'mif-bpc' ) . '</a></p>
         <div class="remove-box">
         <div class="message warning">
-        <p>' . __( 'Документ будет отправлен в корзину и через несколько дней окончательно удален. Пока документ хранятся в корзине, вы сможете его восстановить.', 'mif-bp-customizer' ) . '</p>
-        <p><input type="button" class="remove to-trash" value="' . __( 'Удалить', 'mif-bp-customizer' ) . '"></p>
+        <p>' . __( 'The document will be sent to the Recycle Bin and will be deleted permanently in a few days. While the document is stored in the Recycle Bin, you can restore it.', 'mif-bpc' ) . '</p>
+        <p><input type="button" class="remove to-trash" value="' . __( 'Delete', 'mif-bpc' ) . '"></p>
         </div>
         </div>';
 
@@ -950,16 +950,16 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $desc = $doc->post_excerpt;
         $publish = ( $doc->post_status == 'publish' ) ? ' checked' : '';
 
-        $out .= '<p>' . __( 'Название', 'mif-bp-customizer' ) . ':</p>
+        $out .= '<p>' . __( 'Name', 'mif-bpc' ) . ':</p>
         <p><input type="text" name="name" value="' . $name .'"' . $disabled . '></p>
-        <p>' . __( 'Описание', 'mif-bp-customizer' ) . ':</p>
+        <p>' . __( 'Description', 'mif-bpc' ) . ':</p>
         <p><textarea name="desc"' . $disabled . '>' . $desc . '</textarea></p>
-        <p>' . __( 'Режим доступа', 'mif-bp-customizer' ) . ':</p>
-        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Опубликовано', 'mif-bp-customizer' ) . '</label></p><p>';
+        <p>' . __( 'Access mode', 'mif-bpc' ) . ':</p>
+        <p><label><input type="checkbox" name="publish"' . $publish  . $disabled . '> ' . __( 'Is published', 'mif-bpc' ) . '</label></p><p>';
 
-        if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Сохранить', 'mif-bp-customizer' ) . '"> ';
+        if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Save', 'mif-bpc' ) . '"> ';
 
-        $out .= '<input type="button" id="cancel" value="' . __( 'Отмена', 'mif-bp-customizer' ) . '">
+        $out .= '<input type="button" id="cancel" value="' . __( 'Cancel', 'mif-bpc' ) . '">
         </p>' . $remove_box . '</form>';
 
         $out .= '</div>';
@@ -1019,9 +1019,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out .= '<div class="statusbar"><span class="info">&nbsp;</span><span class="tools">';
 
-        if ( $this->is_access( $doc, 'write' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Параметры', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span>';
+        if ( $this->is_access( $doc, 'write' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Options', 'mif-bpc' ) . '"><a href="' . trailingslashit( $this->get_doc_url( $doc->ID ) ) . 'settings/" id="doc-settings"><i class="fa fa-cog"></i></a></span></span>';
 
-        if ( bp_loggedin_user_id() && $this->is_access( $doc, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Опубликовать в ленте активности', 'mif-bp-customizer' ) . '"><a href="' . $this->get_repost_link( $doc ) . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
+        if ( bp_loggedin_user_id() && $this->is_access( $doc, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Publish in the activity feed', 'mif-bpc' ) . '"><a href="' . $this->get_repost_link( $doc ) . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
 
         $out .= '</span></div>';
 
@@ -1065,9 +1065,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         $doc = get_post( $doc_id );
         $size = $this->get_doc_size( $doc );
         $ext = $this->get_doc_ext( $doc->post_title );
-        $type = ( in_array( $this->get_doc_type( $doc_id ), array( 'image', 'file' ) ) ) ? mb_strtoupper( $ext ) : '<a href="' . $doc->post_content . '" target="blank">' . __( 'ссылка', 'mif-bp-customizer' ) . '</a>';
+        $type = ( in_array( $this->get_doc_type( $doc_id ), array( 'image', 'file' ) ) ) ? mb_strtoupper( $ext ) : '<a href="' . $doc->post_content . '" target="blank">' . __( 'link', 'mif-bpc' ) . '</a>';
 
-        // $out = '<span class="one">' . __( 'Объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $size ) . '</span>';
+        // $out = '<span class="one">' . __( 'Volume', 'mif-bpc' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $size ) . '</span>';
         $out = '<span class="two">' . mif_bpc_format_file_size( $size ) . '</span><span class="one">' . $type . '</span>';
 
         return apply_filters( 'mif_bpc_docs_get_doc_statusbar_info', $out, $folder_id, $data );
@@ -1090,16 +1090,16 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out .= '<div class="statusbar"><span class="info">&nbsp;</span><span class="tools">';
 
-        if ( $this->is_access( $folder_id, 'write' ) ) $out .= '<span class="item"><label title="' . __( 'Показать удалённые', 'mif-bp-customizer' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
+        if ( $this->is_access( $folder_id, 'write' ) ) $out .= '<span class="item"><label title="' . __( 'Show deleted', 'mif-bpc' ) . '"><span class="one"><input type="checkbox" id="show-remove-docs"></span><span class="two"><i class="fa fa-trash-o"></i></span></label></span>';
 
         if ( $this->is_folder( $folder_id ) ) {
 
             $folder = get_post( $folder_id );
-            if ( $this->is_admin() || $folder->post_author == bp_loggedin_user_id() ) $out .= '<span class="item"><span class="two" title="' . __( 'Настройки', 'mif-bp-customizer' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span>';
+            if ( $this->is_admin() || $folder->post_author == bp_loggedin_user_id() ) $out .= '<span class="item"><span class="two" title="' . __( 'Settings', 'mif-bpc' ) . '"><a href="' . trailingslashit( $this->get_folder_url( $folder_id ) ) . 'settings/" id="folder-settings"><i class="fa fa-cog"></i></a></span></span>';
 
         }
 
-        if ( bp_loggedin_user_id() && $this->is_access( $folder, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Опубликовать в ленте активности', 'mif-bp-customizer' ) . '"><a href="' . $this->get_repost_link( $folder ) . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
+        if ( $this->is_folder( $folder_id ) && bp_loggedin_user_id() && $this->is_access( $folder, 'read' ) ) $out .= '<span class="item"><span class="two" title="' . __( 'Publish in the activity feed', 'mif-bpc' ) . '"><a href="' . $this->get_repost_link( $folder ) . '" id="repost"><i class="fa fa-share"></i></a></span></span>';
 
         $out .= '</span></div>';
 
@@ -1125,8 +1125,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $data = $this->get_folder_size( $folder_id );
 
-        $out = '<span class="one">' . __( 'Документов', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $data['count'] . '</span>
-        <span class="one">' . __( 'Объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
+        $out = '<span class="one">' . __( 'Documents', 'mif-bpc' ) . ':</span> <span class="two">' . $data['count'] . '</span>
+        <span class="one">' . __( 'Volume', 'mif-bpc' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
 
         return apply_filters( 'mif_bpc_docs_get_folder_statusbar_info', $out, $folder_id, $data );
     }
@@ -1142,8 +1142,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     {
         $data = $this->get_all_folders_size();
 
-        $out = '<span class="one">' . __( 'Папок', 'mif-bp-customizer' ) . ':</span> <span class="two">' . $data['count'] . '</span>
-        <span class="one">' . __( 'Общий объем', 'mif-bp-customizer' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
+        $out = '<span class="one">' . __( 'Folders', 'mif-bpc' ) . ':</span> <span class="two">' . $data['count'] . '</span>
+        <span class="one">' . __( 'Total volume', 'mif-bpc' ) . ':</span> <span class="two">' . mif_bpc_format_file_size( $data['size'] ) . '</span>';
 
         return apply_filters( 'mif_bpc_docs_get_folder_statusbar_info', $out, $folder_id, $data );
     }
@@ -1156,7 +1156,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function error_msg( $s = '000' )
     {
-        $out = mif_bpc_message( sprintf( __( 'Ошибка %s. Что-то пошло не так', 'mif-bp-customizer' ), $s ), 'error' );
+        $out = mif_bpc_message( sprintf( __( 'Error %s. Something went wrong', 'mif-bpc' ), $s ), 'error' );
         return apply_filters( 'mif_bpc_docs_error_msg', $out, $s );
     }
 
@@ -1245,7 +1245,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $folder_url = $this->get_folder_url( $folder->ID );
 
-        $out .= '<div class="folder"><span class="one">' . __( 'Папка', 'mif-bp-customizer' ) . ':</span> <span class="two"><a href="' . $folder_url . '">' . $folder->post_title . '</a></span></div>';
+        $out .= '<div class="folder"><span class="one">' . __( 'Folder', 'mif-bpc' ) . ':</span> <span class="two"><a href="' . $folder_url . '">' . $folder->post_title . '</a></span></div>';
 
         return apply_filters( 'mif_bpc_docs_get_folder', $out, $doc, $folder );
     }
@@ -1277,7 +1277,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
                 $url = trailingslashit( bp_get_group_permalink( $group ) ) . $this->slug;
                 $name = bp_get_group_name( $group );
                 
-                if ( isset( $url ) && isset( $name ) ) $out .= '<div class="group"><span class="one">' . __( 'Группа', 'mif-bp-customizer' ) . ':</span> <span class="two"><a href="' . $url . '">' . $name . '</a></span></div>';
+                if ( isset( $url ) && isset( $name ) ) $out .= '<div class="group"><span class="one">' . __( 'Group', 'mif-bpc' ) . ':</span> <span class="two"><a href="' . $url . '">' . $name . '</a></span></div>';
 
             }
 
@@ -1300,7 +1300,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         if ( ! is_object( $doc ) ) $doc = get_post( $doc );
         if ( empty( $doc ) ) return;
 
-        $txt = ( $doc->post_date_gmt == $doc->post_modified_gmt ) ? __( 'Опубликовано', 'mif-bp-customizer' ) : __( 'Изменено', 'mif-bp-customizer' );
+        $txt = ( $doc->post_date_gmt == $doc->post_modified_gmt ) ? __( 'Is published', 'mif-bpc' ) : __( 'Changed', 'mif-bpc' );
 
         $out .= '<div class="date"><span class="one">' . $txt . ':</span> <span class="two">' . mif_bpc_time_since( $doc->post_modified_gmt ) . '</span></div>';
 
@@ -1317,7 +1317,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     {
         $out = '';
 
-        $out .= '<div class="next"><a href="11"><span>' . __( 'туда', 'mif-bp-customizer' ) . '</span> <i class="fa fa-arrow-right"></i></a></div>';
+        $out .= '<div class="next"><a href="11"><span>' . __( 'there', 'mif-bpc' ) . '</span> <i class="fa fa-arrow-right"></i></a></div>';
 
         return apply_filters( 'mif_bpc_docs_get_next', $out, $doc );
     }
@@ -1332,7 +1332,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     {
         $out = '';
 
-        $out .= '<div class="prev"><a href="22"><i class="fa fa-arrow-left"></i> <span>' . __( 'сюда', 'mif-bp-customizer' ) . '</span></a></div>';
+        $out .= '<div class="prev"><a href="22"><i class="fa fa-arrow-left"></i> <span>' . __( 'here', 'mif-bpc' ) . '</span></a></div>';
 
         return apply_filters( 'mif_bpc_docs_get_prev', $out, $doc );
     }

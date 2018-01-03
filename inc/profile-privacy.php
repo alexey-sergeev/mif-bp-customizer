@@ -1,7 +1,7 @@
 <?php
 
 //
-// Настройка системы приватности профиля
+// Configuration системы приватности профиля
 //
 //
 
@@ -43,10 +43,10 @@ class mif_bpc_profile_privacy {
     //
 
     //
-    // Уровень доступа по умолчанию
+    // Access level по умолчанию
     //
     
-    public $default_privacy = 10;
+    public $default_privacy = 0;
 
     //
     // Режим ограничения доступа по умолчанию
@@ -185,11 +185,11 @@ class mif_bpc_profile_privacy {
 
         if ( ! $arr = wp_cache_get( 'privacy_mode_and_level', $user_id ) ) {
 
-            // Узнать уровень доступа или установить значение по умолчанию, если уровень не указан
+            // Узнать уровень доступа or установить значение по умолчанию, если уровень не указан
             $privacy_level = get_user_meta(  $user_id, 'mif_bpc_privacy_level', true );
             if ( $privacy_level === '' ) $privacy_level = $this->default_privacy;
 
-            // Узнать режим доступа или установить значение по умолчанию, если режим не указан
+            // Узнать режим доступа or установить значение по умолчанию, если режим не указан
             $privacy_mode = get_user_meta(  $user_id, 'mif_bpc_privacy_mode', true );
             if ( $privacy_mode === '' ) $privacy_mode = $this->default_mode;
 
@@ -257,7 +257,7 @@ class mif_bpc_profile_privacy {
     }
 
     //
-    // Добавить класс, чтобы убрать рамку заголовка
+    // Add класс, чтобы убрать рамку заголовка
     //
     
     function add_body_class( $data )
@@ -305,7 +305,7 @@ class mif_bpc_profile_privacy {
     //
 
     //
-    // Удалить лишние вкладки профиля
+    // Delete лишние вкладки профиля
     //
     
     function hide_member_home_content()
@@ -351,7 +351,7 @@ class mif_bpc_profile_privacy {
         if ( $this->is_displayed() ) return $templates;
 
         $privacy_level = $this->get_privacy_level();
-        $msg = ( $privacy_level == 10 ) ? __( 'Старница доступна только авторизованным пользователям.', 'mif-bp-customizer' ) : __( 'Доступ к странице ограничен.', 'mif-bp-customizer' );
+        $msg = ( $privacy_level == 10 ) ? __( 'Only authorized users can access the page', 'mif-bpc' ) : __( 'Access to the page is restricted.', 'mif-bpc' );
 
         echo '<div id="message" class="info">
 		<p>' . $msg . '</p>
@@ -423,7 +423,7 @@ class mif_bpc_profile_privacy {
         $parent_slug = $bp->profile->slug;
 
         $sub_nav = array(  
-                'name' => __( 'Приватность', 'mif-bp-customizer' ), 
+                'name' => __( 'Privacy', 'mif-bpc' ), 
                 'slug' => 'profile-privacy', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
@@ -448,7 +448,7 @@ class mif_bpc_profile_privacy {
 
     public function title()
     {
-        echo __( 'Параметры доступа к профилю', 'mif-bp-customizer' );
+        echo __( 'Profile access options', 'mif-bpc' );
     }
 
 
@@ -456,7 +456,7 @@ class mif_bpc_profile_privacy {
     {
         $out = '';
 
-        $out .= '<p>' . __( 'Укажите, кто может просматривать страницу вашего профиля.', 'mif-bp-customizer' ) . '</p>';
+        $out .= '<p>' . __( 'Specify who can view your profile page.', 'mif-bpc' ) . '</p>';
         $out .= '<p>&nbsp;';
         $out .= '<form class="nav-settings-form" method="POST">';
 
@@ -481,7 +481,7 @@ class mif_bpc_profile_privacy {
         $out .= '</table>';
 
         $out .= wp_nonce_field( 'mif-bp-customizer-profile-privacy', '_wpnonce', true, false );
-        $out .= '&nbsp;<p><input type="submit" value="' . __( 'Сохранить изменения', 'mif-bp-customizer' ) . '">';
+        $out .= '&nbsp;<p><input type="submit" value="' . __( 'Save the changes', 'mif-bpc' ) . '">';
         $out .= '</form>';
 
         echo $out;
@@ -506,12 +506,12 @@ class mif_bpc_profile_privacy {
     function get_levels_data()
     {
         $arr = array(
-            0 =>  array( 'descr' => __( 'Все пользователи', 'mif-bp-customizer' ), 'comment' => __( 'Страница будет доступна как авторизованным, так и не авторизованным пользователям. Ваши записи и документы будут публично представлены в Интернете', 'mif-bp-customizer' ) ),
-            10 => array( 'descr' => __( 'Авторизованные пользователи', 'mif-bp-customizer' ), 'comment' => __( 'Страница будет доступна только тем пользователям, кто работает на сайте, указав свой логин и пароль', 'mif-bp-customizer' ) ),
-            20 => array( 'descr' => __( 'Мои подписчики', 'mif-bp-customizer' ), 'comment' => __( 'Страница будет доступна тем, кто подписался на меня, кого читаю я, а также моим друзьям', 'mif-bp-customizer' ) ),
-            30 => array( 'descr' => __( 'Те, кого читаю я', 'mif-bp-customizer' ), 'comment' => __( 'Страница будет доступна тем, кого читаю я, а также моим друзьям', 'mif-bp-customizer' ) ),
-            40 => array( 'descr' => __( 'Мои друзья', 'mif-bp-customizer' ), 'comment' => __( 'Страница будет доступна только моим друзьям', 'mif-bp-customizer' ) ),
-            50 => array( 'descr' => __( 'Только я', 'mif-bp-customizer' ), 'comment' => __( 'Страница закрыта для всех. Только я могу смотреть свои записи и документы', 'mif-bp-customizer' ) ),
+            0 =>  array( 'descr' => __( 'All users', 'mif-bpc' ), 'comment' => __( 'The page will be available either to authorized or not authorized users. Your posts and documents will be publically available on the Internet', 'mif-bpc' ) ),
+            10 => array( 'descr' => __( 'Authorized users', 'mif-bpc' ), 'comment' => __( 'Only users, who work on site, having specified their login and password can access the page', 'mif-bpc' ) ),
+            20 => array( 'descr' => __( 'My subscribers', 'mif-bpc' ), 'comment' => __( 'Users, who subscribed to me, who I read and my friends can access the page', 'mif-bpc' ) ),
+            30 => array( 'descr' => __( 'Those, who I follow', 'mif-bpc' ), 'comment' => __( 'Users, who I follow and my friends can access the page', 'mif-bpc' ) ),
+            40 => array( 'descr' => __( 'My friends', 'mif-bpc' ), 'comment' => __( 'Only my friends can access the page', 'mif-bpc' ) ),
+            50 => array( 'descr' => __( 'Only me', 'mif-bpc' ), 'comment' => __( 'No one can access the page. Only I can view my posts and documents', 'mif-bpc' ) ),
         );
 
         return apply_filters( 'mif_bpc_profile_privacy_privacy_levels', $arr );

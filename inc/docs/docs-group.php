@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы (описание раздела группы)
+// Documents (описание раздела группы)
 // 
 //
 
@@ -40,12 +40,13 @@ function mif_bpc_docs_group_init() {
             global $bp, $mif_bpc_docs;
 
             if ( isset( $bp->groups->current_group->id ) ) $access_mode = groups_get_groupmeta( $bp->groups->current_group->id, $mif_bpc_docs->group_access_mode_meta_key );
-            if ( isset( $access_mode ) && empty( $access_mode['docs_allowed'] ) ) $this->enable_nav_item = false;
-
+            if ( ! empty( $access_mode ) && empty( $access_mode['docs_allowed'] ) ) $this->enable_nav_item = false;
+            // f($access_mode);
+            
             $data = $mif_bpc_docs->get_all_folders_size();
 
-            $this->name = __( 'Документы', 'mif-bp-customizer' );
-            $this->nav_item_name = __( 'Документы', 'mif-bp-customizer' ) . ' <span>' . $data['count'] . '</span>';
+            $this->name = __( 'Documents', 'mif-bpc' );
+            $this->nav_item_name = __( 'Documents', 'mif-bpc' ) . ' <span>' . $data['count'] . '</span>';
             $this->slug = 'docs';
             // $this->create_step_position = 10;
             $this->nav_item_position = 30;
@@ -110,8 +111,8 @@ function mif_bpc_docs_group_init() {
 
             }
 
-            $out .= '<li' . $current1 . '><a href="' . $url . '">' . __( 'Папки', 'mif-bp-customizer' ) . '</a></li>';
-            if ( $mif_bpc_docs->is_access( 'all-folders', 'write' ) ) $out .= '<li' . $current2 . '><a href="' . $url . 'new-folder/">' . __( 'Создать папку', 'mif-bp-customizer' ) . '</a></li>';
+            $out .= '<li' . $current1 . '><a href="' . $url . '">' . __( 'Folders', 'mif-bpc' ) . '</a></li>';
+            if ( $mif_bpc_docs->is_access( 'all-folders', 'write' ) ) $out .= '<li' . $current2 . '><a href="' . $url . 'new-folder/">' . __( 'Create folder', 'mif-bpc' ) . '</a></li>';
 
             $out .= '</ul></div>';
 
@@ -146,30 +147,30 @@ function mif_bpc_docs_group_init() {
 
             $out = '';
 
-            $out .= '<h3>' . __( 'Документы', 'mif-bp-customizer' ) . '</h3>';
-            $out .= '<p>' . __( 'Настройка системы документов в группе. Параметры по созданию и удалению можно переопределить для каждой конкретной папки.', 'mif-bp-customizer' ) . '</p>';
+            $out .= '<h3>' . __( 'Documents', 'mif-bpc' ) . '</h3>';
+            $out .= '<p>' . __( 'Configuration of document system in a group. You can override creation and removal options for each specific folder.', 'mif-bpc' ) . '</p>';
             $out .= '<hr>';
 
-            $out .= '<div class="checkbox"><label><input type="checkbox" name="docs_allowed"' . $docs_allowed . '>' . __( 'Разрешить документы в группе', 'mif-bp-customizer' ) . '
+            $out .= '<div class="checkbox"><label><input type="checkbox" name="docs_allowed"' . $docs_allowed . '>' . __( 'Allow documents in a group', 'mif-bpc' ) . '
             <ul>
-            <li>' . __( 'Создаёт в группе раздел "Документы"', 'mif-bp-customizer' ) . '</li>
-            <li>' . __( 'Можно создавать папки, загружать файлы, размещать ссылки на ресурсы Интернета', 'mif-bp-customizer' ) . '</li>
+            <li>' . __( 'Creates "Document" section in the group', 'mif-bpc' ) . '</li>
+            <li>' . __( 'You can create folders, upload files, post links to Internet resources', 'mif-bpc' ) . '</li>
             </ul>
             </label></div>';
 
-            $out .= '<div class="checkbox"><label><input type="checkbox" name="everyone_create"' . $everyone_create . '>' . __( 'Каждый участник группы может создавать папки и размещать документы', 'mif-bp-customizer' ) . '
+            $out .= '<div class="checkbox"><label><input type="checkbox" name="everyone_create"' . $everyone_create . '>' . __( 'Every member of the group can create folders and upload documents', 'mif-bpc' ) . '
             <ul>
-            <li>' . __( 'По умолчанию создавать папки и размещать документы могут только администраторы группы', 'mif-bp-customizer' ) . '</li>
-            <li>' . __( 'При выборе данной опции создавать папки и размещать документы смогут все участники группы', 'mif-bp-customizer' ) . '</li>
+            <li>' . __( 'By default, only group administrators can create folders and upload documents', 'mif-bpc' ) . '</li>
+            <li>' . __( 'If this option is selected, all group members will be able to create folders and publish documents', 'mif-bpc' ) . '</li>
             </ul>
             </label></div>';
 
-            $out .= '<div class="checkbox"><label><input type="checkbox" name="everyone_delete"' . $everyone_delete . '>' . __( 'Участники группы могут удалять чужие папки и документы', 'mif-bp-customizer' ) . '
+            $out .= '<div class="checkbox"><label><input type="checkbox" name="everyone_delete"' . $everyone_delete . '>' . __( 'Group members can delete other users’ folders and documents', 'mif-bpc' ) . '
             <ul>
-            <li>' . __( 'По умолчанию удалять любые папки и документы могут только администраторы группы', 'mif-bp-customizer' ) . '</li>
-            <li>' . __( 'Обычные пользователи могут удалять только те папки и документы, которые создали сами', 'mif-bp-customizer' ) . '</li>
-            <li>' . __( 'При выборе данной опции пользователи смогут удалять и чужие папки и документы', 'mif-bp-customizer' ) . '</li>
-            <li>' . __( 'Также, всем будет разрешено создавать папки и размещать документы', 'mif-bp-customizer' ) . '</li>
+            <li>' . __( 'By default, only group administrators can delete any folders and documents', 'mif-bpc' ) . '</li>
+            <li>' . __( 'Regular users can delete only those documents and folders that were created by them', 'mif-bpc' ) . '</li>
+            <li>' . __( 'If this option is selected, users will be able to remove other users’ folders and documents (not only their own)', 'mif-bpc' ) . '</li>
+            <li>' . __( 'Also everyone will be allowed to create folders and publish documents', 'mif-bpc' ) . '</li>
             </ul>
             </label></div>';
 

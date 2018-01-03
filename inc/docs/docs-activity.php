@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы (лента активности)
+// Documents (лента активности)
 // 
 //
 
@@ -34,6 +34,8 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
     function docs_form()
     {
+        if ( isset( $_GET['repost'] ) ) return;
+        
         $out = '';
         
         $out .= '<span class="hidden">';
@@ -41,10 +43,10 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
         $out .= '<div id="docs-form" class="docs-form">
         <div class="response-box attach clearfix hidden"></div>
         <div class="template">' . $this->get_item_inline() . '</div>
-        <div class="drop-box"><p>' . __( 'Перетащите сюда фотографии или файлы', 'mif-bp-customizer' ) . '</p>
+        <div class="drop-box"><p>' . __( 'Drag photos and files here', 'mif-bpc' ) . '</p>
         <input type="file" name="files[]" multiple="multiple" class="docs-upload-form"></div>
         <input name="MAX_FILE_SIZE" value="' . $this->get_max_upload_size() . '" type="hidden">
-        <input name="max_file_error" value="' . __( 'Слишком большой файл', 'mif-bp-customizer' ) . '" type="hidden">
+        <input name="max_file_error" value="' . __( 'The file is too large', 'mif-bpc' ) . '" type="hidden">
         <input type="hidden" name="upload_nonce" value="' . wp_create_nonce( 'mif-bpc-docs-file-upload-nonce' ) . '">
         <input type="hidden" name="action" value="mif-bpc-docs-upload-files-activity">
         
@@ -119,8 +121,8 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
         $content_copy = $content;
 
         // Регулярные выражения для поиска опубликованных документов
-        // Идентификатор папки или документа должен быть в последней группе поиска
-        // Можно уточнить внешним плагином, если планируется обращатся к документам по иным адресам (сокращение ссылок или др.)
+        // Идентификатор папки or документа должен быть в последней группе поиска
+        // Можно уточнить внешним плагином, если планируется обращатся к документам по иным адресам (сокращение ссылок or др.)
 
         $regexp_arr = apply_filters( 'mif_bpc_docs_activity_content_body_reg_arr', array( 
                                     preg_replace( '/\//', '\/', trailingslashit( bp_get_root_domain() ) . '(' . bp_get_members_root_slug() . '/)?' . '(' . bp_get_groups_root_slug() . '/)?' . '[^/]+/' . $this->slug . '/(folder/)?(\d+)/?' ),
@@ -131,7 +133,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
         foreach ( $regexp_arr as $regexp ) $content = preg_replace_callback( '/' . $regexp . '/', array( $this, 'get_item' ), $content );
 
         $content = preg_replace( '/span>\s+<span/', 'span><span', $content );
-        $content = preg_replace( '/(<span.+span>)/', '<span class="attach clearfix">\1</span>', $content );
+        $content = preg_replace( '/(<span class=\"docs-item.+span>)/', '<span class="attach clearfix">\1</span>', $content );
 
         return apply_filters( 'mif_bpc_docs_activity_content_body', $content, $content_copy );
     }
@@ -153,7 +155,7 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
 
 
     //
-    // Помощник публикации документа или папки в ленте активности
+    // Помощник публикации документа or папки в ленте активности
     //
 
     function repost_doc_helper()

@@ -761,7 +761,6 @@ jQuery( document ).ready( function( jq ) {
 
 	jq( '#aw-whats-new-submit' ).on( 'click', function() {
 
-        console.log('asdsdafds--');
         jq( '.response-box.attach' ).empty();
         jq( '.response-box.attach' ).hide();
         jq( '.drop-box' ).slideUp();

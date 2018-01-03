@@ -24,10 +24,10 @@ class mif_bpc_members_widget extends WP_Widget {
     {
 		$widget_options = apply_filters( 'mif_bpc_members_widget_options', array(
 			'classname'   =>    'members_widget',
-			'description' => __( 'Простой, умный и быстрый виджет участников сайта', 'mif-bp-customizer' )
+			'description' => __( 'Simple, smart and fast site members widget', 'mif-bpc' )
 		) );
 
-		parent::__construct( false, __( 'Участники сайта', 'mif-bp-customizer' ), $widget_options );
+		parent::__construct( false, __( 'Site members', 'mif-bpc' ), $widget_options );
 	}
 
 
@@ -209,7 +209,7 @@ class mif_bpc_members_widget extends WP_Widget {
 
 	public function form( $data ) 
     {
-		// $title = ( ! empty( $data['title'] ) ) ? esc_attr( $data['title'] ) : __( 'Участники сайта', 'mif-bp-customizer' );
+		// $title = ( ! empty( $data['title'] ) ) ? esc_attr( $data['title'] ) : __( 'Site members', 'mif-bpc' );
 		$title = isset( $data['title'] ) ? $data['title'] : '';
 		$number = isset( $data['number'] ) ? absint( $data['number'] ) : 16;
         $members_type = isset( $data['members_type'] ) ? $data['members_type'] : 'active';
@@ -217,19 +217,19 @@ class mif_bpc_members_widget extends WP_Widget {
 
         $out = '';
 
-        $out .= '<p><label for="' . $this->get_field_id( 'title' ) . '">' . __( 'Заголовок:', 'mif-bp-customizer' ) . '
+        $out .= '<p><label for="' . $this->get_field_id( 'title' ) . '">' . __( 'Title:', 'mif-bpc' ) . '
                 <input class="widefat" id="' . $this->get_field_id( 'title' ) . ' " name="' . $this->get_field_name( 'title' ) . '" type="text" value="' . $title . '" /></label>';
-        $out .= '<p><label for="' . $this->get_field_id( 'number' ) . '">' . __( 'Количество аватарок:', 'mif-bp-customizer' ) . '
+        $out .= '<p><label for="' . $this->get_field_id( 'number' ) . '">' . __( 'Number of avatars:', 'mif-bpc' ) . '
                 <input class="tiny-text" id="' . $this->get_field_id( 'number' ) . ' " name="' . $this->get_field_name( 'number' ) . '" type="number" value="' . $number . '" /></label>';
-        // $out .= '<p><label for="' . $this->get_field_id( 'members_type' ) . '">' . __( 'Параметры выбора:', 'mif-bp-customizer' ) . '
+        // $out .= '<p><label for="' . $this->get_field_id( 'members_type' ) . '">' . __( 'Selection options:', 'mif-bpc' ) . '
         //         <input class="widefat" id="' . $this->get_field_id( 'members_type' ) . ' " name="' . $this->get_field_name( 'members_type' ) . '" type="text" value="' . $members_type . '" /></label>';
-		$out .= '<p><label for="' . $this->get_field_id( 'members_type' ) . '">' . __( 'Параметры выбора:', 'mif-bp-customizer' ) . '</label>
+		$out .= '<p><label for="' . $this->get_field_id( 'members_type' ) . '">' . __( 'Selection options:', 'mif-bpc' ) . '</label>
 			    <select name="' . $this->get_field_name( 'members_type' ) . '" id="' . $this->get_field_id( 'members_type' ) . '" class="widefat">
-				<option value="active"' . selected( $members_type, 'active', false ) . '>' . __( 'Активные', 'mif-bp-customizer' ) . '</option>
-				<option value="popular"' . selected( $members_type, 'popular', false ) . '>' . __( 'Популярные', 'mif-bp-customizer' ) . '</option>
-				<option value="random"' . selected( $members_type, 'random', false ) . '>' . __( 'Случайные', 'mif-bp-customizer' ) . '</option></select>';
-        $out .= '<p><label for="' . $this->get_field_id( 'cache_expires' ) . '">' . __( 'Срок хранения в кэше:', 'mif-bp-customizer' ) . '
-                <input class="tiny-text" id="' . $this->get_field_id( 'cache_expires' ) . ' " name="' . $this->get_field_name( 'cache_expires' ) . '" type="text" value="' . $cache_expires . '" /> ' . __( 'сек.', 'mif-bp-customizer' ) . '</label>';
+				<option value="active"' . selected( $members_type, 'active', false ) . '>' . __( 'Active', 'mif-bpc' ) . '</option>
+				<option value="popular"' . selected( $members_type, 'popular', false ) . '>' . __( 'Popular', 'mif-bpc' ) . '</option>
+				<option value="random"' . selected( $members_type, 'random', false ) . '>' . __( 'Random', 'mif-bpc' ) . '</option></select>';
+        $out .= '<p><label for="' . $this->get_field_id( 'cache_expires' ) . '">' . __( 'Cache lifetime:', 'mif-bpc' ) . '
+                <input class="tiny-text" id="' . $this->get_field_id( 'cache_expires' ) . ' " name="' . $this->get_field_name( 'cache_expires' ) . '" type="text" value="' . $cache_expires . '" /> ' . __( 'sec', 'mif-bpc' ) . '</label>';
 
         echo $out;    
     }

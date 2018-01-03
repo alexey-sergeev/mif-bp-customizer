@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы (лента активности)
+// Documents (лента активности)
 // 
 //
 
@@ -20,7 +20,6 @@ class mif_bpc_docs_admin extends mif_bpc_docs_core {
         // add_action( 'bp_init', array( $this, 'gallery_convert' ) );
         
     }
-
 
 
     //
@@ -101,7 +100,7 @@ class mif_bpc_docs_admin extends mif_bpc_docs_core {
 
 
     //
-    // Конвертация старых папок и документов для конкретного пользователя или группы
+    // Конвертация старых папок и документов для конкретного пользователя or группы
     //
 
     function gallery_convert_item( $owner_id, $owner_type )

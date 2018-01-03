@@ -72,20 +72,20 @@ class mif_bpc_activity_exclude {
         $exclude_url = wp_nonce_url( $settings_url . '/request-exclude/' . $activity_type . '/', 'mif_bpc_activity_type_exclude_button' );
 
         // $arr = array();
-        // if ( ! in_array( $at, $unexcluded_types ) ) $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $at ) );
-        // $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) );
+        // if ( ! in_array( $at, $unexcluded_types ) ) $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Don’t show posts of this type', 'mif-bpc' ), 'class' => 'ajax', 'data' => array( 'exclude' => $at ) );
+        // $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Configuration', 'mif-bpc' ) );
 
         // $arr = array(
-        //             array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $activity_type ) ),
-        //             array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+        //             array( 'href' => $exclude_url, 'descr' => __( 'Don’t show posts of this type', 'mif-bpc' ), 'class' => 'ajax', 'data' => array( 'exclude' => $activity_type ) ),
+        //             array( 'href' => $settings_url, 'descr' => __( 'Configuration', 'mif-bpc' ) ),
         //         );
 
-        $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax activity-exclude', 'data' => array( 'exclude' => $activity_type ) );
-        $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) );
+        $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Don’t show posts of this type', 'mif-bpc' ), 'class' => 'ajax activity-exclude', 'data' => array( 'exclude' => $activity_type ) );
+        $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Configuration', 'mif-bpc' ) );
 
         // echo '<div class="right relative disable-activity-type"><a href="" class="button bp-secondary-action disable-activity-type"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
 
-        // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Не показывать записи этого типа', 'mif-bp-customizer' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Don’t show posts of this type', 'mif-bpc' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
         // echo '<a href="" class="button bp-secondary-action disable-activity-type"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></a>';
 
         return $arr;
@@ -113,17 +113,17 @@ class mif_bpc_activity_exclude {
         $exclude_url = wp_nonce_url( $settings_url . '/request-exclude/' . $activity_type . '/', 'mif_bpc_activity_type_exclude_button' );
 
         // $arr = array();
-        // if ( ! in_array( $at, $unexcluded_types ) ) $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $at ) );
-        // $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) );
+        // if ( ! in_array( $at, $unexcluded_types ) ) $arr[] = array( 'href' => $exclude_url, 'descr' => __( 'Don’t show posts of this type', 'mif-bpc' ), 'class' => 'ajax', 'data' => array( 'exclude' => $at ) );
+        // $arr[] = array( 'href' => $settings_url, 'descr' => __( 'Configuration', 'mif-bpc' ) );
 
         $arr = array(
-                    array( 'href' => $exclude_url, 'descr' => __( 'Не показывать записи этого типа', 'mif-bp-customizer' ), 'class' => 'ajax', 'data' => array( 'exclude' => $activity_type ) ),
-                    array( 'href' => $settings_url, 'descr' => __( 'Настройка', 'mif-bp-customizer' ) ),
+                    array( 'href' => $exclude_url, 'descr' => __( 'Don’t show posts of this type', 'mif-bpc' ), 'class' => 'ajax', 'data' => array( 'exclude' => $activity_type ) ),
+                    array( 'href' => $settings_url, 'descr' => __( 'Configuration', 'mif-bpc' ) ),
                 );
 
         echo '<div class="right relative disable-activity-type"><a href="" class="button bp-secondary-action disable-activity-type"><strong>&middot;&middot;&middot;</strong></a>' . mif_bpc_hint( $arr ) . '</div>';
 
-        // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Не показывать записи этого типа', 'mif-bp-customizer' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
+        // echo '<a href="" class="button bp-secondary-action disable-activity-type" title="' . __( 'Don’t show posts of this type', 'mif-bpc' ) . '"><strong>&middot;&middot;&middot;</strong></a>';
         // echo '<a href="" class="button bp-secondary-action disable-activity-type"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></a>';
     }
 
@@ -179,7 +179,7 @@ class mif_bpc_activity_exclude {
         $parent_slug = $bp->profile->slug;
 
         $sub_nav = array(  
-                'name' => __( 'Лента', 'mif-bp-customizer' ), 
+                'name' => __( 'Feed', 'mif-bpc' ), 
                 'slug' => 'activity-settings', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
@@ -204,7 +204,7 @@ class mif_bpc_activity_exclude {
 
     public function activity_exclude_title()
     {
-        echo __( 'Параметры ленты активности', 'mif-bp-customizer' );
+        echo __( 'Activity feed options', 'mif-bpc' );
     }
 
 
@@ -215,7 +215,7 @@ class mif_bpc_activity_exclude {
 
         $out = '';
 
-        $out .= '<p>' . __( 'Укажите элементы ленты активности, которые должны отображаться на вашей главной странице. Блокировка этих элементов также доступна и в самой ленте главной страницы.', 'mif-bp-customizer' ) . '</p>';
+        $out .= '<p>' . __( 'Specify elements of the activity feed, that should be displayed on your main page. Blocking of these elements is also available in the activity feed of the main page.', 'mif-bpc' ) . '</p>';
         
         $out .= '<form class="nav-settings-form" method="POST">';
 
@@ -234,7 +234,7 @@ class mif_bpc_activity_exclude {
 
         $out .= '<input type="hidden" name="items[last_activity]" value="on"  />';
         $out .= wp_nonce_field( 'mif-bp-customizer-settings-activity', '_wpnonce', true, false );
-        $out .= '&nbsp;<p><input type="submit" value="' . __( 'Сохранить изменения', 'mif-bp-customizer' ) . '">';
+        $out .= '&nbsp;<p><input type="submit" value="' . __( 'Save the changes', 'mif-bpc' ) . '">';
         $out .= '</form>';
 
         echo $out;
@@ -252,14 +252,14 @@ class mif_bpc_activity_exclude {
 
         if ( update_user_meta( bp_loggedin_user_id(), $this->meta_key, implode( ', ', $exclude_types ) ) ) {
             
-            bp_core_add_message( __( 'Список элементов активности сохранён.', 'mif-bp-customizer' ) );
+            bp_core_add_message( __( 'The list of activity items is saved.', 'mif-bpc' ) );
 
         }
     }
 
         
     //
-    // Получает таблицу типов активности (только ключи или полная таблица с описанием)
+    // Получает таблицу типов активности (только ключи or полная таблица с описанием)
     //
 
     public function get_activity_types( $mode = 'keys' )
@@ -269,23 +269,23 @@ class mif_bpc_activity_exclude {
 
             $data = array(
 
-                    'activity_update' => array( 'part' => 10, 'descr' => __( 'Сообщение в ленте активности', 'mif-bp-customizer' ) ),
-                    'activity_repost' => array( 'part' => 10, 'descr' => __( 'Репост записи в ленте активности', 'mif-bp-customizer' ) ),
-                    'activity_comment' => array( 'part' => 10, 'descr' => __( 'Комментарий в ленте активности', 'mif-bp-customizer' ) ),
-                    'new_media_update' => array( 'part' => 10, 'descr' => __( 'Новый документ', 'mif-bp-customizer' ) ),
+                    'activity_update' => array( 'part' => 10, 'descr' => __( 'Message in the activity feed', 'mif-bpc' ) ),
+                    'activity_repost' => array( 'part' => 10, 'descr' => __( 'Repost in the activity feed', 'mif-bpc' ) ),
+                    'activity_comment' => array( 'part' => 10, 'descr' => __( 'Comment in the activity feed', 'mif-bpc' ) ),
+                    'new_media_update' => array( 'part' => 10, 'descr' => __( 'New document', 'mif-bpc' ) ),
 
-                    'new_forum_post' => array( 'part' => 20, 'descr' => __( 'Сообщение в форуме', 'mif-bp-customizer' ) ),
-                    'new_forum_topic' => array( 'part' => 20, 'descr' => __( 'Тема форума', 'mif-bp-customizer' ) ),
+                    'new_forum_post' => array( 'part' => 20, 'descr' => __( 'Message in the forum', 'mif-bpc' ) ),
+                    'new_forum_topic' => array( 'part' => 20, 'descr' => __( 'Forum topic', 'mif-bpc' ) ),
 
-                    'new_blog_post' => array( 'part' => 30, 'descr' => __( 'Запись на сайте', 'mif-bp-customizer' ) ),
-                    'new_blog_comment' => array( 'part' => 30, 'descr' => __( 'Комментарий на сайте', 'mif-bp-customizer' ) ),
-                    'message' => array( 'part' => 30, 'descr' => __( 'Сообщение на странице курса', 'mif-bp-customizer' ) ),
+                    'new_blog_post' => array( 'part' => 30, 'descr' => __( 'Post on site', 'mif-bpc' ) ),
+                    'new_blog_comment' => array( 'part' => 30, 'descr' => __( 'Comment on the site', 'mif-bpc' ) ),
+                    'message' => array( 'part' => 30, 'descr' => __( 'Message on the course page', 'mif-bpc' ) ),
 
-                    'new_member' => array( 'part' => 40, 'descr' => __( 'Новый пользователь', 'mif-bp-customizer' ) ),
-                    'friendship_created' => array( 'part' => 40, 'descr' => __( 'Кто-то подружился друг с другом', 'mif-bp-customizer' ) ),
-                    'new_avatar' => array( 'part' => 40, 'descr' => __( 'Новый аватар', 'mif-bp-customizer' ) ),
-                    'created_group' => array( 'part' => 40, 'descr' => __( 'Создание группы', 'mif-bp-customizer' ) ),
-                    'joined_group' => array( 'part' => 40, 'descr' => __( 'Вступление в группу', 'mif-bp-customizer' ) ),
+                    'new_member' => array( 'part' => 40, 'descr' => __( 'New user', 'mif-bpc' ) ),
+                    'friendship_created' => array( 'part' => 40, 'descr' => __( 'Someone made friends with each other', 'mif-bpc' ) ),
+                    'new_avatar' => array( 'part' => 40, 'descr' => __( 'New avatar', 'mif-bpc' ) ),
+                    'created_group' => array( 'part' => 40, 'descr' => __( 'Group creation', 'mif-bpc' ) ),
+                    'joined_group' => array( 'part' => 40, 'descr' => __( 'Joining the group', 'mif-bpc' ) ),
 
             );
 
@@ -296,11 +296,11 @@ class mif_bpc_activity_exclude {
             $data = apply_filters( 'mif_bpc_activity_get_activity_types_data', $data );
 
             $group = array(
-                    10 => __( 'Сообщения и документы', 'mif-bp-customizer' ),
-                    20 => __( 'Форумы', 'mif-bp-customizer' ),
-                    30 => __( 'Сайты', 'mif-bp-customizer' ),
-                    40 => __( 'Действия пользователей', 'mif-bp-customizer' ),
-                    1000 => __( 'Прочее', 'mif-bp-customizer' ),
+                    10 => __( 'Messages and documents', 'mif-bpc' ),
+                    20 => __( 'Forums', 'mif-bpc' ),
+                    30 => __( 'Sites', 'mif-bpc' ),
+                    40 => __( 'User actions', 'mif-bpc' ),
+                    1000 => __( 'Other', 'mif-bpc' ),
             );
 
             //
@@ -368,7 +368,7 @@ class mif_bpc_activity_exclude {
 
     public function get_unexcluded_types( $mode = 'arr' )
     {
-        // возвращает массив или строку неблокинуемых типов активности
+        // возвращает массив or строку неблокинуемых типов активности
 
         // Зднесь можно менять список неблокируемых типов
         $unexcluded_types = apply_filters( 'mif_bpc_activity_stream_get_unexcluded_types', $this->unexcluded_types );

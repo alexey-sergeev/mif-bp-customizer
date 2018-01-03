@@ -2,7 +2,7 @@
 
     <div id="page-header" class="clearfix">
 
-        <h1><?php _e( 'Документы', 'mif-bp-customizer' ); ?></h1>
+        <h1><?php _e( 'Documents', 'mif-bpc' ); ?></h1>
 
     </div>
       

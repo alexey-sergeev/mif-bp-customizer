@@ -19,7 +19,7 @@ if ( mif_bpc_options( 'activity-button-customize' ) ) {
 class mif_bpc_activity_button_customize {
 
     //
-    // Меняет внешний вид кнопок "Избранное" и "Удалить"
+    // Меняет внешний вид кнопок "Favorite" и "Delete"
     // 
 
     //
@@ -50,7 +50,7 @@ class mif_bpc_activity_button_customize {
     
 
     //
-    // Показать кнопку "Избранное"
+    // Показать кнопку "Favorite"
     //
 
     function favorite_button()
@@ -58,10 +58,9 @@ class mif_bpc_activity_button_customize {
 		$url = wp_nonce_url( home_url( bp_get_activity_root_slug() . '/favorite/' . bp_get_activity_id() . '/' ), 'mif_bpc_favorite_button_press' );
         $active = ( bp_get_activity_is_favorite() ) ? ' active' : '';
 
-        // $button = '<div class="favorite' . $active . '"><a href="' . $url . '" class="button bp-primary-action favorite" title="' . __( 'Избранное', 'mif-bp-customizer' ) . '"><i class="fa fa-star" aria-hidden="true"></i></a></div>';
         $button = '<div class="favorite' . $active . '"><a href="' . $url . '" class="button bp-primary-action favorite"><i class="fa fa-star" aria-hidden="true"></i></a></div>';
 
-        // Здесь можно убрать или скорректировать кнопку "Избранное"
+        // Здесь можно убрать or скорректировать кнопку "Favorite"
 
         $button = apply_filters( 'mif_bpc_like_button_favorite_button', $button );
 
@@ -95,7 +94,7 @@ class mif_bpc_activity_button_customize {
 
 
     //
-    // Показать строку "Удалить" в меню активности
+    // Показать строку "Delete" в меню активности
     //
 
     function remove_button( $arr )
@@ -103,7 +102,7 @@ class mif_bpc_activity_button_customize {
         if ( ! bp_activity_user_can_delete() ) return;
         $activity_id = bp_get_activity_id();
 
-        $descr = __( 'Удалить запись', 'mif-bp-customizer' );
+        $descr = __( 'Delete post', 'mif-bpc' );
 
         if ( bp_is_single_activity() ) {
 

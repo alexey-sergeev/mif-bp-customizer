@@ -1,7 +1,7 @@
 <?php
 
 //
-// Настройка уведомлений
+// Configuration уведомлений
 // 
 //
 
@@ -129,7 +129,7 @@ class mif_bpc_notifications {
 
 
     //
-    // Обновить блок всплывающих уведомлений
+    // Update блок всплывающих уведомлений
     //
 
     function ajax_helper_float_update()
@@ -148,7 +148,7 @@ class mif_bpc_notifications {
     //
 
     //
-    // Удалить отмеченные
+    // Delete отмеченные
     //
 
     function ajax_helper_bulk_delete()
@@ -180,7 +180,7 @@ class mif_bpc_notifications {
 
 
     //
-    // Отметить как прочитанное
+    // Mark as read
     //
 
     function ajax_helper_to_not_new()
@@ -214,7 +214,7 @@ class mif_bpc_notifications {
 
 
     //
-    // Удалить уведомление
+    // Delete уведомление
     //
 
     function ajax_helper_delete()
@@ -285,7 +285,7 @@ class mif_bpc_notifications {
         $parent_slug = $bp->messages->slug;
 
         $sub_nav = array(  
-                'name' => __( 'Уведомления', 'mif-bp-customizer' ),
+                'name' => __( 'Notifications', 'mif-bpc' ),
                 'slug' => 'notifications', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
@@ -399,7 +399,7 @@ class mif_bpc_notifications {
 
 
     //
-    // Удалить стандартную страницу уведомлений
+    // Delete стандартную страницу уведомлений
     //
 
     function delete_notifications_nav()
@@ -409,7 +409,7 @@ class mif_bpc_notifications {
 
 
     //
-    // Удалить кэш-данные о количестве новых уведомлений
+    // Delete кэш-данные о количестве новых уведомлений
     //
 
     function remove_cache()
@@ -437,7 +437,7 @@ function mif_bpc_the_notification_avatar()
 }
 
 // 
-// Проверить статус уведомления (прочитано или нет)
+// Проверить статус уведомления (прочитано or нет)
 //
 
 function mif_bpc_is_new_notification()
@@ -458,11 +458,11 @@ function mif_bpc_notification_is_new_button()
     global $bp;
     $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/is_new/?id=' . $id, 'mif_bpc_notification_is_new_status' );
     
-    $button1 = '<div class="custom-button"><a href="' . $url . '" class="notification-to-not-new" id="notification-tonotnew-' . $id . '" title="' . __( 'Отметить как прочитанное', 'mif-bp-customizer' ) . '"><i class="fa fa-circle" aria-hidden="true"></i></a></div>';
+    $button1 = '<div class="custom-button"><a href="' . $url . '" class="notification-to-not-new" id="notification-tonotnew-' . $id . '" title="' . __( 'Mark as read', 'mif-bpc' ) . '"><i class="fa fa-circle" aria-hidden="true"></i></a></div>';
 
     echo $button1;
 
-    $button2 = '<div class="custom-button"><a href="' . $url . '" class="notification-to-new" id="notification-tonew-' . $id . '" title="' . __( 'Отметить как непрочитанное', 'mif-bp-customizer' ) . '"><i class="fa fa-circle-thin" aria-hidden="true"></i></a></div>';
+    $button2 = '<div class="custom-button"><a href="' . $url . '" class="notification-to-new" id="notification-tonew-' . $id . '" title="' . __( 'Mark as unread', 'mif-bpc' ) . '"><i class="fa fa-circle-thin" aria-hidden="true"></i></a></div>';
 
     echo $button2;
 }
@@ -478,7 +478,7 @@ function mif_bpc_notification_delete_button()
     global $bp;
     $url = wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/delete/?id=' . $id, 'mif_bpc_notification_delete' );
 
-    $button = '<div class="custom-button"><a href="' . $url . '" class="button notification-delete" id="notification-delete-' . $id . '" title="' . __( 'Удалить', 'mif-bp-customizer' ) . '"><i class="fa fa-trash-o" aria-hidden="true"></i></a></div>';
+    $button = '<div class="custom-button"><a href="' . $url . '" class="button notification-delete" id="notification-delete-' . $id . '" title="' . __( 'Delete', 'mif-bpc' ) . '"><i class="fa fa-trash-o" aria-hidden="true"></i></a></div>';
     
     echo $button;
 }
@@ -504,7 +504,7 @@ function mif_bpc_the_notification_row()
 
 
 // 
-// Кнопка "Читать далее"
+// Кнопка "Read more"
 //
 
 function mif_bpc_the_notification_load_more( $page = 2, $none = false )
@@ -521,7 +521,7 @@ function mif_bpc_the_notification_load_more( $page = 2, $none = false )
     
     } else {
 
-        $out = '<tr class="load-more" id="load-more-' . $page . '"><td class="load-more" colspan="6"><div class="loader"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div><div class="generic-button"><a href="' . $url . '" class="button load-more">' . __( 'Читать далее', 'mif-bp-customizer' ) . '</a></div></td></tr>';
+        $out = '<tr class="load-more" id="load-more-' . $page . '"><td class="load-more" colspan="6"><div class="loader"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div><div class="generic-button"><a href="' . $url . '" class="button load-more">' . __( 'Read more', 'mif-bpc' ) . '</a></div></td></tr>';
     }
 
     echo $out;
@@ -530,7 +530,7 @@ function mif_bpc_the_notification_load_more( $page = 2, $none = false )
 
 
 //
-// Блок о количестве уведомлений
+// Bлок о количестве уведомлений
 //
 
 function mif_bpc_the_notifications_info()
@@ -548,7 +548,7 @@ function mif_bpc_get_notifications_info()
     $url = $bp->displayed_user->domain . $bp->messages->slug . '/notifications/';
     $none = ( $count > 0 ) ? '' : ' style="display: none;"';
 
-    $out = '<div class="notifications-info"' . $none . '><a href="' . $url . '">' . __( 'Новых уведомлений', 'mif-bp-customizer' ) . ': <span>' . $count . '</span></a></div>';
+    $out = '<div class="notifications-info"' . $none . '><a href="' . $url . '">' . __( 'New notifications', 'mif-bpc' ) . ': <span>' . $count . '</span></a></div>';
 
     return apply_filters( 'mif_bpc_get_notifications_info', $out, $count );
 }

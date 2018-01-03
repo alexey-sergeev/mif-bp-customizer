@@ -30,9 +30,9 @@ class mif_bpc_members_page {
                 'members_usermeta' => '',
                 'exclude_users' => '',
                 'user_id' => bp_displayed_user_id(),
-                'add_btn' => __( 'Добавить пользователей', 'mif-bp-customizer' ),
-                'add_submit' => __( 'Сохранить изменения', 'mif-bp-customizer' ),
-                'add_comment' => __( 'Укажите имена пользователей, которых вы хотите добавить в список.', 'mif-bp-customizer' ),
+                'add_btn' => __( 'Add users', 'mif-bpc' ),
+                'add_submit' => __( 'Save the changes', 'mif-bpc' ),
+                'add_comment' => __( 'Specify usernames you want to add to the list.', 'mif-bpc' ),
             );
 
         $this->args = $default;
@@ -155,7 +155,7 @@ class mif_bpc_members_page {
 
 
     // 
-    // Кнопки "Добавить" и "Удалить" для пользователей в списке
+    // Кнопки "Add" и "Delete" для пользователей в списке
     // 
 	function get_member_button( $user_id = NULL ) 
     {
@@ -175,7 +175,7 @@ class mif_bpc_members_page {
                 'wrapper_class'     => 'banned-button',
                 'wrapper_id'        => 'banned-button-' . $user_id,
                 'link_href'         => wp_nonce_url( $this->args['parent_url'] . $this->args['slug'] . '/requests/remove/' . $user_id . '/', 'mif_bpc_members_page_add_remove_member' ),
-                'link_text'         => __( 'Удалить из списка', 'mif-bp-customizer' ),
+                'link_text'         => __( 'Delete from the list', 'mif-bpc' ),
                 'link_id'           => 'banned-' . $user_id,
                 'link_rel'          => 'remove',
                 'link_class'        => 'banned-button'
@@ -191,7 +191,7 @@ class mif_bpc_members_page {
                 'wrapper_class'     => 'banned-button',
                 'wrapper_id'        => 'banned-button-' . $user_id,
                 'link_href'         => wp_nonce_url( $this->args['parent_url'] . $this->args['slug'] . '/requests/add/' . $user_id . '/', 'mif_bpc_members_page_add_remove_member' ),
-                'link_text'         => __( 'Добавить в список', 'mif-bp-customizer' ),
+                'link_text'         => __( 'Add to list', 'mif-bpc' ),
                 'link_id'           => 'banned-' . $user_id,
                 'link_rel'          => 'add',
                 'link_class'        => 'banned-button'
@@ -215,7 +215,7 @@ class mif_bpc_members_page {
 
 
     //
-    // Удаление или добавление пользователя через кнопку
+    // Удаление or добавление пользователя через кнопку
     //
     function ajax_helper_add_remove_button()
     {
@@ -350,15 +350,15 @@ class mif_bpc_members_page {
 
         echo '<div id="message" class="bp-template-notice updated">';
 
-        if ( count( $memberlist_nicenames_arr ) == 0 ) echo '<p>' . __( 'Укажите имена пользователей.', 'mif-bp-customizer' ) . '</p>';
-        if ( $res ) echo '<p>' . __( 'Пользователи успешно добавлены:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[0] ) . '</strong></p>';
-        if ( $response[1] ) echo '<p>' . __( 'Пользователи не найдены:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[1] ) . '</strong></p>';
-        if ( $response[2] ) echo '<p>' . __( 'Пользователи уже присутствуют в списке:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[2] ) . '</strong></p>';
-        if ( $response[3] ) echo '<p>' . __( 'Нельзя добавить самого себя:', 'mif-bp-customizer' ) . ' <strong>' . $response[3][0] . '</strong></p>';
-        if ( $response[4] ) echo '<p>' . __( 'Пользователя нельзя добавить в список:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[4] ) . '</strong></p>';
+        if ( count( $memberlist_nicenames_arr ) == 0 ) echo '<p>' . __( 'Specify usernames.', 'mif-bpc' ) . '</p>';
+        if ( $res ) echo '<p>' . __( 'Users were added successfully:', 'mif-bpc' ) . ' <strong>' . implode( ', ', $response[0] ) . '</strong></p>';
+        if ( $response[1] ) echo '<p>' . __( 'Users were not found:', 'mif-bpc' ) . ' <strong>' . implode( ', ', $response[1] ) . '</strong></p>';
+        if ( $response[2] ) echo '<p>' . __( 'Users are already in the list:', 'mif-bpc' ) . ' <strong>' . implode( ', ', $response[2] ) . '</strong></p>';
+        if ( $response[3] ) echo '<p>' . __( 'Can’t add yourself:', 'mif-bpc' ) . ' <strong>' . $response[3][0] . '</strong></p>';
+        if ( $response[4] ) echo '<p>' . __( 'User can’t be added to the list:', 'mif-bpc' ) . ' <strong>' . implode( ', ', $response[4] ) . '</strong></p>';
         if ( $response[5] ) echo '<p>' . apply_filters( 'mif_bpc_members_page_check_adduser_comment' . $this->args['slug'],       
-                                    __( 'Невозможно добавить:', 'mif-bp-customizer' ), $this->args ) . ' <strong>' . implode( ', ', $response[5] ) . '</strong></p>';
-        if ( $response[0] && ! $res ) echo '<p>' . __( 'Произошла ошибка при добавлении пользователей:', 'mif-bp-customizer' ) . ' <strong>' . implode( ', ', $response[0] ) . '</strong></p>';
+                                    __( 'Can’t be added:', 'mif-bpc' ), $this->args ) . ' <strong>' . implode( ', ', $response[5] ) . '</strong></p>';
+        if ( $response[0] && ! $res ) echo '<p>' . __( 'Error occurred while adding the users:', 'mif-bpc' ) . ' <strong>' . implode( ', ', $response[0] ) . '</strong></p>';
 
         echo '</div>';
 
@@ -367,7 +367,7 @@ class mif_bpc_members_page {
     
     
     // 
-    // Сохранить новый список пользователей
+    // Save новый список пользователей
     // 
     function update_memberlist( $memberlist = array() )
     {
@@ -408,7 +408,7 @@ class mif_bpc_members_page {
 
 
     // 
-    // Параметры для запроса списка пользователей
+    // Options для запроса списка пользователей
     // 
     function members_param( $members_param, $object )
     {

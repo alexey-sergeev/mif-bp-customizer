@@ -1,7 +1,7 @@
 <?php
 
 //
-// Настройка механизма подписчиков
+// Configuration механизма подписчиков
 // 
 //
 
@@ -25,7 +25,7 @@ class mif_bpc_followers {
     function __construct()
     {
 
-        // Добавить записи читаемых пользователей в ленту активности
+        // Add записи читаемых пользователей в ленту активности
         add_filter( 'mif_bpc_activity_stream_friends', array( $this, 'activity_stream' ), 10, 2 );
 
         // Страницы подписчиков и читаемых
@@ -46,7 +46,7 @@ class mif_bpc_followers {
         add_action( 'friends_friendship_accepted', array( $this, 'friendship_accepted' ), 10, 3 );
         add_filter( 'bp_get_friend_reject_request_link', array( $this, 'reject_request_link' ) );
 
-        // Строка "Подписаться" в меню блокировки пользователя
+        // Строка "Subscribe" в меню блокировки пользователя
         add_filter( 'mif_bpc_banned_user_button', array( $this, 'following_user_menu' ) );
         add_action( 'wp_ajax_following-user-button', array( $this, 'following_user_menu_ajax_helper' ) );
 
@@ -70,24 +70,24 @@ class mif_bpc_followers {
 		switch ( $button['id'] ) {
 
 			case 'not_friends' :
-                $button['link_text'] = __( 'Добавить в друзья', 'mif-bp-customizer' );
+                $button['link_text'] = __( 'Add to friends', 'mif-bpc' );
                 $button['wrapper_class'] = 'custom-friendship-button not_friends';
 				break;
 
 			case 'awaiting_response' :
-                $button['link_text'] = __( 'Принять дружбу', 'mif-bp-customizer' );
+                $button['link_text'] = __( 'Accept the friendship', 'mif-bpc' );
                 $secondary = ( $this->get_not_now_status() ) ? ' secondary' : '';
                 $button['wrapper_class'] = 'custom-friendship-button' . $secondary . ' awaiting_response_friend';
                 $button['link_href'] = bp_get_friend_accept_request_link();
 				break;
 
 			case 'is_friend' :
-                $button['link_text'] = __( 'Отменить дружбу', 'mif-bp-customizer' );
+                $button['link_text'] = __( 'Cancel the friendship', 'mif-bpc' );
                 $button['wrapper_class'] = 'custom-friendship-button secondary is_friend';
 				break;
 
 			case 'pending' :
-                $button['link_text'] = __( 'Отписаться', 'mif-bp-customizer' );
+                $button['link_text'] = __( 'Unsubscribe', 'mif-bpc' );
                 $button['wrapper_class'] = 'custom-friendship-button pending_friend';
 				break;
 
@@ -195,7 +195,7 @@ class mif_bpc_followers {
 					'wrapper_class'     => 'custom-friendship-button not_now',
 					'wrapper_id'        => 'not-now-button-' . $target_user_id,
 					'link_href'         => wp_nonce_url( bp_loggedin_user_domain() . bp_get_friends_slug() . '/not_now/' . $target_user_id . '/', 'friends_not_now' ),
-					'link_text'         => __( 'Не сейчас', 'mif-bp-customizer' ),
+					'link_text'         => __( 'Not now', 'mif-bpc' ),
 					'link_id'           => 'not_now-' . $target_user_id,
 					'link_rel'          => 'remove',
 					'link_class'        => 'friendship-button not_now remove'
@@ -232,7 +232,7 @@ class mif_bpc_followers {
 
 
     //
-    // Добавить пользователя в список "не сейчас" (про добавление в друзья)
+    // Add пользователя в список "не сейчас" (про добавление в друзья)
     //
 
     function add_not_now_status( $target_user_id, $current_user_id = NULL )
@@ -249,7 +249,7 @@ class mif_bpc_followers {
     }
 
     //
-    // Удалить пользователя из списка "не сейчас" (про добавление в друзья)
+    // Delete пользователя из списка "не сейчас" (про добавление в друзья)
     //
 
     function delete_not_now_status( $target_user_id, $current_user_id = NULL )
@@ -278,7 +278,7 @@ class mif_bpc_followers {
     }
 
     //
-    // Обновить массив пользователей со статусом "не сейчас" (про добавление в друзья)
+    // Update массив пользователей со статусом "не сейчас" (про добавление в друзья)
     //
 
     function set_not_now_array( $current_user_id, $arr )
@@ -325,7 +325,7 @@ class mif_bpc_followers {
 
 
     //
-    // Добавить строку "Подписаться" в меню сблокировки пользователей (если такой модуль активен)
+    // Add строку "Subscribe" в меню сблокировки пользователей (если такой модуль активен)
     //
 
     function following_user_menu( $arr )
@@ -393,19 +393,19 @@ class mif_bpc_followers {
     	switch ( $is_friend ) {
 
 			case 'awaiting_response' :
-                $caption = __( 'Принять дружбу', 'mif-bp-customizer' );
+                $caption = __( 'Accept the friendship', 'mif-bpc' );
 				break;
 
 			case 'is_friend' :
-                $caption = __( 'Отменить дружбу', 'mif-bp-customizer' );
+                $caption = __( 'Cancel the friendship', 'mif-bpc' );
 				break;
 
 			case 'pending' :
-                $caption = __( 'Отписаться', 'mif-bp-customizer' );
+                $caption = __( 'Unsubscribe', 'mif-bpc' );
 				break;
 
 			default :
-                $caption = __( 'Подписаться', 'mif-bp-customizer' );
+                $caption = __( 'Subscribe', 'mif-bpc' );
 				break;
 
         }
@@ -415,7 +415,7 @@ class mif_bpc_followers {
 
 
     // 
-    // Подписаться на пользователя
+    // Subscribe на пользователя
     // 
 
     function add_following( $target_user_id, $current_user_id )
@@ -433,7 +433,7 @@ class mif_bpc_followers {
 
 
     // 
-    // Добавить записи читаемых пользователей в ленту активности
+    // Add записи читаемых пользователей в ленту активности
     // 
 
     function activity_stream( $friends, $user_id )
@@ -492,7 +492,7 @@ class mif_bpc_followers {
         $parent_slug = $bp->friends->slug;
 
         $sub_nav = array(  
-                'name' => __( 'Подписчики', 'mif-bp-customizer' ), 
+                'name' => __( 'Subscribers', 'mif-bpc' ), 
                 'slug' => 'followers', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
@@ -519,7 +519,7 @@ class mif_bpc_followers {
         $parent_slug = $bp->friends->slug;
 
         $sub_nav = array(  
-                'name' => __( 'Читаю', 'mif-bp-customizer' ), 
+                'name' => __( 'Reading', 'mif-bpc' ), 
                 'slug' => 'subscriptions', 
                 'parent_url' => $parent_url, 
                 'parent_slug' => $parent_slug, 
@@ -576,7 +576,7 @@ class mif_bpc_followers {
 
 
     //
-    // Удалить стандартную страницу запросов
+    // Delete стандартную страницу запросов
     //
 
     function notification_link( $notification )
@@ -593,7 +593,7 @@ class mif_bpc_followers {
 
 
     //
-    // Удалить стандартную страницу запросов
+    // Delete стандартную страницу запросов
     //
 
     function delete_requests_nav()

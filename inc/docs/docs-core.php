@@ -1,7 +1,7 @@
 <?php
 
 //
-// Документы (параметры и методы ядра)
+// Documents (параметры и методы ядра)
 // 
 //
 
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 abstract class mif_bpc_docs_core {
 
     //
-    // Папок на одной странице
+    // Folders на одной странице
     //
 
     public $folders_on_page = 12;
 
     //
-    // Документов на одной странице
+    // Documents на одной странице
     //
 
     public $docs_on_page = 18;
@@ -31,25 +31,25 @@ abstract class mif_bpc_docs_core {
     public $slug = 'docs';
 
     //
-    // Название папки с документами в uploads
+    // Name папки с документами в uploads
     //
 
     public $path = 'docs';
 
     //
-    // Название папки по умолчанию
+    // Name папки по умолчанию
     //
 
     public $default_folder_name = 'New folder';
 
     //
-    // Название папки ленты активности
+    // Name папки ленты активности
     //
 
     public $activity_stream_folder_name = 'Activity Stream';
 
     //
-    // Название папки диалогов
+    // Name папки диалогов
     //
 
     public $dialogues_folder_name = 'Private Messages';
@@ -90,7 +90,7 @@ abstract class mif_bpc_docs_core {
     function __construct()
     {
 
-        // // Настройка типа записи
+        // // Configuration типа записи
         // add_action( 'bp_init', array( $this, 'create_post_type' ) );
 
         // // Скачивание файла
@@ -99,9 +99,9 @@ abstract class mif_bpc_docs_core {
         // // Помощник удаления файлов
         // add_action( 'before_delete_post', array( $this, 'delete_doc_helper' ) );
 
-        $this->default_folder_name = __( 'Новая папка', 'mif-bp-customizer' );
-        $this->activity_stream_folder_name = __( 'Лента активности', 'mif-bp-customizer' );
-        $this->dialogues_folder_name = __( 'Личные сообщения', 'mif-bp-customizer' );
+        $this->default_folder_name = __( 'New folder', 'mif-bpc' );
+        $this->activity_stream_folder_name = __( 'Activity feed', 'mif-bpc' );
+        $this->dialogues_folder_name = __( 'Private messages', 'mif-bpc' );
     }
 
 
@@ -117,19 +117,19 @@ abstract class mif_bpc_docs_core {
         register_post_type( 'mif-bpc-doc',
             array(
                 'labels' => array(
-                    'name' => __( 'Документы', 'mif-bp-customizer' ),
-                    'singular_name' => __( 'Документ', 'mif-bp-customizer' ),
-                    'add_new' => __( 'Добавить новый', 'mif-bp-customizer' ),
-                    'add_new_item' => __( 'Новый документ', 'mif-bp-customizer' ),
-                    'edit' => __( 'Редактировать', 'mif-bp-customizer' ),
-                    'edit_item' => __( 'Редактировать документ', 'mif-bp-customizer' ),
-                    'new_item' => __( 'Новый документ', 'mif-bp-customizer' ),
-                    'view' => __( 'Просмотр', 'mif-bp-customizer' ),
-                    'view_item' => __( 'Просмотр документа', 'mif-bp-customizer' ),
-                    'search_items' => __( 'Найти документ', 'mif-bp-customizer' ),
-                    'not_found' => __( 'Документы не найдены', 'mif-bp-customizer' ),
-                    'not_found_in_trash' => __( 'В корзине не найдено', 'mif-bp-customizer' ),
-                    'parent' => __( 'Папка', 'mif-bp-customizer' ),
+                    'name' => __( 'Documents', 'mif-bpc' ),
+                    'singular_name' => __( 'Document', 'mif-bpc' ),
+                    'add_new' => __( 'Add new', 'mif-bpc' ),
+                    'add_new_item' => __( 'New document', 'mif-bpc' ),
+                    'edit' => __( 'Edit', 'mif-bpc' ),
+                    'edit_item' => __( 'Edit document', 'mif-bpc' ),
+                    'new_item' => __( 'New document', 'mif-bpc' ),
+                    'view' => __( 'Viewing', 'mif-bpc' ),
+                    'view_item' => __( 'Document viewing', 'mif-bpc' ),
+                    'search_items' => __( 'Find a document', 'mif-bpc' ),
+                    'not_found' => __( 'Documents were not found', 'mif-bpc' ),
+                    'not_found_in_trash' => __( 'Not found in the Recycle Bin', 'mif-bpc' ),
+                    'parent' => __( 'Folder', 'mif-bpc' ),
                 ),
                 'public' => true,
                 'menu_position' => 15,
@@ -146,19 +146,19 @@ abstract class mif_bpc_docs_core {
         register_post_type( 'mif-bpc-folder',
             array(
                 'labels' => array(
-                    'name' => __( 'Папки', 'mif-bp-customizer' ),
-                    'singular_name' => __( 'Папка', 'mif-bp-customizer' ),
-                    'add_new' => __( 'Добавить новую', 'mif-bp-customizer' ),
-                    'add_new_item' => __( 'Новая папка', 'mif-bp-customizer' ),
-                    'edit' => __( 'Редактировать', 'mif-bp-customizer' ),
-                    'edit_item' => __( 'Редактировать папку', 'mif-bp-customizer' ),
-                    'new_item' => __( 'Новая папка', 'mif-bp-customizer' ),
-                    'view' => __( 'Просмотр', 'mif-bp-customizer' ),
-                    'view_item' => __( 'Просмотр папки', 'mif-bp-customizer' ),
-                    'search_items' => __( 'Найти папку', 'mif-bp-customizer' ),
-                    'not_found' => __( 'Папки не найдены', 'mif-bp-customizer' ),
-                    'not_found_in_trash' => __( 'В корзине не найдено', 'mif-bp-customizer' ),
-                    'parent' => __( 'Папка', 'mif-bp-customizer' ),
+                    'name' => __( 'Folders', 'mif-bpc' ),
+                    'singular_name' => __( 'Folder', 'mif-bpc' ),
+                    'add_new' => __( 'Add new', 'mif-bpc' ),
+                    'add_new_item' => __( 'New folder', 'mif-bpc' ),
+                    'edit' => __( 'Edit', 'mif-bpc' ),
+                    'edit_item' => __( 'Edit folder', 'mif-bpc' ),
+                    'new_item' => __( 'New folder', 'mif-bpc' ),
+                    'view' => __( 'Viewing', 'mif-bpc' ),
+                    'view_item' => __( 'Folder viewing', 'mif-bpc' ),
+                    'search_items' => __( 'Find a folder', 'mif-bpc' ),
+                    'not_found' => __( 'Folders were not found', 'mif-bpc' ),
+                    'not_found_in_trash' => __( 'Not found in the Recycle Bin', 'mif-bpc' ),
+                    'parent' => __( 'Folder', 'mif-bpc' ),
                 ),
                 'public' => true,
                 'menu_position' => 15,
@@ -187,7 +187,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Удалить документ в корзину
+    // Delete document в корзину
     // 
 
     function trash_doc( $doc_id = NULL )
@@ -207,7 +207,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Восстановить документ из корзины
+    // Restore документ из корзины
     // 
 
     function untrash_doc( $doc_id = NULL )
@@ -218,7 +218,7 @@ abstract class mif_bpc_docs_core {
         $doc = get_post( $doc_id );
         $this->clean_folder_size( $doc->post_parent );
         
-        // Восстановить папку (вдруг она тоже в корзине?)
+        // Restore папку (вдруг она тоже в корзине?)
         //
         // Вернёт в $ret2:
         //          true - если это не папка
@@ -241,7 +241,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Удалить документ навсегда
+    // Delete document навсегда
     // 
 
     function delete_doc( $doc_id = NULL )
@@ -265,13 +265,13 @@ abstract class mif_bpc_docs_core {
         if ( ! ( $doc_type == 'file' || $doc_type == 'image' ) ) return;
 
         unlink( $this->get_doc_path( $doc ) );
-        f($this->get_doc_path( $doc ));
+        // f($this->get_doc_path( $doc ));
     }
 
 
 
     // 
-    // Сохранить документ
+    // Save документ
     // 
 
     function doc_save( $name, $path, $user_id = NULL, $folder_id = NULL, $file_type = NULL, $order = 0, $descr = '', $post_date = NULL, $post_modified = NULL )
@@ -401,7 +401,7 @@ abstract class mif_bpc_docs_core {
             } else {
 
                 $name = $this->activity_stream_folder_name;
-                $desc = __( 'Файлы, опубликованные в ленте активности', 'mif-bp-customizer' );
+                $desc = __( 'Files, that are published in the activity feed', 'mif-bpc' );
                 $folder_id = $this->folder_save( $item_id, $mode, $name, $desc, $publish = 'on', $author_id );
 
                 update_post_meta( $folder_id, $this->activity_folder_meta_key, $mode . '-' . $item_id );
@@ -445,7 +445,7 @@ abstract class mif_bpc_docs_core {
         } else {
 
             $name = $this->dialogues_folder_name;
-            $desc = __( 'Файлы, прикрепленные к личным сообщениям', 'mif-bp-customizer' );
+            $desc = __( 'Files, that are attached to the private messages', 'mif-bpc' );
             $folder_id = $this->folder_save( $user_id, 'user', $name, $desc, $publish = 'off', $user_id );
 
             update_post_meta( $folder_id, $this->dialogues_folder_meta_key, $user_id );
@@ -472,7 +472,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Сохранить папку
+    // Save папку
     // 
 
     function folder_save( $item_id = NULL, $mode = 'user', $name = '', $desc = '', $publish = 'on', $author_id = NULL, $post_date = NULL, $post_modified = NULL )
@@ -527,7 +527,7 @@ abstract class mif_bpc_docs_core {
     {
         $arr = array( 'publish' );
         
-        // private и trash показывать только для владельца файла или админа
+        // private и trash показывать только для владельца файла or админа
 
         if ( bp_loggedin_user_id() == $item_id || $this->is_admin() ) {
 
@@ -783,7 +783,7 @@ abstract class mif_bpc_docs_core {
 
         if ( $this->is_admin() ) {
         
-            // Если админ, то посчитать все приватные документы
+            // Если админ, то посчитать все приватные documents
 
             foreach ( (array) $data['private'] as $private ) {
 
@@ -830,7 +830,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Удалить папку в корзину
+    // Delete folder в корзину
     // 
 
     function trash_folder( $folder_id = NULL )
@@ -840,7 +840,7 @@ abstract class mif_bpc_docs_core {
 
         $docs = $this->get_docs_collection_data( $folder_id, 0, 0, -1 );
 
-        // Удалить в корзину все документы папки, запомнив их номера
+        // Delete в корзину все documents папки, запомнив их номера
 
         $arr = array();
         $ret = array();
@@ -855,11 +855,11 @@ abstract class mif_bpc_docs_core {
 
         if ( $success ) {
 
-            // Сохранить в мета-поле папки номера удаленных документов
+            // Save в мета-поле папки номера удаленных документов
 
             $ret2 = update_post_meta( $folder_id, 'mif-bpc-trashed-docs', implode( ',', $arr ) );
 
-            // Удалить папку
+            // Delete folder
 
             $this->clean_folder_size( $folder_id );
             $ret3 = wp_trash_post( $folder_id );
@@ -877,7 +877,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Восстановить папку из корзины
+    // Restore папку из корзины
     // 
 
     function untrash_folder( $folder_id = NULL )
@@ -885,11 +885,11 @@ abstract class mif_bpc_docs_core {
         if ( ! $this->is_folder( $folder_id ) ) return false;
         if ( ! $this->is_access( $folder_id, 'delete' ) ) return false;
 
-        // Восстановить папку
+        // Restore папку
 
         $ret = wp_untrash_post( $folder_id );
 
-        // Восстановить все документы
+        // Restore все documents
 
         $docs_ids = get_post_meta( $folder_id, 'mif-bpc-trashed-docs', true );
         $arr = explode( ',', $docs_ids );
@@ -907,7 +907,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Удалить папку навсегда
+    // Delete folder навсегда
     // 
 
     function delete_folder( $folder_id = NULL )
@@ -917,12 +917,12 @@ abstract class mif_bpc_docs_core {
 
         $docs = $this->get_docs_collection_data( $folder_id, 0, 1, -1 );
 
-        // Удалить навсегда все документы папки
+        // Delete навсегда все documents папки
 
         $ret = array();
         foreach ( (array) $docs as $doc ) $ret[] = wp_delete_post( $doc->ID );
 
-        // Удалить папку
+        // Delete folder
 
         $ret3 = wp_delete_post( $folder_id );
 
@@ -968,7 +968,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Адрес папки для файлов пользователя
+    // Address папки для файлов пользователя
     // 
     // /docs/2017/<user_id>
     // Используется как продолжение /wp-content/uploads
@@ -1041,7 +1041,7 @@ abstract class mif_bpc_docs_core {
 
 
     //
-    // Адрес страницы документов
+    // Address страницы документов
     //
 
     function get_docs_url()
@@ -1069,7 +1069,7 @@ abstract class mif_bpc_docs_core {
 
 
     //
-    // Адрес конкретной папки
+    // Address конкретной папки
     //
 
     function get_folder_url( $folder_id = NULL )
@@ -1084,7 +1084,7 @@ abstract class mif_bpc_docs_core {
 
 
     //
-    // Адрес конкретного документа
+    // Address конкретного документа
     //
 
     function get_doc_url( $doc_id = NULL )
@@ -1159,7 +1159,7 @@ abstract class mif_bpc_docs_core {
             header( 'Content-Description: File Transfer' );
             header( 'Content-Type: ' . $doc->post_mime_type );
             header('Content-Type: application/octet-stream');
-            header( 'Content-Disposition: attachment; filename=' . $filename );
+            header( 'Content-Disposition: attachment; filename="' . $filename . '"');
             header( 'Content-Transfer-Encoding: binary');
             header( 'Expires: 0');
             header( 'Cache-Control: must-revalidate');
@@ -1216,7 +1216,7 @@ abstract class mif_bpc_docs_core {
 
 
     // 
-    // Возвращает тип документа (image, file, link или html)
+    // Возвращает тип документа (image, file, link or html)
     // 
 
     function get_doc_type( $doc )
@@ -1292,7 +1292,7 @@ abstract class mif_bpc_docs_core {
 
 
     //
-    // Сортирует документы в папке
+    // Сортирует documents в папке
     //
 
     function docs_reorder( $folder_id, $order_raw )
@@ -1315,11 +1315,11 @@ abstract class mif_bpc_docs_core {
 
         }
 
-        // Добавить к порядку отсутствующие документы папки
+        // Add к порядку отсутствующие documents папки
 
         foreach ( $arr as $item ) if ( ! in_array( $item, $order ) ) $order[] = $item;
 
-        // Обновить порядок в базе данных
+        // Update порядок в базе данных
 
         $count = count( $order );
         foreach ( $order as $key => $value ) {
@@ -1363,11 +1363,11 @@ abstract class mif_bpc_docs_core {
 
         }
 
-        // Добавить к порядку отсутствующие папки
+        // Add к порядку отсутствующие папки
 
         foreach ( $arr as $item ) if ( ! in_array( $item, $order ) ) $order[] = $item;
 
-        // Обновить порядок в базе данных
+        // Update порядок в базе данных
 
         $count = count( $order );
         foreach ( $order as $key => $value ) {
@@ -1422,7 +1422,7 @@ abstract class mif_bpc_docs_core {
 
 
     //
-    // Проверяет, является ли текущий пользователь администартором всего сайта или группы
+    // Проверяет, является ли текущий пользователь администартором всего сайта or группы
     //
 
     function is_admin( $group_id = NULL )
@@ -1466,7 +1466,7 @@ abstract class mif_bpc_docs_core {
         // Админ сайта всегда может всё
         if ( $this->is_admin() ) return apply_filters( 'mif_bpc_docs_is_access_admin', true, $item, $level );
 
-        // Настройки доступа в целом для системы документов
+        // Settings доступа в целом для системы документов
         
         $ret = false;
         if ( $item == '' ) $item = 'all-folders';
@@ -1498,7 +1498,7 @@ abstract class mif_bpc_docs_core {
 
         }
         
-        // Настройки доступа для конкретной папки или документа
+        // Settings доступа для конкретной папки or документа
 
         if ( ! is_object( $item ) ) $item = get_post( $item );
 
@@ -1606,7 +1606,7 @@ abstract class mif_bpc_docs_core {
 
 
     //
-    // Возвращает расположение папки или документа (пользователь, группа или др.)
+    // Возвращает расположение папки or документа (пользователь, группа or др.)
     //
 
     function place( $item, $id = false )
@@ -1655,7 +1655,7 @@ abstract class mif_bpc_docs_core {
 
 
     //
-    // Возвращает режим доступа к документы (только для документов групп)
+    // Возвращает режим доступа к documents (только для документов групп)
     //
 
     function get_access_mode_to_doc( $doc_id )
