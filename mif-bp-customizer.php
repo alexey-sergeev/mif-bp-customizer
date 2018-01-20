@@ -1,21 +1,20 @@
 <?php
 /*
  * Plugin Name: MIF BP Customizer
+ * Description: Плагин расширения возможностей BuddyPress для создания сайта социальной сети.
  * Plugin URI:  https://github.com/alexey-sergeev/mif-bp-customizer
  * Author:      Alexey Sergeev
  * Author URI:  https://github.com/alexey-sergeev
- * License:     MIT License
- * Description: Плагин BuddyPress для тонкой настройки социальной сети.
- * Version:     0.0.1
- * Text Domain: mif-bp-customizer
+ * Version:     1.0.0
+ * Text Domain: mif-bpc
  * Domain Path: /lang/
- */
+ * License:     GPLv2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+*/
 
 defined( 'ABSPATH' ) || exit;
 
 include_once dirname( __FILE__ ) . '/classes/members-page.php';
-// include_once dirname( __FILE__ ) . '/classes/class-attachment.php';
-// include_once dirname( __FILE__ ) . '/classes/socket-io-client.php';
 
 
 include_once dirname( __FILE__ ) . '/inc/profile-as-homepage.php';
@@ -24,7 +23,6 @@ include_once dirname( __FILE__ ) . '/inc/custom-background.php';
 include_once dirname( __FILE__ ) . '/inc/edit-group-slug.php';
 include_once dirname( __FILE__ ) . '/inc/groups-widget.php';
 include_once dirname( __FILE__ ) . '/inc/members-widget.php';
-// include_once dirname( __FILE__ ) . '/inc/group-tags.php';
 
 include_once dirname( __FILE__ ) . '/inc/activity-stream.php';
 include_once dirname( __FILE__ ) . '/inc/banned-users.php';
