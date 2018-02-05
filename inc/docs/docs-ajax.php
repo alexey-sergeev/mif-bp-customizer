@@ -223,11 +223,11 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
         $item_id = (int) $_POST['item_id'];
 
-        $folder_id = $this->folder_save( $item_id, $_POST['mode'], $_POST['name'], $_POST['desc'], $_POST['publish'], $author_id );
+        $folder_id = $this->folder_save( $item_id, sanitize_key( $_POST['mode'] ), sanitize_text_field( $_POST['name'] ), sanitize_text_field( $_POST['desc'] ), sanitize_key( $_POST['publish'] ), $author_id );
 
         if ( $folder_id ) {
             
-            if ( isset( $_POST['access_mode'] ) ) $this->set_access_mode_to_folder( $folder_id, $_POST['access_mode'] );
+            if ( isset( $_POST['access_mode'] ) ) $this->set_access_mode_to_folder( $folder_id, sanitize_key( $_POST['access_mode'] ) );
             echo $this->get_folder_url( $folder_id );
         
         }
@@ -248,14 +248,14 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
         $user_id = bp_loggedin_user_id();
         if ( empty( $user_id ) ) wp_die();
 
-        $name = trim( $_POST['descr'] );
-        $path = trim( $_POST['link'] );
+        $name = trim( sanitize_text_field( $_POST['descr'] ) );
+        $path = trim( sanitize_text_field( $_POST['link'] ) );
 
         if ( empty( $name ) ) $name = $path;
 
         if ( ! empty( $path ) ) {
             
-            $post_id = $this->doc_save( $name, $path, $user_id, $_POST['folder_id'], '', $_POST['order'] );
+            $post_id = $this->doc_save( $name, $path, $user_id, (int) $_POST['folder_id'], '', sanitize_key( $_POST['order'] ) );
             echo $this->get_doc_item( $post_id );
 
         } else {
@@ -349,9 +349,6 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
             }
 
-            // $item_id = (int) $_POST['item_id'];
-            // $mode = $_POST['mode'];
-
             if ( $mode ) echo $this->get_folders( $page, $item_id, $mode, $trashed );
             
         }
@@ -369,7 +366,7 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     {
         check_ajax_referer( 'mif-bpc-docs-file-upload-nonce' );
 
-        $post_id = $this->upload_and_save( $_POST['folder_id'] );
+        $post_id = $this->upload_and_save( (int) $_POST['folder_id'] );
 
         if ( $post_id ) {
 
@@ -452,12 +449,13 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
                 $doc_data = array(
                                     'ID' => (int) $_POST['doc_id'],
                                     'post_status' => $publish,
-                                    'post_excerpt' => trim( $_POST['desc'] ),
+                                    // 'post_excerpt' => trim( $_POST['desc'] ),
+                                    'post_excerpt' => trim( sanitize_text_field( $_POST['desc'] ) ),
                                 );
 
-                $name = trim( $_POST['name'] );
+                $name = trim( sanitize_text_field( $_POST['name'] ) );
                 
-                if ( $name != '' ) $doc_data['post_title'] = $this->ext_safety( $name, $doc->post_title );
+                if ( $name != '' ) $doc_data['post_title'] = $name;
 
                 $ret = ( wp_update_post( wp_slash( $doc_data ) ) ) ? $this->get_doc_content( $doc_id ) : $this->error_msg( '008' );
                 echo $ret;
@@ -517,9 +515,6 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
 
                 // Delete в корзину
 
-                // $ret = ( $this->trash_folder( $folder_id ) ) ? $this->get_docs_content() : $this->error_msg( '004' );
-                // echo $ret;
-
                 $this->trash_folder( $folder_id );
                 echo $this->get_docs_content();
 
@@ -542,14 +537,14 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
                 $folder_data = array(
                                     'ID' => (int) $_POST['folder_id'],
                                     'post_status' => $publish,
-                                    'post_content' => trim( $_POST['desc'] ),
+                                    'post_content' => trim( sanitize_text_field( $_POST['desc'] ) ),
                                 );
 
-                if ( trim( $_POST['name'] ) != '' ) $folder_data['post_title'] = trim( $_POST['name'] );
+                if ( trim( $_POST['name'] ) != '' ) $folder_data['post_title'] = trim( sanitize_text_field( $_POST['name'] ) );
 
                 if ( wp_update_post( wp_slash( $folder_data ) ) ) {
 
-                    if ( isset( $_POST['access_mode'] ) ) $this->set_access_mode_to_folder( $folder_id, $_POST['access_mode'] );
+                    if ( isset( $_POST['access_mode'] ) ) $this->set_access_mode_to_folder( $folder_id, sanitize_key( $_POST['access_mode'] ) );
                     echo $this->get_docs_content();
 
                 } else {

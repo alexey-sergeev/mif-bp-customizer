@@ -163,9 +163,9 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
         if ( !  isset( $_GET['_wpnonce'] ) ) return;
         if( ! wp_verify_nonce( $_GET['_wpnonce'], 'mif_bpc_docs_repost_button' ) ) return;
 
-        if ( $this->is_doc( $_GET['doc'] ) || $this->is_folder( $_GET['doc'] ) ) {
+        if ( $this->is_doc( (int) $_GET['doc'] ) || $this->is_folder( (int) $_GET['doc'] ) ) {
 
-            echo '<input type="hidden" id="doc-repost-id" value="' . $_GET['doc'] . '">';
+            echo '<input type="hidden" id="doc-repost-id" value="' . (int) $_GET['doc'] . '">';
 
         }
         

@@ -143,10 +143,11 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
         $thread_id = (int) $_POST['thread_id'];
         $last_message_id = (int) $_POST['last_message_id'];
         $threads_update_timestamp = (int) $_POST['threads_update_timestamp'];
-        $message = esc_html( $_POST['message'] );
+        $message = esc_html( sanitize_textarea_field( $_POST['message'] ) );
         
         $attachments = array();
-        $aid_arr = explode( '&', $_POST['attachments'] );
+        $aid_arr = explode( '&', sanitize_text_field( $_POST['attachments'] ) );
+        
         foreach ( (array) $aid_arr as $aid ) $attachments[] = (int) end( explode( '=', $aid ) );
 
         $message_id = $this->send( $message, $thread_id );
@@ -202,9 +203,9 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
         check_ajax_referer( 'mif-bpc-dialogues-compose-send-nonce' );
 
         $email_status = (int) $_POST['email'];
-        $message = esc_html( $_POST['message'] );
-        $subject = esc_html( $_POST['subject'] );
-        $recipient_ids = (array) $_POST['recipient_ids'];
+        $message = esc_html( sanitize_textarea_field( $_POST['message'] ) );
+        $subject = esc_html( sanitize_text_field( $_POST['subject'] ) );
+        $recipient_ids = array_map( 'sanitize_key', $_POST['recipient_ids'] );
 
         // Получить чистый список получателей
 
@@ -454,7 +455,7 @@ class mif_bpc_dialogues_ajax extends mif_bpc_dialogues_screen {
         $thread_id = (int) $_POST['thread_id'];
         $last_message_id = (int) $_POST['last_message_id'];
         $threads_update_timestamp = (int) $_POST['threads_update_timestamp'];
-        $threads_mode = $_POST['threads_mode'];
+        $threads_mode = sanitize_key( $_POST['threads_mode'] );
 
         $arr = array();
 

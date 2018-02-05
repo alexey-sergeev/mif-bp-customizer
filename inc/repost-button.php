@@ -188,32 +188,6 @@ class mif_bpc_repost_button {
 
     }
 
-    // //
-    // // Вывести repost-запись в форму публикации записей
-    // //
-
-    // public function repost_form()
-    // {
-    //     if ( empty( $_GET['repost'] ) ) return;
-        
-    //     $activity_id = (int) $_GET['repost'];
-        
-    //     echo '<div class="activity-list">';
-    //     $this->show_reposted_activity( $activity_id );
-    //     echo '</div>';
-
-    //     echo '<input type="hidden" name="whats-new-post-object" id="whats-new-post-object" value="activity_repost">';
-    //     echo '<input type="hidden" name="whats-new-post-in" id="whats-new-post-in" value="' . $activity_id . '">';
-
-    //     echo '<script>
-    //     window.onload = function() {
-    //         document.getElementById( "whats-new" ).focus();
-    //     }
-    //     </script>
-    //     ';
-
-    //     $this->repost_form_flag = true;
-    // }
 
 
     //
@@ -239,60 +213,10 @@ class mif_bpc_repost_button {
     }
 
 
-    // public function ajax_helper()
-    // {
-    //     check_ajax_referer( 'mif_bpc_repost_button_press' );
-
-    //     if ( ! mif_bpc_options( 'repost-button' ) ) wp_die();
-
-    //     $activity_id = (int) $_POST['activity_id'];
-    //     $user_id = bp_loggedin_user_id();
-        
-    //     $args = array(
-	// 	                // 'action' => '<a href="' . bp_core_get_user_domain( $user_id ) . '">' . bp_members_get_user_nicename( $user_id ) . '</a> ' . __( 'shared a post', 'mif-bpc' ),
-	// 	                'action' => bp_core_get_userlink( $user_id ) . ': ' . __( 'shared a post', 'mif-bpc' ),
-	// 	                'component' => 'activity',
-	// 	                'type' => 'activity_repost',
-	// 	                'item_id' => $activity_id,
-	// 	                // 'content' => $activity_id,
-	// 	                'content' => '<!-- none -->',
-	// 	                'hide_sitewide' => false,
-
-    //             );
-
-    //             // echo $activity_id;
-
-    //     if ( bp_activity_add( $args ) ) { 
-
-    //     echo 'Ok';
-
-    //     } else {
-
-    //     echo 'No';
-
-    //     };
-
-    //     // if ( $this->is_liked( $activity_id, $user_id ) ) {
-
-    //     //     if ( $this->unliked( $activity_id, $user_id ) ) echo 'unliked';
-
-    //     // } else {
-
-    //     //     if ( $this->liked( $activity_id, $user_id ) ) echo 'liked';
-
-    //     // }
-
-    //     // $this->get_cache_avatar_data( $activity_id, 'create_new_cache' );
-
-    //     wp_die();
-    // }
-
 
     public function ajax_helper( $object, $item_id, $content )
     {
 
-// file_put_contents('/tmp/log', '5');
-        
         if ( ! mif_bpc_options( 'repost-button' ) ) return;
         if ( $object != 'activity_repost' ) return;
 
@@ -321,31 +245,6 @@ class mif_bpc_repost_button {
         }
 
         return false;
-        //         // echo $activity_id;
-
-        // if ( bp_activity_add( $args ) ) { 
-
-        // echo 'Ok';
-
-        // } else {
-
-        // echo 'No';
-
-        // };
-
-        // // if ( $this->is_liked( $activity_id, $user_id ) ) {
-
-        // //     if ( $this->unliked( $activity_id, $user_id ) ) echo 'unliked';
-
-        // // } else {
-
-        // //     if ( $this->liked( $activity_id, $user_id ) ) echo 'liked';
-
-        // // }
-
-        // // $this->get_cache_avatar_data( $activity_id, 'create_new_cache' );
-
-        // wp_die();
     }
 
 

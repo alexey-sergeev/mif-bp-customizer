@@ -167,7 +167,7 @@ class mif_bpc_dialogues_core {
 
             // Отобрать только тех, кто подходит по поиску
 
-            $recipients_search_result = new BP_User_Query( array( 'include' => $recipients, 'search_terms' => $_POST['s'] ));
+            $recipients_search_result = new BP_User_Query( array( 'include' => $recipients, 'search_terms' => sanitize_text_field( $_POST['s'] ) ) );
 
             if ( ! empty( $recipients_search_result->user_ids ) ) {
                 

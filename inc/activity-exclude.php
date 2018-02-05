@@ -245,7 +245,7 @@ class mif_bpc_activity_exclude {
     {
         if ( ! ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'mif-bp-customizer-settings-activity' ) ) ) return;
 
-        $form_types = array_keys( $_POST['items'] );
+        $form_types = array_keys( array_map( 'sanitize_key', $_POST['items'] ) );
         $all_types = $this->get_activity_types();
         $unexcluded_types = $this->get_unexcluded_types();
         $exclude_types = array_diff( $all_types, $form_types, $unexcluded_types );

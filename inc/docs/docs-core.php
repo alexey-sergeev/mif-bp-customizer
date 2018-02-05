@@ -335,7 +335,7 @@ abstract class mif_bpc_docs_core {
             $filename = basename( $_FILES['file']['name'] );
             $path = trailingslashit( $this->get_docs_path() ) . md5( uniqid( rand(), true ) ); 
             $upload_dir = (object) wp_upload_dir();
-            $order = ( isset( $_POST['order'] ) ) ? $_POST['order'] : time();
+            $order = ( isset( $_POST['order'] ) ) ? (int) $_POST['order'] : time();
 
             if ( move_uploaded_file( $_FILES['file']['tmp_name'], $upload_dir->basedir . $path ) ) {
 
@@ -1209,7 +1209,8 @@ abstract class mif_bpc_docs_core {
 
     function get_doc_ext( $name )
     {
-        $ext = end( explode( ".", $name ) );
+        $arr = explode( ".", $name );
+        $ext = ( count( $arr ) > 1 ) ? end( $arr ) : '';
         return apply_filters( 'mif_bpc_docs_get_doc_ext', $ext, $doc );
     }
 
@@ -1265,7 +1266,7 @@ abstract class mif_bpc_docs_core {
         $old_ext = $this->get_doc_ext( $old_name );
 
         $name = $new_name;
-        if ( $new_ext != $old_ext ) $name = $new_name . '.' . $old_ext;
+        if ( $new_ext != $old_ext && $old_ext != '' ) $name = $new_name . '.' . $old_ext;
 
         return apply_filters( 'mif_bpc_docs_ext_safety', $name, $new_name, $old_name );
     }

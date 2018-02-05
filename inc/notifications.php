@@ -155,7 +155,7 @@ class mif_bpc_notifications {
     {
         check_ajax_referer( 'mif_bpc_notifications_bulk_delete' );
 
-        $arr = (array) $_POST['arr'];
+        $arr = array_map( 'sanitize_key', $_POST['arr'] );
         foreach ( $arr as $item ) bp_notifications_delete_notification( $item );
         echo mif_bpc_new_notifications_count();
 
@@ -171,7 +171,7 @@ class mif_bpc_notifications {
     {
         check_ajax_referer( 'mif_bpc_notifications_bulk_not_is_new' );
 
-        $arr = (array) $_POST['arr'];
+        $arr = array_map( 'sanitize_key', $_POST['arr'] );
         foreach ( $arr as $item ) bp_notifications_mark_notification( $item, false );
         echo mif_bpc_new_notifications_count();
 

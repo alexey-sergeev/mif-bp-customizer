@@ -95,30 +95,6 @@ class mif_bpc_docs_dialogues extends mif_bpc_docs_screen {
         wp_die();
     }
 
-
-
-
-    //
-    // Помощник публикации документа or папки в ленте активности
-    //
-
-    function repost_doc_helper()
-    {
-        if( ! wp_verify_nonce( $_GET['_wpnonce'], 'mif_bpc_docs_repost_button' ) ) return;
-
-        if ( $this->is_doc( $_GET['doc'] ) || $this->is_folder( $_GET['doc'] ) ) {
-
-            echo '<input type="hidden" id="doc-repost-id" value="' . $_GET['doc'] . '">';
-
-        }
-        
-        //
-        // Примечание. Наличие этого поля анализирует js-сценарий и выводит данные в форму
-        //
-
-    }
-
-
 }
 
 

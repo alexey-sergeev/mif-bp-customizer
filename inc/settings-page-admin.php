@@ -196,7 +196,7 @@ class mif_bpc_console_settings_page {
         foreach ( $args as $key => $value ) {
             
             if ( isset($_POST[$key]) ) {
-                $new_value = ( $_POST[$key] == 'yes' ) ? 1 : $_POST[$key];
+                $new_value = ( $_POST[$key] == 'yes' ) ? 1 : sanitize_text_field( $_POST[$key] );
             } else {
                 $new_value = 0;    
             }
