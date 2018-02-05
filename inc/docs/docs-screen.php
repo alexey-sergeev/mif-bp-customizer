@@ -528,11 +528,13 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $order = '';
             $status = '';
             $title = '';
-
+            $cover = '';
+            $cover_class = '';
+            
         } else {
-
+            
             if ( is_numeric( $doc ) ) $doc = get_post( $doc );
-
+            
             // $name = $doc->post_title;
             $name = $this->get_doc_name( $doc );
             $logo = $this->get_file_logo( $doc );
@@ -541,6 +543,8 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $id = 'doc-' . $doc->ID;
             $order = $doc->menu_order;
             $status = ' ' . $doc->post_status;
+            $cover = '';
+            $cover_class = '';
 
             $url = $this->get_doc_url( $doc->ID );
             $a1 = '<a href="' . $url . '">';
@@ -550,18 +554,27 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $doc_type = $this->get_doc_type( $doc );
 
             if ( $doc_type == 'file' || $doc_type == 'image' ) {
-
+                
                 $right = '<a href="' . $url . 'download/" class="button doc-download right" title="' . __( 'Download', 'mif-bpc' ) . '"><i class="fa fa-download"></i></a>';
-            
+                
             } elseif ( $doc_type == 'link' ) {
-
+                
                 $right = '<a href="' . $doc->post_content . '" target="blank" class="button doc-download right" title="' . __( 'Open', 'mif-bpc' ) . '"><i class="fa fa-arrow-up"></i></a>';
-
+                
             } else {
-
+                
                 $right = '';
-
+                
             }
+            
+            // // Картинка для картинок
+            
+            // if ( $doc_type == 'image' ) {
+
+            //     $cover = ' style="background: url(' . $url . 'download/);"';
+            //     $cover_class = ' cover';
+
+            // }
 
             $title = '';
 
@@ -583,7 +596,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         }
 
 
-        $out = '<div class="file' . $status . $loading . '" id="' . $id . '" data-order="' . $order . '"' . $title . '>
+        $out = '<div class="file' . $status . $loading . $cover_class . '" id="' . $id . '" data-order="' . $order . '"' . $title . $cover . '>
         ' . $a1 . '
         <span class="logo">' . $logo . '</span>
         <span class="name">' . $name . '</span>

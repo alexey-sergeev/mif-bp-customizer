@@ -23,8 +23,8 @@ class mif_bpc_admin_banned_members {
     {
         add_users_page( __( 'User blockings', 'mif-bpc' ), __( 'User blockings', 'mif-bpc' ), 'manage_options', 'banned-members', array( $this, 'page' ) );
         // add_submenu_page( 'users.php', __( 'User blockings', 'mif-bpc' ), __( 'User blockings', 'mif-bpc' ), 'manage_options', 'banned-members', array( $this, 'page' ) );
-        wp_register_style( 'mif-bp-customizer-styles', plugins_url( '../mif-bp-customizer-styles.css', __FILE__ ) );
-        wp_enqueue_style( 'mif-bp-customizer-styles' );
+        wp_register_style( 'mif-bpc-styles', plugins_url( '../mif-bpc-styles.css', __FILE__ ) );
+        wp_enqueue_style( 'mif-bpc-styles' );
     }
 
     function page()

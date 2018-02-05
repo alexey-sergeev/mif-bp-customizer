@@ -585,6 +585,54 @@
     margin-bottom: 1rem;
 }
 
+
+/* Оформление документов */
+
+.logo .fa-file-word-o {
+    color: #295598;	
+}
+
+.logo .fa-file-excel-o {
+    color: #1E6E42;
+}
+
+.logo .fa-file-powerpoint-o {
+    color: #D04626;
+}
+
+.logo .fa-file-pdf-o {
+    color: #BB0706;
+}
+
+.logo .fa-globe {
+    color: #0078D7;
+}
+
+.logo .fa-file-archive-o {
+    color: #EA9F27;
+}
+
+.logo .fa-file-image-o {
+    color: #0078D7;
+}
+
+.logo .fa-file-text-o {
+    color: #0078D7;
+}
+
+/* Обложка */
+
+.file.cover {
+    background-size: cover!important;
+}
+
+.file.cover .logo {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+
+
+
 /* Сообщение, что кто-то пишет письмо */
 
 .messages-wrap .writing {

@@ -122,8 +122,8 @@ add_action( 'wp_enqueue_scripts', 'mif_bp_customizer_styles' );
 
 function mif_bp_customizer_styles() 
 {
-	wp_register_style( 'mif-bp-customizer-styles', plugins_url( 'mif-bpc-styles.css', __FILE__ ) );
-	wp_enqueue_style( 'mif-bp-customizer-styles' );
+	wp_register_style( 'mif-bpc-styles', plugins_url( 'mif-bpc-styles.css', __FILE__ ) );
+	wp_enqueue_style( 'mif-bpc-styles' );
 
     wp_register_style( 'font-awesome', plugins_url( '/css/font-awesome.min.css', __FILE__ ) );
 	wp_enqueue_style( 'font-awesome' );

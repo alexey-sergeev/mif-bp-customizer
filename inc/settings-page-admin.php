@@ -19,8 +19,8 @@ class mif_bpc_console_settings_page {
     function register_menu_page()
     {
         add_options_page( __( 'BP Customizer plugin configuration', 'mif-bpc' ), __( 'BP Customizer', 'mif-bpc' ), 'manage_options', 'mif-bpc', array( $this, 'page' ) );
-        wp_register_style( 'mif-bp-customizer-styles', plugins_url( '../mif-bp-customizer-styles.css', __FILE__ ) );
-        wp_enqueue_style( 'mif-bp-customizer-styles' );
+        wp_register_style( 'mif-bpc-styles', plugins_url( '../mif-bpc-styles.css', __FILE__ ) );
+        wp_enqueue_style( 'mif-bpc-styles' );
     }
 
     function page()
