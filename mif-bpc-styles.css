@@ -622,16 +622,24 @@
 
 /* Обложка */
 
-.file.cover {
+.docs-page .file.cover {
     background-size: cover!important;
+    background-position-x: center!important;
+    background-position-y: center!important;
 }
 
-.file.cover .logo {
-    background: rgba(255, 255, 255, 0.5);
+.docs-page .file.cover .logo i {
+    opacity: 0;
 }
 
+.docs-page .file.cover .count {
+    opacity: 0.75;
+    color: #444;
+}
 
-
+.docs-page .file.folder.cover .name {
+    color: #444;
+}
 
 /* Сообщение, что кто-то пишет письмо */
 

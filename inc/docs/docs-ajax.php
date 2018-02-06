@@ -48,7 +48,8 @@ class mif_bpc_docs_ajax extends mif_bpc_docs_screen {
     function load_js_helper()
     {
         wp_enqueue_script( 'mif_bpc_docs_helper', plugins_url( '../../js/docs.js', __FILE__ ) );
-        wp_enqueue_script( 'mif_bpc_docs_jquery-ui', plugins_url( '../../js/jquery-ui/jquery-ui.min.js', __FILE__ ) );
+        wp_enqueue_script( 'jquery-ui-core' );
+        wp_enqueue_script( 'jquery-ui-sortable' );
     }
 
 

@@ -648,8 +648,17 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
+        $cover_id = $this->get_folder_cover( $folder->ID );
 
-        $out = '<div class="file folder ' . $folder->post_status . '" id="folder-' . $folder->ID . '"' . $title . '>
+        if ( $cover_id ) {
+
+            $cover_url = $this->get_doc_url( $cover_id );
+            $cover = ' style="background: url(' . $cover_url . 'download/);"';
+            $cover_class = ' cover';
+
+        }
+
+        $out = '<div class="file folder ' . $folder->post_status . $cover_class . '" id="folder-' . $folder->ID . '"' . $title . $cover . '>
         <a href="' . $this->get_folder_url( $folder->ID ) . '">
         <span class="logo"><i class="fa fa-folder-open-o fa-3x"></i></span>
         <span class="name">' . $folder->post_title . '</span>

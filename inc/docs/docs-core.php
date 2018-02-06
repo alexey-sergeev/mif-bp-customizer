@@ -578,6 +578,42 @@ abstract class mif_bpc_docs_core {
 
     
     // 
+    // Получить обложку папки
+    // 
+
+    function get_folder_cover( $folder_id )
+    {
+        $args = array(
+            'posts_per_page' => -1,
+            'orderby' => 'menu_order',
+            'order' => 'DESC',
+            'post_type' => 'mif-bpc-doc',
+            'post_parent' => $folder_id,
+            'post_status' => 'publish, private',
+            's' => 'cover',
+            // 'exact' => true,
+        );
+
+        $docs = get_posts( $args );
+
+        $arr = array();
+
+        foreach ( (array) $docs as $doc ) $arr[$doc->ID] = $doc->post_title;
+
+        $pattern = '/cover[\d]*\.(png|jpg|gif)/';
+
+        foreach ( $arr as $key => $item ) {
+
+            if ( preg_match( $pattern, $item ) ) return $key;
+
+        }
+
+       
+        return false;
+    }
+
+    
+    // 
     // Получить данные коллекции документов
     // 
 
