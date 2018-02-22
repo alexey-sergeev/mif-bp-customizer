@@ -172,7 +172,7 @@ class mif_bpc_activity_stream {
         $current_user_id = bp_displayed_user_id();
         $filter_sql = '';
 
-        if ( bp_is_my_profile() ) {
+        if ( bp_is_my_profile() || ( isset( $r['my_profile'] ) && $r['my_profile'] == true ) ) {
 
             // Whole feed (моя страница)
             
@@ -245,6 +245,7 @@ class mif_bpc_activity_stream {
                     $courses = lms_get_mycourses( $current_user_id );
                     if ( $courses ) $filter_sql = '(a.component=\'course\') AND (a.item_id IN (' . $courses . '))';
                     $where['filter_sql'] = $filter_sql;
+
                     unset( $where['hidden_sql'] );
 
                 } 
@@ -332,24 +333,25 @@ class mif_bpc_activity_stream {
             }
 
             // Courses (чужая страница)
-
+            
             if ( $r['scope'] == 'courses' ) {
-
+                
                 if ( function_exists( 'lms_get_mycourses' ) ) {
 
-                    $courses = lms_get_mycourses( bp_loggedin_user_id() );
-                    if ( bp_loggedin_user_id() && $courses ) {
-                        $filter_sql = '(a.component=\'course\') AND (a.user_id=\'' . $current_user_id . '\') AND ((a.hide_sitewide = 0) OR (a.item_id IN (' . $courses . ')))';
-                    } else {
-                        $filter_sql = '(a.component=\'course\') AND (a.user_id=\'' . $current_user_id . '\') AND (a.hide_sitewide = 0)';
-                    }
+                    $courses = lms_get_mycourses( $current_user_id );
 
-                    $where['filter_sql'] = $filter_sql;
-                    unset( $where['hidden_sql'] );
+                }
 
-                } 
+                if ( bp_loggedin_user_id() && $courses ) {
+                    $filter_sql = '(a.component=\'course\') AND (a.user_id=\'' . $current_user_id . '\') AND ((a.hide_sitewide = 0) OR (a.item_id IN (' . $courses . ')))';
+                } else {
+                    $filter_sql = '(a.component=\'course\') AND (a.user_id=\'' . $current_user_id . '\') AND (a.hide_sitewide = 0)';
+                }
 
-            }
+                $where['filter_sql'] = $filter_sql;
+                unset( $where['hidden_sql'] );
+
+            } 
 
         }
 

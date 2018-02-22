@@ -602,13 +602,19 @@ abstract class mif_bpc_docs_core {
 
         $pattern = '/cover[\d]*\.(png|jpg|gif)/';
 
-        foreach ( $arr as $key => $item ) {
+        foreach ( $arr as $key => $item ) if ( preg_match( $pattern, $item ) ) return $key;
 
-            if ( preg_match( $pattern, $item ) ) return $key;
+        // $arr = array( 'cover.png', 'cover.jpg', 'cover.gif' );
+        
+        // foreach ( $arr as $item ) {
+            
+        //     $args['s'] = $item;
+        //     $docs = get_posts( $args );
 
-        }
+        //     if ( $docs ) return $docs[0]->ID;
 
-       
+        // }
+        
         return false;
     }
 

@@ -15,85 +15,45 @@ It is oriented on work with social networking plugin BuddyPress.
 
 Adds features:
 
-1. Activity feed
+Activity feed
 
-Special activity feed
+Special activity feed. Changes the appearance and behavior of the activity feed on users’ pages (on personal page - “Whole feed”, on other users’ pages – only their activity). Allows to use content blocking tools. 
 
-	Changes the appearance and behavior of the activity feed on users’ pages 
-	(on personal page - “Whole feed”, on other users’ pages – only their activity). 
-	Allows to use content blocking tools. 
+Post types of activity feed. Allows to specify activity types, which should be displayed in user’s feed ("Special activity feed" option is required). 
 
-Post types of activity feed
+User blocking. Allows to maintain a list of users, whose information is blocked in your activity feed ("Special activity feed" option is required).
 
-	Allows to specify activity types, which should be displayed in user’s feed 
-	("Special activity feed" option is required).
+Site behavior
 
-User blocking
+Profile as a homepage. Set user profile as his home page.
 
-	Allows to maintain a list of users, whose information is blocked in your 
-	activity feed ("Special activity feed" option is required).
+Profile privacy. Allow users to limit access to their profiles.
 
-2. Site behavior
+Subscribers. Enable subscription option for user updates (subscription = one-way friendship).
 
-Profile as a homepage
+Notifications. Advanced notification mode.
 
-	Set user profile as his home page.
+Pop-up messages. Mechanism of pop-up messages (echo-server configuration is required).
 
-Profile privacy
+Documents. Creation of files and documents collections on users' and groups' pages. Files and documents publication in the activity feed.
 
-	Allow users to limit access to their profiles.
+Dialogues (experimentally/is in a test mode). Simple and convenient dialogues instead of the standard system of private messages (experimentally/is in a test mode; echo-server configuration is required).
 
-Subscribers
+Background image. Allow to use custom image as a background for user profile or group.
 
-	Enable subscription option for user updates (subscription = one-way friendship).
+Group address. Allow to change the group address in its settings and at creation.
 
-Notifications
+«Like» button. «Like» button for posts in the activity feed.
 
-	Advanced notification mode.
+«Repost» button. Second publication (repost) of posts in the activity feed.
 
-Pop-up messages
+«Favorite», «Delete» buttons. Special «Favorite», «Delete» buttons (as «Like» and «Repost» button)
 
-	Mechanism of pop-up messages (echo-server configuration is required).
+Visual elements
 
-Documents
+Site member widget. Fast and simple widget of site members avatars.
 
-	Creation of files and documents collections on users' and groups' pages.
-	Files and documents publication in the activity feed.
-
-Dialogues (experimentally/is in a test mode)
-
-	Simple and convenient dialogues instead of the standard system of private messages
-	(experimentally/is in a test mode; echo-server configuration is required).
-
-Background image
-
-	Allow to use custom image as a background for user profile or group.
-
-Group address
-
-	Allow to change the group address in its settings and at creation.
-
-«Like» button
-
-	«Like» button for posts in the activity feed.
-
-«Repost» button
-
-	Second publication (repost) of posts in the activity feed.
-
-«Favorite», «Delete» buttons
-
-	Special «Favorite», «Delete» buttons (as «Like» and «Repost» button)
-
-3. Visual elements
-
-Site member widget
-
-	Fast and simple widget of site members avatars.
-
-Group widget
-
-	Fast and simple widget of group avatars.
+Group widget. Fast and simple widget of group avatars.
 
 
 == Installation ==
