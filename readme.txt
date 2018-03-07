@@ -79,3 +79,7 @@ Group widget. Fast and simple widget of group avatars.
 = 1.0.0 =
 
 * first public plugin version
+
+= 1.0.1 =
+
+* cover access fix

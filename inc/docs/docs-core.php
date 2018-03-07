@@ -83,7 +83,12 @@ abstract class mif_bpc_docs_core {
     //
 
     public $dialogues_folder_meta_key = 'mif-bpc-dialogues-folder';
+    
+    //
+    // Шаблон для определения файла-обложки
+    //
 
+    private $cover_pattern = '/cover[\d]*\.(png|jpg|gif)/';
 
 
 
@@ -600,23 +605,13 @@ abstract class mif_bpc_docs_core {
 
         foreach ( (array) $docs as $doc ) $arr[$doc->ID] = $doc->post_title;
 
-        $pattern = '/cover[\d]*\.(png|jpg|gif)/';
+        // $pattern = '/cover[\d]*\.(png|jpg|gif)/';
 
-        foreach ( $arr as $key => $item ) if ( preg_match( $pattern, $item ) ) return $key;
-
-        // $arr = array( 'cover.png', 'cover.jpg', 'cover.gif' );
-        
-        // foreach ( $arr as $item ) {
-            
-        //     $args['s'] = $item;
-        //     $docs = get_posts( $args );
-
-        //     if ( $docs ) return $docs[0]->ID;
-
-        // }
-        
+        foreach ( $arr as $key => $item ) if ( preg_match( $this->cover_pattern, $item ) ) return $key;
+       
         return false;
     }
+
 
     
     // 
@@ -1253,7 +1248,7 @@ abstract class mif_bpc_docs_core {
     {
         $arr = explode( ".", $name );
         $ext = ( count( $arr ) > 1 ) ? end( $arr ) : '';
-        return apply_filters( 'mif_bpc_docs_get_doc_ext', $ext, $doc );
+        return apply_filters( 'mif_bpc_docs_get_doc_ext', $ext, $name );
     }
 
 
@@ -1589,6 +1584,11 @@ abstract class mif_bpc_docs_core {
                     if ( $place_mode == 'user' ) $ret = ( ( $item->post_status == 'publish' && $folder->post_status == 'publish' ) || 
                                                                 $item->post_author == bp_loggedin_user_id() ) ? true : false;
                     if ( $place_mode == 'group' ) $ret = $this->is_access_to_group( 'read', $place_id );
+
+                    // Сделать исключение для обложки папки
+
+                    if ( isset( $_REQUEST['cover'] ) && $_REQUEST['cover'] == 'show' && preg_match( $this->cover_pattern, $item->post_title ) ) $ret = true;
+
                     $ret = apply_filters( 'mif_bpc_docs_is_access_doc_read', $ret, $item, $level );
                     break;
 

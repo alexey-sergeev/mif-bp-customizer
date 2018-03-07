@@ -23,22 +23,41 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     // Description уровней доступа к папке
     //
 
-    public $access_mode_descr = array();
+    // public $access_mode_descr = array();
 
 
 
     function __construct()
     {
         
-        $this->access_mode_descr = apply_filters( 'mif_bpc_docs_access_mode_descr', array(
+        // $this->access_mode_descr = apply_filters( 'mif_bpc_docs_access_mode_descr', array(
+        //     'default' => __( 'As in group settings', 'mif-bpc' ),
+        //     'only_admin' => __( 'Only the folder owner and administrator can publish and delete documents', 'mif-bpc' ),
+        //     'everyone_create' => __( 'Everyone can upload documents, but delete only their own', 'mif-bpc' ),
+        //     'everyone_delete' => __( 'Everyone can upload and delete any documents', 'mif-bpc' ),
+        // ) );
+        
+        parent::__construct();
+    }
+
+
+
+    // 
+    // Описание уровней доступа
+    // 
+
+    function get_access_mode_descr()
+    {
+        $access_mode_descr = array(
             'default' => __( 'As in group settings', 'mif-bpc' ),
             'only_admin' => __( 'Only the folder owner and administrator can publish and delete documents', 'mif-bpc' ),
             'everyone_create' => __( 'Everyone can upload documents, but delete only their own', 'mif-bpc' ),
             'everyone_delete' => __( 'Everyone can upload and delete any documents', 'mif-bpc' ),
-        ) );
-        
-        parent::__construct();
+        );
+
+        return apply_filters( 'mif_bpc_docs_access_mode_descr', $access_mode_descr );
     }
+
 
 
     // 
@@ -130,7 +149,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         if ( $page === 1 ) $out .= '</div>';
 
-        return apply_filters( 'mif_bpc_docs_get_folders', $out, $page, $item_id, $mode, $arr );
+        return apply_filters( 'mif_bpc_docs_get_folders', $out, $page, $item_id, $mode );
     }
 
 
@@ -219,11 +238,13 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             $access_mode = $this->get_access_mode_to_folder( $folder_id, false );
             $arr[$access_mode] = ' checked';
 
+            $access_mode_descr = $this->get_access_mode_descr();
+
             $out .= '<p>' . __( 'Possibilities to upload and delete documents', 'mif-bpc' ) . ':</p>';
-            $out .= '<p><label><input type="radio" name="access_mode" value="default"' . $arr['default']  . $disabled . '> ' . $this->access_mode_descr['default'] . '</label><br />';
-            $out .= '<label><input type="radio" name="access_mode" value="only_admin"' . $arr['only_admin']  . $disabled . '> ' . $this->access_mode_descr['only_admin'] . '</label><br />';
-            $out .= '<label><input type="radio" name="access_mode" value="everyone_create"' . $arr['everyone_create']  . $disabled . '> ' . $this->access_mode_descr['everyone_create'] . '</label><br />';
-            $out .= '<label><input type="radio" name="access_mode" value="everyone_delete"' . $arr['everyone_delete']  . $disabled . '> ' . $this->access_mode_descr['everyone_delete'] . '</label><p>';
+            $out .= '<p><label><input type="radio" name="access_mode" value="default"' . $arr['default']  . $disabled . '> ' . $access_mode_descr['default'] . '</label><br />';
+            $out .= '<label><input type="radio" name="access_mode" value="only_admin"' . $arr['only_admin']  . $disabled . '> ' . $access_mode_descr['only_admin'] . '</label><br />';
+            $out .= '<label><input type="radio" name="access_mode" value="everyone_create"' . $arr['everyone_create']  . $disabled . '> ' . $access_mode_descr['everyone_create'] . '</label><br />';
+            $out .= '<label><input type="radio" name="access_mode" value="everyone_delete"' . $arr['everyone_delete']  . $disabled . '> ' . $access_mode_descr['everyone_delete'] . '</label><p>';
         }
 
         if ( ! $disabled ) $out .= '<input type="submit" value="' . __( 'Save', 'mif-bpc' ) . '"> ';
@@ -514,6 +535,9 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
     function get_doc_item( $doc = NULL )
     {
+        $left = '';
+        $right = '';
+     
         if ( $doc == NULL ) {
 
             $logo = '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>';
@@ -577,7 +601,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
             // }
 
             $title = '';
-
+            
             if ( $doc->post_status == 'trash' ) {
 
                 if ( $this->is_access( $doc, 'delete' ) ) $left = '<a href="' . $url . 'restore/" data-item-id="' . $doc->ID . '" class="button item-remove restore left" title="' . __( 'Restore', 'mif-bpc' ) . '"><i class="fa fa-undo"></i></a>';
@@ -653,7 +677,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
         if ( $cover_id ) {
 
             $cover_url = $this->get_doc_url( $cover_id );
-            $cover = ' style="background: url(' . $cover_url . 'download/);"';
+            $cover = ' style="background: url(' . $cover_url . 'download/?cover=show);"';
             $cover_class = ' cover';
 
         }
@@ -759,11 +783,12 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
     function get_folder_access_mode( $folder_id = NULL )
     {
         $out = '';
+        $access_mode_descr = $this->get_access_mode_descr();
 
         if ( $this->place( $folder_id ) == 'group' ) {
 
             $access_mode = $this->get_access_mode_to_folder( $folder_id, true );
-            if ( isset( $this->access_mode_descr[$access_mode] ) ) $out .= '<div class="access_mode"><span class="one">' . __( 'Access level', 'mif-bpc' ) . ':</span> <span class="two">' . $this->access_mode_descr[$access_mode] . '</span></div>';
+            if ( isset( $access_mode_descr[$access_mode] ) ) $out .= '<div class="access_mode"><span class="one">' . __( 'Access level', 'mif-bpc' ) . ':</span> <span class="two">' . $access_mode_descr[$access_mode] . '</span></div>';
 
             $folder = get_post( $folder_id );
             
@@ -1047,7 +1072,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         $out .= '</span></div>';
 
-        return apply_filters( 'mif_bpc_docs_get_doc_statusbar', $out, $doc_id );
+        return apply_filters( 'mif_bpc_docs_get_doc_statusbar', $out, $doc );
     }
 
 
@@ -1305,7 +1330,7 @@ class mif_bpc_docs_screen extends mif_bpc_docs_core {
 
         }
 
-        return apply_filters( 'mif_bpc_docs_get_group', $out, $doc, $mode, $item_id );
+        return apply_filters( 'mif_bpc_docs_get_group', $out, $doc );
     }
 
 
