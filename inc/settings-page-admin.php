@@ -189,7 +189,7 @@ class mif_bpc_console_settings_page {
 
     function update_mif_bpc_options()
     {
-        if ( ! $_POST['update-mif-bpc-settings'] ) return;
+        if ( empty( $_POST['update-mif-bpc-settings'] ) ) return;
         if ( ! wp_verify_nonce( $_POST['_wpnonce'], "mif-bpc-admin-settings-page-nonce" ) ) return '<div class="err">' . __( 'Authorization error', 'mif-bpc' ) . '</div>';
 
         $args = get_mif_bpc_options();

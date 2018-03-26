@@ -1,8 +1,8 @@
 === MIF BP Customizer ===
 Tags: social network, buddypress, repost, like, private profile, documents, dialogues, followers
 Requires at least: 4.8
-Tested up to: 4.9.1
-Stable tag: 1.0.0
+Tested up to: 4.9.4
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,10 +76,12 @@ Group widget. Fast and simple widget of group avatars.
 
 == Changelog ==
 
+= 1.0.1 =
+
+* cover access fix
+* settings page fix
+
 = 1.0.0 =
 
 * first public plugin version
 
-= 1.0.1 =
-
-* cover access fix

@@ -1,8 +1,8 @@
 === MIF BP Customizer ===
 Tags: social network, buddypress, repost, like, private profile, documents, dialogues, followers
 Requires at least: 4.8
-Tested up to: 4.9.1
-Stable tag: 1.0.0
+Tested up to: 4.9.4
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,3 +125,4 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 = 1.0.1 =
 
 * исправлена ошибка доступа к скрытым обложкам папок
+* исправлена ошибка на странице настройки плагина
