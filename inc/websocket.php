@@ -89,6 +89,7 @@ class mif_bpc_websocket {
 
     function notification_before_update( $data1, $data2 )
     {
+        if ( empty( $data2['id'] ) ) return;
         $notification = bp_notifications_get_notification( $data2['id'] );
         $this->send_notification( $notification->user_id );
     }

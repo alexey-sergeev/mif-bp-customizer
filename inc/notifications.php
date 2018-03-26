@@ -595,6 +595,7 @@ function mif_bpc_get_notifications_per_page()
 
 function mif_bpc_the_notification_bulk_url( $mode = 'delete' )
 {
+    global $bp;
     echo wp_nonce_url( $bp->displayed_user->domain . $bp->messages->slug . '/notifications/' . $mode, 'mif_bpc_notifications_bulk_' . $mode );
 }
 
