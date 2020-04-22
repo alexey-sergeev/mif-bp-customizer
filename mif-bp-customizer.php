@@ -5,7 +5,7 @@
  * Plugin URI:  https://github.com/alexey-sergeev/mif-bp-customizer
  * Author:      Alexey Sergeev
  * Author URI:  https://github.com/alexey-sergeev
- * Version:     1.0.0
+ * Version:     1.0.2
  * Text Domain: mif-bpc
  * Domain Path: /lang/
  * License:     GPLv2 or later
