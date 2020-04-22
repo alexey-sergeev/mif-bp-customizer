@@ -38,10 +38,10 @@ class mif_bpc_docs_activity extends mif_bpc_docs_screen {
         
         $out = '';
         
-        $out .= '<span class="hidden">';
+        $out .= '<span class="hdn">';
 
         $out .= '<div id="docs-form" class="docs-form">
-        <div class="response-box attach clearfix hidden"></div>
+        <div class="response-box attach clearfix hdn"></div>
         <div class="template">' . $this->get_item_inline() . '</div>
         <div class="drop-box"><p>' . __( 'Drag photos and files here', 'mif-bpc' ) . '</p>
         <input type="file" name="files[]" multiple="multiple" class="docs-upload-form"></div>

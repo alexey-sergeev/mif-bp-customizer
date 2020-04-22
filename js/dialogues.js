@@ -428,7 +428,7 @@ jQuery( document ).ready( function( jq ) {
 
         // message_items_height_correct();
         jq( '.response-box .docs-item' ).remove();
-        jq( '.response-box' ).addClass( 'hidden' );
+        jq( '.response-box' ).addClass( 'hdn' );
 
         
         if ( jq( '#attachment-form' ).is( ':visible' ) ) {
