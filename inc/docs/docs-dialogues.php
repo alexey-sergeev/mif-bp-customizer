@@ -53,7 +53,7 @@ class mif_bpc_docs_dialogues extends mif_bpc_docs_screen {
         
         $out .= '<tr id="attachment-form"><td colspan="3">';
 
-        $out .= '<div class="response-box attach clearfix hdn"></div>
+        $out .= '<div class="response-box attach clearfix hidn"></div>
         <div class="template">' . $this->get_item_inline() . '</div>
         <div class="drop-box"><p>' . __( 'Drag files here', 'mif-bpc' ) . '</p>
         <input type="file" name="files[]" multiple="multiple" class="docs-upload-form"></div>

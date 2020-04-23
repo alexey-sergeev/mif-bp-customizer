@@ -85,7 +85,7 @@ jQuery( document ).ready( function( jq ) {
             item.attr( 'data-order', order );
 
             // Показать блок
-            jq( '.response-box' ).removeClass( 'hdn' );
+            jq( '.response-box' ).removeClass( 'hidn' );
             item.prependTo( '.response-box' ).hide().fadeIn();
             jq( '.folder-is-empty-msg' ).remove();
 
